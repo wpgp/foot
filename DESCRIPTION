@@ -1,0 +1,11 @@
+Package: foot
+Title: foot
+Version: 0.1.0
+Date: 2020-03-27
+Author: WorldPop Research Group, University of Southampton
+Maintainer: Doug Leasure <D.R.Leasure@soton.ac.uk>
+License: None
+Imports: 
+Suggest: 
+Description: An R package for processing building footprints
+RoxygenNote: 7.1.0
