@@ -1,4 +1,4 @@
-wd/in/*
-wd/out/*
+wd/in
+wd/out
 .Rhistory
 wd/.Rhistory
