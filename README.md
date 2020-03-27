@@ -1,12 +1,12 @@
 # foot: An R package for processing building footprints
 WorldPop Research Group, University of Southampton
 
-#### Inputs
+### Inputs
 Building footprints:  
 
 //worldpop.files.soton.ac.uk/worldpop/Projects/WP517763_GRID3/DataIn/raw/DigitizeAfrica_building_footprints/
 
-#### Outputs
+### Outputs
 Rasters:  
 
 1. Settlement (binary)
@@ -20,7 +20,7 @@ Rasters:
 8. Standard deviation of building perimeter length
 9. Coefficient of variation of building perimeter length
 
-#### Repository Structure
+### Repository Structure
 The repository is structured as an R package with an additional folder "wd" that is a working directory for storing scripts, input data, and output data.
 
 **./pkg_build.R**  
