@@ -15,3 +15,6 @@ Prints a message to the R console.
 \description{
 This is an example function that prints a message.
 }
+\author{
+Harry Foot
+}
