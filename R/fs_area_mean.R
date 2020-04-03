@@ -5,6 +5,8 @@
 #' @return TBD.
 #' @author Chris Jochem
 #' 
+#' @import data.table
+#' 
 #' @aliases fs_area_mean
 #' @rdname fs_area_mean
 #' 
@@ -48,11 +50,11 @@ fs_area_mean_calc <- function(X, index, unit='ha'){
     X[["fs_area"]] <- fs_area(X, unit)
   }
   
-  colNam = paste0("fs_", unit, "_mean")
+  colNam <- paste0("fs_area_", unit, "_mean")
   DT <- data.table::data.table(index=index, 
                                area_calc=X[["fs_area"]])
-  setkey(DT, index)
-  DT[, .(colNam=mean(fs_area)), by=index]
+  data.table::setkey(DT, index)
+  result <- DT[, setNames(.(mean(area_calc)), colNam), by=index]
   
-  return(DT)
+  return(result)
 }

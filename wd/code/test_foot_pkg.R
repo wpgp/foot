@@ -41,8 +41,8 @@ mgrid <- raster(wpgpGetCountryDataset(ISO3="SSD", covariate="level0_100m_2000_20
 
 centroids <- st_centroid(buildings)
 centroids <- st_transform(centroids, crs=st_crs(mgrid)$epsg)
-cID <- cellFromXY(mgrid, st_coordinates(centroids)[,1:2])
+cID <- cellFromXY(mgrid, st_coordinates(centroids))
 
-calculate_footstats(buildings, index=cID, gridded=F)
+calculate_footstats(buildings, index=cID, gridded=F)  # note: need to unlist in calculate_footsts::: _internal
 
 fs_area_mean_calc(buildings, cID, "ha")

@@ -66,6 +66,10 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, file){
     metrics <- list_fs()
   }
   
+  if(grepl("area", metrics, fixed=T)){
+    unit <- "ha"
+  }
+  
   # creating the names of the functions to call
   metrics_calc <- paste0(metrics, "_calc")
   
