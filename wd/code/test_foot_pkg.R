@@ -39,6 +39,16 @@ head(buildings)
 # get cell ID
 mgrid <- raster(wpgpGetCountryDataset(ISO3="SSD", covariate="level0_100m_2000_2020"))
 
+# local files for testing
+#st_write(buildings, "C:/Users/Admin/Documents/GitHub/foot/wd/in/ssd_sample_buildings.shp")
+#writeRaster(mgrid, "C:/Users/Admin/Documents/GitHub/foot/wd/in/ssd_mgrid.tif")
+
+#######
+
+# load local files for testing
+buildings <- st_read("C:/Users/Admin/Documents/GitHub/foot/wd/in/ssd_sample_buildings.shp")
+mgrid <- raster("C:/Users/Admin/Documents/GitHub/foot/wd/in/ssd_mgrid.tif")
+
 centroids <- st_centroid(buildings)
 centroids <- st_transform(centroids, crs=st_crs(mgrid)$epsg)
 cID <- cellFromXY(mgrid, st_coordinates(centroids))
@@ -46,6 +56,6 @@ cID <- cellFromXY(mgrid, st_coordinates(centroids))
 res <- calculate_footstats(buildings, index=cID, gridded=F)  
 res
 
-fs_area_mean(buildings)
+fs_area_mean(buildings)  # no index, so group into 1
 fs_area_mean_calc(buildings, cID, "ha")
 fs_area_total(buildings)
