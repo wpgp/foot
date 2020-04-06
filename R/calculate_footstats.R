@@ -63,7 +63,7 @@ calculate_footstats.list <- function(X, index=NULL, metrics='all', gridded=TRUE,
 calc_fs_internal <- function(X, index, metrics, gridded, template, file){
   
   if(metrics=='all'){
-    metrics <- list_fs()
+    metrics <- foot::fs_footprint_metrics$name
   }
   
   if(any(grepl("area", metrics, fixed=T))){
