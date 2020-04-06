@@ -7,5 +7,6 @@ Maintainer: Doug Leasure <D.R.Leasure@soton.ac.uk>
 License: None
 Imports: data.table
 Suggest: 
+LazyData: true
 Description: An R package for processing building footprints
 RoxygenNote: 7.1.0

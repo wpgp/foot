@@ -53,6 +53,8 @@ centroids <- st_centroid(buildings)
 centroids <- st_transform(centroids, crs=st_crs(mgrid)$epsg)
 cID <- cellFromXY(mgrid, st_coordinates(centroids))
 
+fs:::fs_metr
+
 res <- calculate_footstats(buildings, index=cID, gridded=F)  
 res
 
