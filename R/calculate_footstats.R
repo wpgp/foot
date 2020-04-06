@@ -87,6 +87,9 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, file){
              )  
     })
   
-  return(result)
+  # merge all
+  merged_result <- Reduce(function(...) merge(...), result)
+  
+  return(merged_result)
 }
 
