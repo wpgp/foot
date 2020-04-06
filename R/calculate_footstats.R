@@ -66,7 +66,7 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, file){
     metrics <- list_fs()
   }
   
-  if(grepl("area", metrics, fixed=T)){
+  if(any(grepl("area", metrics, fixed=T))){
     unit <- "ha"
   }
   

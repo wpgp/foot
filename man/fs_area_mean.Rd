@@ -2,10 +2,13 @@
 % Please edit documentation in R/fs_area_mean.R
 \name{fs_area_mean}
 \alias{fs_area_mean}
+\alias{fs_area_mean.sp}
 \alias{fs_area_mean.sf}
 \title{Building area calculation}
 \usage{
 fs_area_mean(X, index = NULL, unit = "ha", col = NULL)
+
+\method{fs_area_mean}{sp}(X, index = NULL, unit = "ha", col = NULL)
 
 \method{fs_area_mean}{sf}(X, index = NULL, unit = "ha", col = NULL)
 }
