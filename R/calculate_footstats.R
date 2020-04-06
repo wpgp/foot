@@ -33,7 +33,7 @@ calculate_footstats.sp <- function(X, index=NULL, metrics='all', gridded=TRUE, t
   # attempt to read in file
   X <- sf::st_read(X)
   # convert to sf
-  X <- sf::as(X, 'sf')
+  X <- sf::st_as_sf(X)
   
   result <- calculate_footstats(X, index=index, metrics=metrics)
   return(result)

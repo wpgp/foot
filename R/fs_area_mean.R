@@ -13,6 +13,17 @@
 #' @export 
 fs_area_mean <- function(X, index=NULL, unit="ha", col=NULL) UseMethod("fs_area_mn")
 
+
+#' @name fs_area_mean
+#' @export
+fs_area_mean.sp <- function(X, index=NULL, unit="ha", col=NULL){
+  X <- sf::st_as_sf(X)
+  
+  result <- fs_area_mean(X, index, unit, col)
+  return(result)
+}
+
+
 #' @name fs_area_mean
 #' @export
 fs_area_mean.sf <- function(X, index=NULL, unit="ha", col=NULL){
