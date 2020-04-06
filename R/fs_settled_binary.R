@@ -72,7 +72,7 @@ fs_settled_calc <- function(X, index, unit="binary"){
   DT <- data.table::data.table(index=index, 
                                area_calc=X[["fs_settled"]])
   data.table::setkey(DT, index)
-  result <- DT[, setNames(.(sum(area_calc)), colNam), by=index]
+  result <- DT[, setNames(.(1), colNam), by=index]
   
   return(result)
 }
