@@ -11,7 +11,7 @@
 #' @rdname fs_area_mean
 #' 
 #' @export 
-fs_area_mean <- function(X, index=NULL, unit="ha", col=NULL) UseMethod("fs_area_mn")
+fs_area_mean <- function(X, index=NULL, unit="ha", col=NULL) UseMethod("fs_area_mean")
 
 
 #' @name fs_area_mean
