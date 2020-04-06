@@ -52,11 +52,11 @@ fs_area_mean.sf <- function(X, index=NULL, unit="ha", col=NULL){
       stop()
     } else{
         names(X)[which(names(X)==col)] <- "fs_area"
-        fs_area_mean_calc(X, index, unit)
+        result <- fs_area_mean_calc(X, index, unit)
     }
   } else{
       X[["fs_area"]] <- fs_area(X, unit)
-      fs_area_mean_calc(X, index, unit)
+      result <- fs_area_mean_calc(X, index, unit)
   }
 }
 
