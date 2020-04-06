@@ -63,16 +63,16 @@ fs_settled.sf <- function(X, index=NULL, col=NULL){
 }
 
 
-fs_settled_calc <- function(X, index, unit="binary"){
+fs_settled_calc <- function(X, index){
   if(!"fs_settled" %in% names(X)){
     X[["fs_settled"]] <- 1
   }
   
-  colNam <- paste0("fs_settled_", unit)
+  colNam <- "fs_settled_binary"
   DT <- data.table::data.table(index=index, 
-                               area_calc=X[["fs_settled"]])
+                               settled=X[["fs_settled"]])
   data.table::setkey(DT, index)
-  result <- DT[, setNames(.(1), colNam), by=index]
-  
+  result <- DT[, setNames(.(max(settled)), colNam), by=index]
+
   return(result)
 }
