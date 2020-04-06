@@ -43,6 +43,9 @@ centroids <- st_centroid(buildings)
 centroids <- st_transform(centroids, crs=st_crs(mgrid)$epsg)
 cID <- cellFromXY(mgrid, st_coordinates(centroids))
 
-calculate_footstats(buildings, index=cID, gridded=F)  # note: need to unlist in calculate_footsts::: _internal
+res <- calculate_footstats(buildings, index=cID, gridded=F)  
+res
 
+fs_area_mean(buildings)
 fs_area_mean_calc(buildings, cID, "ha")
+fs_area_total(buildings)

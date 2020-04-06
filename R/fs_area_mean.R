@@ -58,6 +58,7 @@ fs_area_mean.sf <- function(X, index=NULL, unit="ha", col=NULL){
       X[["fs_area"]] <- fs_area(X, unit)
       result <- fs_area_mean_calc(X, index, unit)
   }
+  return(result)
 }
 
 
