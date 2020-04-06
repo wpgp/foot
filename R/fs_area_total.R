@@ -33,6 +33,7 @@ fs_area_total.sf <- function(X, index=NULL, unit="ha", col=NULL){
   }
   
   if(is.null(index)){
+    warning("No index found, treating as one group.")
     index <- rep(1, nrow(X))
   } else{
     if(length(index)==1){
