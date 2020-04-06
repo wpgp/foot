@@ -8,7 +8,7 @@
 
 #' @export
 list_fs <- function(){
-  metrics <- c("fs_area_mean", "fs_area_total")
+  metrics <- c("fs_settled","fs_area_mean", "fs_area_total")
   
   return(metrics)
 }
