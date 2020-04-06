@@ -16,6 +16,11 @@ fs_area_mean <- function(X, index=NULL, unit="ha", col=NULL) UseMethod("fs_area_
 #' @name fs_area_mean
 #' @export
 fs_area_mean.sf <- function(X, index=NULL, unit="ha", col=NULL){
+  if(any(!st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON") )){
+    message("Area requires polygon shapes.")
+    stop()
+  }
+  
   if(is.null(index)){
     index <- rep(1, nrow(X))
   } else{
