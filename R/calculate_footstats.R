@@ -20,6 +20,10 @@ calculate_footstats <- function(X,
 #' @name calculate_footstats
 #' @export
 calculate_footstats.sf <- function(X, index=NULL, metrics='all', gridded=TRUE, template=NULL, file=NULL){
+  if(any(!st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON") )){
+    message("Footprint statistics require polygon shapes.")
+    stop()
+  }
   
   result <- calc_fs_internal(X, index, metrics)
   
@@ -62,13 +66,17 @@ calculate_footstats.list <- function(X, index=NULL, metrics='all', gridded=TRUE,
 
 calc_fs_internal <- function(X, index, metrics, gridded, template, file){
   
+  if(is.na(st_crs(X))){
+    stop("Polygons must have a spatial reference.")
+  }
+  
   if(metrics=='all'){
     metrics <- foot::fs_footprint_metrics$name
   }
   
-  if(any(grepl("area", metrics, fixed=T))){
-    unit <- "ha"
-  }
+  # if(any(grepl("area", metrics, fixed=T))){
+  #   unit <- "ha"
+  # }
   
   # creating the names of the functions to call
   metrics_calc <- paste0(metrics, "_calc")
