@@ -76,6 +76,13 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, file){
   result <- lapply(seq_along(metrics_calc), function(current_metric){
     func <- get(metrics_calc[[current_metric]], mode="function")
     arguments <- names(formals(func))
+
+    if(grepl("area", current_metric)){  # set default unit values
+      unit <- "ha"
+    }
+    if(grepl("perim",current_metric)){
+      unit <- "m"
+    }
     
     tryCatch(do.call(what=func,
                      args=mget(arguments, envir=parent.env(environment()))
@@ -87,9 +94,28 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, file){
              )  
     })
   
+  # output
+  if(gridded==TRUE){
+    if(is.null(file)){
+      file <- tempdir()
+    }
+    
+    if(is.null(template)){
+      template <- starts::st_as_stars(sf::st_bbox(X), values=NA_real_)  # default resolution
+      
+    } else{
+      tempProj <- sf::st_crs(template)$epsg
+      xProj <- sf::st_crs(X)$epsg
+      
+    }
+    
+    for(r in result){
+      
+    }
+    
+  } 
   # merge all
   merged_result <- Reduce(function(...) merge(...), result)
-  
   return(merged_result)
 }
 

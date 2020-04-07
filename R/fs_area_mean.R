@@ -11,12 +11,12 @@
 #' @rdname fs_area_mean
 #' 
 #' @export 
-fs_area_mean <- function(X, index=NULL, unit="ha", col=NULL) UseMethod("fs_area_mean")
+fs_area_mean <- function(X, index=NULL, unit=NULL, col=NULL) UseMethod("fs_area_mean")
 
 
 #' @name fs_area_mean
 #' @export
-fs_area_mean.sp <- function(X, index=NULL, unit="ha", col=NULL){
+fs_area_mean.sp <- function(X, index=NULL, unit=NULL, col=NULL){
   X <- sf::st_as_sf(X)
   
   result <- fs_area_mean(X, index, unit, col)
@@ -26,7 +26,7 @@ fs_area_mean.sp <- function(X, index=NULL, unit="ha", col=NULL){
 
 #' @name fs_area_mean
 #' @export
-fs_area_mean.sf <- function(X, index=NULL, unit="ha", col=NULL){
+fs_area_mean.sf <- function(X, index=NULL, unit=NULL, col=NULL){
   if(any(!st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON") )){
     message("Area requires polygon shapes.")
     stop()
@@ -47,6 +47,16 @@ fs_area_mean.sf <- function(X, index=NULL, unit="ha", col=NULL){
     }
   } 
   
+  if(is.na(st_crs(X))){
+    warning("Polygons have no spatial projection. Units ignored.")
+    unit <- NULL
+    
+  } else{
+    if(is.null(unit)){
+      unit <- "ha"
+    }
+  }
+
   if(!is.null(col)){
     if(!col %in% names(X)){
       message("Error: column name not found.")
@@ -63,7 +73,7 @@ fs_area_mean.sf <- function(X, index=NULL, unit="ha", col=NULL){
 }
 
 
-fs_area_mean_calc <- function(X, index, unit='ha'){
+fs_area_mean_calc <- function(X, index, unit=NULL){
   if(!"fs_area" %in% names(X)){
     X[["fs_area"]] <- fs_area(X, unit)
   }
