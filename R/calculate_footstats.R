@@ -25,7 +25,7 @@ calculate_footstats.sf <- function(X, index=NULL, metrics='all', gridded=TRUE, t
     stop()
   }
   
-  result <- calc_fs_internal(X, index, metrics)
+  result <- calc_fs_internal(X, index, metrics, gridded, template, file)
   
   return(result)
 }
@@ -39,7 +39,7 @@ calculate_footstats.sp <- function(X, index=NULL, metrics='all', gridded=TRUE, t
   # convert to sf
   X <- sf::st_as_sf(X)
   
-  result <- calculate_footstats(X, index=index, metrics=metrics)
+  result <- calculate_footstats(X, index=index, metrics=metrics, gridded=gridded, template=template, file=file)
   return(result)
 }
 
@@ -50,7 +50,7 @@ calculate_footstats.character <- function(X, index=NULL, metrics='all', gridded=
   # attempt to read in file
   X <- sf::st_read(X)
   
-  result <- calculate_footstats(X, index=index, metrics=metrics)
+  result <- calculate_footstats(X, index=index, metrics=metrics, gridded=gridded, template=template, file=file)
   return(result)
 }
 
@@ -58,14 +58,13 @@ calculate_footstats.character <- function(X, index=NULL, metrics='all', gridded=
 #' @name calculate_footstats
 #' @export
 calculate_footstats.list <- function(X, index=NULL, metrics='all', gridded=TRUE, template=NULL, file=NULL){
-  result <- lapply(X, FUN=calculate_footstats(X, index=index, metrics=metrics))
+  result <- lapply(X, FUN=calculate_footstats(X, index=index, metrics=metrics, gridded=gridded, template=template, file=file))
   
   return(result)  # should the list be simplified?
 }
 
 
 calc_fs_internal <- function(X, index, metrics, gridded, template, file){
-  
   if(is.na(st_crs(X))){
     stop("Polygons must have a spatial reference.")
   }
@@ -94,12 +93,12 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, file){
     
     tryCatch(do.call(what=func,
                      args=mget(arguments, envir=parent.env(environment()))
-                     ),
+                    ),
              error = function(e){
                message("")
                stop(e)
-               }
-             )  
+             }
+            )  
     })
   
   # output
@@ -110,18 +109,17 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, file){
     
     if(is.null(template)){
       template <- starts::st_as_stars(sf::st_bbox(X), values=NA_real_)  # default resolution
-      
-    } else{
-      tempProj <- sf::st_crs(template)$epsg
-      xProj <- sf::st_crs(X)$epsg
-      
+    } 
+    
+    if(sf::st_crs(template) != sf::st_crs(X)){
+      stop("CRS for buildings and template raster not matching.")
     }
     
     for(r in result){
       
     }
-    
-  } 
+  }
+  
   # merge all
   merged_result <- Reduce(function(...) merge(...), result)
   return(merged_result)
