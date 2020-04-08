@@ -56,14 +56,21 @@ cID <- cellFromXY(mgrid, st_coordinates(centroids))
 
 res <- calculate_footstats(buildings, "all", index=cID, gridded=F)
 res
+
 res <- calculate_footstats(buildings, "fs_settled", index=cID, gridded=F)
+res
+
 res <- calculate_footstats(buildings, "fs_area_mean", index=cID, gridded=F)
+res
+
+res <- calculate_footstats(buildings, "fs_area_total", index=cID, gridded=F)
 res
 
 fs_settled(buildings, cID)
 fs_area_mean(buildings, cID)
 fs_area_total(buildings, cID)
 
-fs_area_mean(buildings)  # no index, so group into 1
+fs_area_mean(buildings, unit="m^2")  # no index, so group into 1
 foot:::fs_area_mean_calc(buildings, cID, "ha")
 fs_area_total(buildings)
+

@@ -73,24 +73,18 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, file){
     metrics <- foot::fs_footprint_metrics$name
   }
   
-  # if(any(grepl("area", metrics, fixed=T))){
-  #   unit <- "ha"
-  # }
+  if(any(grepl("area", metrics, fixed=T))){
+    unit <- "ha"
+  }
   
   # creating the names of the functions to call
   metrics_calc <- paste0(metrics, "_calc")
+  #units_calc <- foot::fs_footprint_metrics[foot::fs_footprint_metrics$name %in% metrics, "unit"]
   
   result <- lapply(seq_along(metrics_calc), function(current_metric){
     func <- get(metrics_calc[[current_metric]], mode="function")
     arguments <- names(formals(func))
 
-    if(grepl("area", current_metric)){  # set default unit values
-      unit <- "ha"
-    }
-    if(grepl("perim",current_metric)){
-      unit <- "m"
-    }
-    
     tryCatch(do.call(what=func,
                      args=mget(arguments, envir=parent.env(environment()))
                     ),

@@ -6,11 +6,11 @@
 \alias{fs_area_mean.sf}
 \title{Building area calculation}
 \usage{
-fs_area_mean(X, index = NULL, unit = "ha", col = NULL)
+fs_area_mean(X, index = NULL, unit = NULL, col = NULL)
 
-\method{fs_area_mean}{sp}(X, index = NULL, unit = "ha", col = NULL)
+\method{fs_area_mean}{sp}(X, index = NULL, unit = NULL, col = NULL)
 
-\method{fs_area_mean}{sf}(X, index = NULL, unit = "ha", col = NULL)
+\method{fs_area_mean}{sf}(X, index = NULL, unit = NULL, col = NULL)
 }
 \arguments{
 \item{txt}{Text to append to "foot"}

@@ -6,11 +6,11 @@
 \alias{fs_area_total.sf}
 \title{Building area total calculation}
 \usage{
-fs_area_total(X, index = NULL, unit = "ha", col = NULL)
+fs_area_total(X, index = NULL, unit = NULL, col = NULL)
 
-\method{fs_area_total}{sp}(X, index = NULL, unit = "ha", col = NULL)
+\method{fs_area_total}{sp}(X, index = NULL, unit = NULL, col = NULL)
 
-\method{fs_area_total}{sf}(X, index = NULL, unit = "ha", col = NULL)
+\method{fs_area_total}{sf}(X, index = NULL, unit = NULL, col = NULL)
 }
 \arguments{
 \item{txt}{Text to append to "foot"}
