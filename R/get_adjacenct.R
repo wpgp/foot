@@ -38,7 +38,7 @@ adjacentCells <- function(r, cells, directions=8, include=FALSE){
   rNgb <- rNgb * w
 
   # if no self-matching
-  if(!includ){
+  if(!include){
     cNgb[which(w != 1)] <- NA
     rNgb[which(w != 1)] <- NA
   }
