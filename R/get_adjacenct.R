@@ -5,7 +5,7 @@
 #' @return TBD.
 #' @author Chris Jochem
 #' 
-#' 
+#' @import data.table
 #' @aliases adjacentCells
 #' @rdname adjacentCells
 #' 
@@ -13,7 +13,7 @@
 
 #' @name adjacentCells
 #' @export
-adjacentCells <- function(r, cells, directions=8, include=FALSE){
+adjacentCells <- function(r, cells, directions=8, include=FALSE, dataTable=FALSE){
   if(directions==8 | directions=="queen"){
     w <- matrix(c(1,1,1, 1,0,1, 1,1,1),
                 nrow=3, ncol=3)
@@ -48,18 +48,53 @@ adjacentCells <- function(r, cells, directions=8, include=FALSE){
 
   # construct neighbouring cell indices
   numNgb <- length(cNgb)
-  fromCid <- rep(cells, each=numNgb)
-  fromR <- trunc((fromCid-1) / ncol(r)) + 1
-  fromC <- as.integer(fromCid - ((fromR-1) * ncol(r)))
   
-  toC <- fromC + cNgb
-  toR <- fromR + rNgb
-  
-  toCid <- toC + ((toR-1) * ncol(r))
-  toCid[(toC<1 | toC>ncol(r)) | (toR<1 | toR>nrow(r))] <- NA
-  
-  adj <- cbind(fromCid, toCid)
-  adj <- adj[!is.na(adj[,2]),]
+  if(numNgb*length(cells) > 1e7 | dataTable==TRUE){
+    adj <- data.table::data.table(fromCid=rep(cells, each=numNgb))
+    adj[, fromR:=trunc((fromCid-1) / ncol(r)) + 1]
+    adj[, fromC:=as.integer(fromCid - ((fromR-1) * ncol(r)))]
+    
+    adj[, toC:=fromC + cNgb]
+    adj[, toR:=fromR + rNgb]
+    adj[, toCid:=toC + ((toR-1) * ncol(r))]
+    adj[, toCid:=ifelse( (toC<1 | toC>ncol(r)) | (toR<1 | toR>nrow(r)), NA, toCid )]
+    
+    # # alternate for REALLY big lists of cells.
+    # adj <- data.table::data.table(fromCid=cells)
+    # adj[, fromR:=trunc((fromCid-1) / ncol(r)) + 1]
+    # adj[, fromC:=as.integer(fromCid - ((fromR-1) * ncol(r)))]
+    # 
+    # for(i in 1:numNgb){
+    #   cN <- cNgb[i]
+    #   rN <- rNgb[i]
+    #   
+    #   adj[, toC:=fromC + cN]
+    #   adj[, toR:=fromR + rN]
+    #   
+    #   adj[, toCid:=toC + ((toR-1) * ncol(r))]
+    #   
+    #   # set(adj, (toC<1 | toC>ncol(r)) | (toR<1 | toR>nrow(r)), toCid, NA)
+    #   adj[, toCid:=ifelse( (toC<1 | toC>ncol(r)) | (toR<1 | toR>nrow(r)), NA, toCid )]
+    #   adj[, toR:=ifelse( toR<1 | toR>nrow(r), NA, toR )]
+    #   
+    #   adj[, c("toC","toR","toCid"):=NULL]  # remove columns in place
+    #   gc()
+    # }
+    
+  } else{  # matrix
+    fromCid <- rep(cells, each=numNgb)
+    fromR <- trunc((fromCid-1) / ncol(r)) + 1
+    fromC <- as.integer(fromCid - ((fromR-1) * ncol(r)))
+    
+    toC <- fromC + cNgb
+    toR <- fromR + rNgb
+    
+    toCid <- toC + ((toR-1) * ncol(r))
+    toCid[(toC<1 | toC>ncol(r)) | (toR<1 | toR>nrow(r))] <- NA
+    
+    adj <- cbind(fromCid, toCid)
+    adj <- adj[!is.na(adj[,2]),]
+  }
 
   return(adj)  
 }
