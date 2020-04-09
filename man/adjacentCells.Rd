@@ -2,12 +2,9 @@
 % Please edit documentation in R/get_adjacenct.R
 \name{adjacentCells}
 \alias{adjacentCells}
-\alias{make_circular_filter}
 \title{Raster adjacencies}
 \usage{
-adjacentCells(r, cells, directions = 8, include = FALSE)
-
-make_circular_filter(size = 5)
+adjacentCells(r, cells, directions = 8, include = FALSE, dataTable = FALSE)
 }
 \arguments{
 \item{txt}{Text to append to "foot"}

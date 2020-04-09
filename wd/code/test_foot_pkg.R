@@ -74,3 +74,25 @@ fs_area_mean(buildings, unit="m^2")  # no index, so group into 1
 foot:::fs_area_mean_calc(buildings, cID, "ha")
 fs_area_total(buildings)
 
+# Adjacency
+cells <- sample(1:ncell(mgrid), 100, replace=F)
+
+adjM <- adjacentCells(mgrid, cells, directions=8) # matrix
+head(adjM)
+
+adjD <- adjacentCells(mgrid, cells, directions=8, dataTable=T) # DT
+print(adjD)
+
+adjR <- raster::adjacent(mgrid, cells, directions=8) # raster
+adjR
+
+cells <- sample(1:ncell(mgrid), 100000, replace=F)
+adj1 <- adjacentCells(mgrid, cells, directions=8, dataTable=T)
+
+adj2 <- adjacent(mgrid, cells, directions=8)
+
+
+w <- make_circular_filter(9)
+w
+adj1 <- adjacentCells(mgrid, cells, directions=w, dataTable=T)
+adj2 <- adjacent(mgrid, cells, directions=w)
