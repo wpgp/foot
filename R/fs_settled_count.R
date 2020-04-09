@@ -67,7 +67,7 @@ fs_count_calc <- function(X, index){
   DT <- data.table::data.table(index=index, 
                                settled=X[["fs_count"]])
   data.table::setkey(DT, index)
-  result <- DT[, setNames(.(sum(settled)), colNam), by=index]
+  result <- DT[, setNames(.(sum(settled)), colNam), by=index]  # can provide a weighted count if Col
 
   return(result)
 }

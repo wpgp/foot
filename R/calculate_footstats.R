@@ -69,7 +69,7 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, file){
     stop("Polygons must have a spatial reference.")
   }
   
-  if(metrics=='all'){
+  if(metrics[1]=='all'){
     metrics <- foot::fs_footprint_metrics$name
   }
   
@@ -124,11 +124,11 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, file){
   merged_result <- Reduce(function(...) merge(...), result)
   
   if(area_cv){
-    merged_result[, fs_area_cv:=fs_area_sd / fs_area_mean]
+    merged_result[, fs_area_cv:=fs_area_ha_sd / fs_area_ha_mean]
   }
   
   if(perim_cv){
-    merged_result[, fs_perim_cv:=fs_perim_sd / fs_perim_mean]
+    merged_result[, fs_perim_cv:=fs_perim_m_sd / fs_perim_m_mean]
   }
   
   # output

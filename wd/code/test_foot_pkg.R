@@ -44,7 +44,7 @@ mgrid <- raster(wpgpGetCountryDataset(ISO3="SSD", covariate="level0_100m_2000_20
 #writeRaster(mgrid, "C:/Users/Admin/Documents/GitHub/foot/wd/in/ssd_mgrid.tif")
 
 #######
-
+library(foot)
 # load local files for testing
 buildings <- st_read("C:/Users/Admin/Documents/GitHub/foot/wd/in/ssd_sample_buildings.shp")
 mgrid <- raster("C:/Users/Admin/Documents/GitHub/foot/wd/in/ssd_mgrid.tif")
@@ -55,7 +55,7 @@ cID <- cellFromXY(mgrid, st_coordinates(centroids))
 
 
 res <- calculate_footstats(buildings, "all", index=cID, gridded=F)
-res
+print(res)
 
 res <- calculate_footstats(buildings, "fs_settled", index=cID, gridded=F)
 res
@@ -65,6 +65,12 @@ res
 
 res <- calculate_footstats(buildings, "fs_area_total", index=cID, gridded=F)
 res
+
+res <- calculate_footstats(buildings, cID, metrics=c("fs_area_mean","fs_area_sd"))
+res
+
+print(calculate_footstats(buildings,index=cID, "fs_area_cv" ))
+calculate_footstats(buildings,index=cID, "fs_area_sd" )
 
 fs_settled(buildings, cID)
 fs_area_mean(buildings, cID)
@@ -91,8 +97,12 @@ adj1 <- adjacentCells(mgrid, cells, directions=8, dataTable=T)
 
 adj2 <- adjacent(mgrid, cells, directions=8)
 
+w <- make_circular_filter(25)
+w
 
+
+cells <- sample(1:ncell(mgrid), 1000000, replace=F)
 w <- make_circular_filter(9)
 w
 adj1 <- adjacentCells(mgrid, cells, directions=w, dataTable=T)
-adj2 <- adjacent(mgrid, cells, directions=w)
+adj2 <- raster::adjacent(mgrid, cells, directions=w)
