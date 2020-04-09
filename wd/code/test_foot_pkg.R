@@ -66,8 +66,10 @@ res
 res <- calculate_footstats(buildings, "fs_area_total", index=cID, gridded=F)
 res
 
-res <- calculate_footstats(buildings, cID, metrics=c("fs_area_mean","fs_area_sd"))
+res <- calculate_footstats(buildings, cID, metrics=c("fs_area_mean","fs_area_sd", "area_cv"))
 res
+
+res <- calculate_footstats(buildings, cID, metrics=c("fs_perim_total","fs_area_sd"))
 
 print(calculate_footstats(buildings,index=cID, "fs_area_cv" ))
 calculate_footstats(buildings,index=cID, "fs_area_sd" )

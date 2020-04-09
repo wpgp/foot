@@ -98,17 +98,20 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, file){
   }
   
   if(any(grepl("perim", metrics, fixed=T))){
-    unit <- "m"
-    X[["fs_perim"]] <- fs_area(X, unit)
+    
+    X[["fs_perim"]] <- fs_perimeter(X, unit="m")
   }
   
   # creating the names of the functions to call
   metrics_calc <- paste0(unique(metrics), "_calc")
+  # print(metrics_calc)
   #units_calc <- foot::fs_footprint_metrics[foot::fs_footprint_metrics$name %in% metrics, "unit"]
   
   result <- lapply(seq_along(metrics_calc), function(current_metric){
     func <- get(metrics_calc[[current_metric]], mode="function")
+    # print(metrics_calc[[current_metric]])
     arguments <- names(formals(func))
+    # print(mget(arguments, envir=parent.env(environment())))
 
     tryCatch(do.call(what=func,
                      args=mget(arguments, envir=parent.env(environment()))
