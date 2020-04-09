@@ -27,11 +27,6 @@ fs_settled.sp <- function(X, index=NULL, col=NULL){
 #' @name fs_settled
 #' @export
 fs_settled.sf <- function(X, index=NULL, col=NULL){
-  if(any(!st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON") )){
-    message("Area requires polygon shapes.")
-    stop()
-  }
-  
   if(is.null(index)){
     warning("No index found, treating as one group.")
     index <- rep(1, nrow(X))
