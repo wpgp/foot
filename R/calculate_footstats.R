@@ -73,12 +73,37 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, file){
     metrics <- foot::fs_footprint_metrics$name
   }
   
+  if(any(grepl("area_cv", metrics, fixed=T))){
+    metrics <- c(metrics, "fs_area_mean", "fs_area_sd")
+    metrics <- metrics[!grepl("area_cv", metrics)]
+    area_cv <- TRUE
+    
+  } else{
+    area_cv <- FALSE
+  }
+  
+  if(any(grepl("perim_cv", metrics, fixed=T))){
+    metrics <- c(metrics, "fs_perim_mean", "fs_perim_sd")
+    metrics <- metrics[!grepl("perim_cv", metrics)]
+    perim_cv <- TRUE
+    
+  } else{
+    perim_cv <- FALSE
+  }
+  
+  # pre-calcluate unit geometry measures
   if(any(grepl("area", metrics, fixed=T))){
     unit <- "ha"
+    X[["fs_area"]] <- fs_area(X, unit)
+  }
+  
+  if(any(grepl("perim", metrics, fixed=T))){
+    unit <- "m"
+    X[["fs_perim"]] <- fs_area(X, unit)
   }
   
   # creating the names of the functions to call
-  metrics_calc <- paste0(metrics, "_calc")
+  metrics_calc <- paste0(unique(metrics), "_calc")
   #units_calc <- foot::fs_footprint_metrics[foot::fs_footprint_metrics$name %in% metrics, "unit"]
   
   result <- lapply(seq_along(metrics_calc), function(current_metric){
@@ -95,6 +120,17 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, file){
             )  
     })
   
+  # merge all
+  merged_result <- Reduce(function(...) merge(...), result)
+  
+  if(area_cv){
+    merged_result[, fs_area_cv:=fs_area_sd / fs_area_mean]
+  }
+  
+  if(perim_cv){
+    merged_result[, fs_perim_cv:=fs_perim_sd / fs_perim_mean]
+  }
+  
   # output
   if(gridded==TRUE){
     if(is.null(file)){
@@ -102,7 +138,7 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, file){
     }
     
     if(is.null(template)){
-      template <- starts::st_as_stars(sf::st_bbox(X), values=NA_real_)  # default resolution
+      template <- stars::st_as_stars(sf::st_bbox(X), values=NA_real_)  # default resolution
     } 
     
     if(sf::st_crs(template) != sf::st_crs(X)){
@@ -114,8 +150,6 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, file){
     }
   }
   
-  # merge all
-  merged_result <- Reduce(function(...) merge(...), result)
   return(merged_result)
 }
 

@@ -3,10 +3,11 @@
 #' 
 
 fs_footprint_metrics <- data.frame(
-  'name' = c("fs_settled","fs_area_mean", "fs_area_total"),
-  'short_name' = c("settled","area_mean","area_total"),
-  'group' = c("binary","area","area"),
-  'units' = c(NULL, "ha", "ha")
+  'name' = c("fs_settled", "fs_area_mean", "fs_area_total", "fs_area_cv"),
+  'short_name' = c("settled", "area_mean", "area_total","area_cv"),
+  'group' = c("binary", "area", "area", "area"),
+  'units' = c(NULL, "ha", "ha", NULL),
+  stringsAsFactors=FALSE
 )
 
 # save(fs_footprint_metrics, file="../R/sysdata.rda")
