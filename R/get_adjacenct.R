@@ -59,6 +59,9 @@ adjacentCells <- function(r, cells, directions=8, include=FALSE, dataTable=FALSE
     adj[, toCid:=toC + ((toR-1) * ncol(r))]
     adj[, toCid:=ifelse( (toC<1 | toC>ncol(r)) | (toR<1 | toR>nrow(r)), NA, toCid )]
     
+    adj[, c("toC","toR","fromR","fromC"):=NULL]  # remove columns in place
+    adj <- data.table::na.omit(adj)
+    
     # # alternate for REALLY big lists of cells.
     # adj <- data.table::data.table(fromCid=cells)
     # adj[, fromR:=trunc((fromCid-1) / ncol(r)) + 1]
