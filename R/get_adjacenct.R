@@ -14,7 +14,11 @@
 #' @name adjacentCells
 #' @export
 adjacentCells <- function(r, cells, directions=8, include=FALSE, dataTable=FALSE){
-  if(directions==8 | directions=="queen"){
+  
+  if(is.matrix(directions)){
+    w <- directions
+    
+  } else if(directions==8 | directions=="queen"){
     w <- matrix(c(1,1,1, 1,0,1, 1,1,1),
                 nrow=3, ncol=3)
     
@@ -22,10 +26,11 @@ adjacentCells <- function(r, cells, directions=8, include=FALSE, dataTable=FALSE
     w <- matrix(c(NA, 1, NA, 1, 0, 1, NA, 1, NA), 
                 nrow=3, ncol=3)
     
-  } else if(is.matrix(directions)){
-    w <- directions
+  } else if(directions=="bishop"){
+    w <- matrix(c(1, NA, 1, NA, 0, NA, 1, NA, 1),
+                nrow=3, ncol=3)
     
-  } else{
+  }else{
     stop("Invalid direction for adjacencies.")
   }
   
@@ -60,7 +65,7 @@ adjacentCells <- function(r, cells, directions=8, include=FALSE, dataTable=FALSE
     adj[, toCid:=ifelse( (toC<1 | toC>ncol(r)) | (toR<1 | toR>nrow(r)), NA, toCid )]
     
     adj[, c("toC","toR","fromR","fromC"):=NULL]  # remove columns in place
-    adj <- data.table::na.omit(adj)
+    adj <- na.omit(adj)
     
     # # alternate for REALLY big lists of cells.
     # adj <- data.table::data.table(fromCid=cells)
