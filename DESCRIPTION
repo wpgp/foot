@@ -5,7 +5,8 @@ Date: 2020-03-27
 Author: WorldPop Research Group, University of Southampton
 Maintainer: Doug Leasure <D.R.Leasure@soton.ac.uk>
 License: None
-Imports: 
+Imports: data.table
 Suggest: 
+LazyData: true
 Description: An R package for processing building footprints
 RoxygenNote: 7.1.0
