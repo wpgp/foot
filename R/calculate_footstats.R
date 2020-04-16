@@ -78,7 +78,9 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, file){
     stop("Polygons must have a spatial reference.")
   }
   
-  if()
+  if(length(index) != nrow(X)){
+	stop("Index length does not match footprints.")
+  }
   
   if(metrics[1]=='all'){
     metrics <- foot::fs_footprint_metrics$name
