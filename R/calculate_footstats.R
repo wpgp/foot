@@ -33,9 +33,18 @@ calculate_footstats.sf <- function(X, index=NULL, metrics='all', gridded=TRUE, t
 
 #' @name calculate_footstats
 #' @export
+calculate_footstats.sfc <- function(X, index=NULL, metrics='all', gridded=TRUE, template=NULL, file=NULL){
+  # cast to sf for consistency
+  X <- sf::st_as_sf(X)
+  
+  result <- calculate_footstats(X, index=index, metrics=metrics, gridded=gridded, template=template, file=file)
+  return(result)
+}
+
+
+#' @name calculate_footstats
+#' @export
 calculate_footstats.sp <- function(X, index=NULL, metrics='all', gridded=TRUE, template=NULL, file=NULL){
-  # attempt to read in file
-  X <- sf::st_read(X)
   # convert to sf
   X <- sf::st_as_sf(X)
   
@@ -68,6 +77,8 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, file){
   if(is.na(st_crs(X))){
     stop("Polygons must have a spatial reference.")
   }
+  
+  if()
   
   if(metrics[1]=='all'){
     metrics <- foot::fs_footprint_metrics$name
