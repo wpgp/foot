@@ -115,7 +115,7 @@ get_zonal_index <- function(X, zone, zoneField=NULL, returnObject=TRUE, clip=FAL
     if(clip){
       intList <- suppressMessages( lapply(seq(hits),  # TO-DO move to parallel
                         FUN=function(j){ 
-                          ints <- sf::st_intersection(zone[j, c(zoneField, geometry)], 
+                          ints <- sf::st_intersection(zone[j, c(zoneField, "geometry")], 
                                                       X[i[[j]],] )
                           if(any(sf::st_geometry_type(ints)=="MULTIPOLYGON")){
                             ints <- sf::st_cast(
