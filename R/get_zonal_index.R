@@ -130,7 +130,7 @@ get_zonal_index <- function(X, zone, zoneField=NULL, returnObject=TRUE, clip=FAL
       result <- sf::st_as_sf(DT)
       
     } else{
-      DT <- data.table::data.table(buildings[unlist(i),],
+      DT <- data.table::data.table(X[unlist(i),],
                                    zoneID=rep(zone[[zoneField]], lengths(i)))
       data.table::setkeyv(DT, zoneField)
       result <- sf::st_as_sf(DT)
