@@ -132,12 +132,12 @@ get_zonal_index <- function(X, zone, zoneField=NULL, returnObject=TRUE, clip=FAL
     } else{
       DT <- data.table::data.table(X[unlist(i),],
                                    zoneID=rep(zone[[zoneField]], lengths(i)))
-      data.table::setkeyv(DT, zoneField)
+      data.table::setkey(DT, zoneID)
       result <- sf::st_as_sf(DT)
     }
   } else{
     result <- data.table::data.table(xID=unlist(i), zoneID=rep(zone[[zoneField]], lengths(i)))
-    data.table::setkeyv(result, zoneField)
+    data.table::setkey(result, zoneID)
   }
   
   return(result)
