@@ -19,7 +19,8 @@ calculate_footstats <- function(X,
 
 #' @name calculate_footstats
 #' @export
-calculate_footstats.sf <- function(X, index=NULL, metrics='all', gridded=TRUE, template=NULL, file=NULL){
+calculate_footstats.sf <- function(X, index=NULL, metrics='all', 
+                                   gridded=TRUE, template=NULL, file=NULL){
   if(any(!st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON") )){
     message("Footprint statistics require polygon shapes.")
     stop()
@@ -33,41 +34,49 @@ calculate_footstats.sf <- function(X, index=NULL, metrics='all', gridded=TRUE, t
 
 #' @name calculate_footstats
 #' @export
-calculate_footstats.sfc <- function(X, index=NULL, metrics='all', gridded=TRUE, template=NULL, file=NULL){
+calculate_footstats.sfc <- function(X, index=NULL, metrics='all', 
+                                    gridded=TRUE, template=NULL, file=NULL){
   # cast to sf for consistency
   X <- sf::st_as_sf(X)
   
-  result <- calculate_footstats(X, index=index, metrics=metrics, gridded=gridded, template=template, file=file)
+  result <- calculate_footstats(X, index=index, metrics=metrics, 
+                                gridded=gridded, template=template, file=file)
   return(result)
 }
 
 
 #' @name calculate_footstats
 #' @export
-calculate_footstats.sp <- function(X, index=NULL, metrics='all', gridded=TRUE, template=NULL, file=NULL){
+calculate_footstats.sp <- function(X, index=NULL, metrics='all', 
+                                   gridded=TRUE, template=NULL, file=NULL){
   # convert to sf
   X <- sf::st_as_sf(X)
   
-  result <- calculate_footstats(X, index=index, metrics=metrics, gridded=gridded, template=template, file=file)
+  result <- calculate_footstats(X, index=index, metrics=metrics, 
+                                gridded=gridded, template=template, file=file)
   return(result)
 }
 
 
 #' @name calculate_footstats
 #' @export
-calculate_footstats.character <- function(X, index=NULL, metrics='all', gridded=TRUE, template=NULL, file=NULL){
+calculate_footstats.character <- function(X, index=NULL, metrics='all', 
+                                          gridded=TRUE, template=NULL, file=NULL){
   # attempt to read in file
   X <- sf::st_read(X)
   
-  result <- calculate_footstats(X, index=index, metrics=metrics, gridded=gridded, template=template, file=file)
+  result <- calculate_footstats(X, index=index, metrics=metrics, 
+                                gridded=gridded, template=template, file=file)
   return(result)
 }
 
 
 #' @name calculate_footstats
 #' @export
-calculate_footstats.list <- function(X, index=NULL, metrics='all', gridded=TRUE, template=NULL, file=NULL){
-  result <- lapply(X, FUN=calculate_footstats(X, index=index, metrics=metrics, gridded=gridded, template=template, file=file))
+calculate_footstats.list <- function(X, index=NULL, metrics='all', 
+                                     gridded=TRUE, template=NULL, file=NULL){
+  result <- lapply(X, FUN=calculate_footstats(X, index=index, metrics=metrics, 
+                                              gridded=gridded, template=template, file=file))
   
   return(result)  # should the list be simplified?
 }
