@@ -32,21 +32,6 @@ fs_perim_mean.sf <- function(X, index=NULL, unit=NULL, col=NULL){
     stop()
   }
   
-  if(is.null(index)){
-    warning("No index found, treating as one group.")
-    index <- rep(1, nrow(X))
-  } else{
-    if(length(index)==1){
-      if((is.numeric(index) & index <= ncol(X)) | 
-         (is.character(index) & index %in% names(X))){
-        index <- X[[index]]
-      }
-    } else if(length(index) != nrow(X)){
-      message("Invalid index")
-      stop()
-    }
-  } 
-  
   if(is.na(st_crs(X))){
     warning("Polygons have no spatial projection. Units ignored.")
     unit <- NULL
@@ -73,11 +58,26 @@ fs_perim_mean.sf <- function(X, index=NULL, unit=NULL, col=NULL){
 }
 
 
-fs_perim_mean_calc <- function(X, index, unit=NULL){
+fs_perim_mean_calc <- function(X, index=NULL, unit=NULL){
   if(!"fs_perim" %in% names(X)){
     X[["fs_perim"]] <- fs_perimeter(X, unit)
   } else{
     unit <- st_crs(buildings)$units
+  }
+  
+  if(is.null(index)){
+    warning("No index found, treating as one group.")
+    index <- rep(1, nrow(X))
+  } else{
+    if(length(index)==1){
+      if((is.numeric(index) & index <= ncol(X)) | 
+         (is.character(index) & index %in% names(X))){
+        index <- X[[index]]
+      }
+    } else if(length(index) != nrow(X)){
+      message("Invalid index")
+      stop()
+    }
   }
   
   colNam <- paste0("fs_perim_", unit, "_mean")

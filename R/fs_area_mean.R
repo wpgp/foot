@@ -32,21 +32,6 @@ fs_area_mean.sf <- function(X, index=NULL, unit=NULL, col=NULL){
     stop()
   }
   
-  if(is.null(index)){
-    warning("No index found, treating as one group.")
-    index <- rep(1, nrow(X))
-  } else{
-    if(length(index)==1){
-      if((is.numeric(index) & index <= ncol(X)) | 
-         (is.character(index) & index %in% names(X))){
-        index <- X[[index]]
-      }
-    } else if(length(index) != nrow(X)){
-      message("Invalid index")
-      stop()
-    }
-  } 
-  
   if(is.na(st_crs(X))){
     warning("Polygons have no spatial projection. Units ignored.")
     unit <- NULL
@@ -73,10 +58,25 @@ fs_area_mean.sf <- function(X, index=NULL, unit=NULL, col=NULL){
 }
 
 
-fs_area_mean_calc <- function(X, index, unit=NULL){
+fs_area_mean_calc <- function(X, index=NULL, unit=NULL){
   if(!"fs_area" %in% names(X)){
     X[["fs_area"]] <- fs_area(X, unit)
   }
+  
+  if(is.null(index)){
+    warning("No index found, treating as one group.")
+    index <- rep(1, nrow(X))
+  } else{
+    if(length(index)==1){
+      if((is.numeric(index) & index <= ncol(X)) | 
+         (is.character(index) & index %in% names(X))){
+        index <- X[[index]]
+      }
+    } else if(length(index) != nrow(X)){
+      message("Invalid index")
+      stop()
+    }
+  } 
   
   colNam <- paste0("fs_area_", unit, "_mean")
   DT <- data.table::data.table(index=index, 

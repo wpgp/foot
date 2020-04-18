@@ -27,21 +27,6 @@ fs_settled.sp <- function(X, index=NULL, col=NULL){
 #' @name fs_settled
 #' @export
 fs_settled.sf <- function(X, index=NULL, col=NULL){
-  if(is.null(index)){
-    warning("No index found, treating as one group.")
-    index <- rep(1, nrow(X))
-  } else{
-    if(length(index)==1){
-      if((is.numeric(index) & index <= ncol(X)) | 
-         (is.character(index) & index %in% names(X))){
-        index <- X[[index]]
-      }
-    } else if(length(index) != nrow(X)){
-      message("Invalid index")
-      stop()
-    }
-  } 
-  
   if(!is.null(col)){
     if(!col %in% names(X)){
       message("Error: column name not found.")
@@ -62,6 +47,21 @@ fs_settled_calc <- function(X, index){
   if(!"fs_settled" %in% names(X)){
     X[["fs_settled"]] <- 1
   }
+  
+  if(is.null(index)){
+    warning("No index found, treating as one group.")
+    index <- rep(1, nrow(X))
+  } else{
+    if(length(index)==1){
+      if((is.numeric(index) & index <= ncol(X)) | 
+         (is.character(index) & index %in% names(X))){
+        index <- X[[index]]
+      }
+    } else if(length(index) != nrow(X)){
+      message("Invalid index")
+      stop()
+    }
+  } 
   
   colNam <- "fs_settled_binary"
   DT <- data.table::data.table(index=index, 

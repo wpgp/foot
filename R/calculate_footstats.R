@@ -78,9 +78,9 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, file){
     stop("Polygons must have a spatial reference.")
   }
   
-  if(length(index) != nrow(X)){
-	stop("Index length does not match footprints.")
-  }
+#   if(length(index) != nrow(X)){
+# 	  stop("Index length does not match footprints.")
+#   }
   
   if(metrics[1]=='all'){
     metrics <- foot::fs_footprint_metrics$name
@@ -90,7 +90,6 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, file){
     metrics <- c(metrics, "fs_area_mean", "fs_area_sd")
     metrics <- metrics[!grepl("area_cv", metrics)]
     area_cv <- TRUE
-    
   } else{
     area_cv <- FALSE
   }
@@ -99,7 +98,6 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, file){
     metrics <- c(metrics, "fs_perim_mean", "fs_perim_sd")
     metrics <- metrics[!grepl("perim_cv", metrics)]
     perim_cv <- TRUE
-    
   } else{
     perim_cv <- FALSE
   }
@@ -111,7 +109,6 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, file){
   }
   
   if(any(grepl("perim", metrics, fixed=T))){
-    
     X[["fs_perim"]] <- fs_perimeter(X, unit="m")
   }
   
