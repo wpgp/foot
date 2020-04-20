@@ -3,6 +3,7 @@
 \name{calculate_footstats}
 \alias{calculate_footstats}
 \alias{calculate_footstats.sf}
+\alias{calculate_footstats.sfc}
 \alias{calculate_footstats.sp}
 \alias{calculate_footstats.character}
 \alias{calculate_footstats.list}
@@ -18,6 +19,15 @@ calculate_footstats(
 )
 
 \method{calculate_footstats}{sf}(
+  X,
+  index = NULL,
+  metrics = "all",
+  gridded = TRUE,
+  template = NULL,
+  file = NULL
+)
+
+\method{calculate_footstats}{sfc}(
   X,
   index = NULL,
   metrics = "all",
