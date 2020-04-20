@@ -118,13 +118,19 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, file){
   }
   
   if(any(grepl("perim", metrics, fixed=T))){
-    X[["fs_perim"]] <- fs_perimeter(X, unit="m")
+    X[["fs_perim"]] <- fs_perimeter(X, 
+                                    unit=foot::fs_footprint_metrics[foot::fs_footprint_metrics$name=="fs_perim_mean",
+                                                                    "default_units"])
+  }
+  
+  if(any(grepl("NNdist", metrics, fixed=T))){
+    X[["fs_NNdist"]] <- fs_NNdist(X, 
+                                  unit=foot::fs_footprint_metrics[foot::fs_footprint_metrics$name=="fs_NNdist_mean",
+                                                                    "default_units"])
   }
   
   # creating the names of the functions to call
   metrics_calc <- paste0(unique(metrics), "_calc")
-  # print(metrics_calc)
-  #units_calc <- foot::fs_footprint_metrics[foot::fs_footprint_metrics$name %in% metrics, "unit"]
   
   result <- lapply(seq_along(metrics_calc), function(current_metric){
     func <- get(metrics_calc[[current_metric]], mode="function")
