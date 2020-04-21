@@ -1,8 +1,22 @@
+#' write_imageBinary
 #'
+#' @description Write data to binary files and structure as native \code{raster} files.
+#' @param filename character string path to desired output file.
+#' @param dataType character string of \code{raster} data types. Default is \code{FLT8S}
+#' @param template A filepath or a gridded data object to be used as a 
+#' template to define the output file's resolution and positioning.
+#' @param interleave Band interleaving. Currently only BSQ supported.
+#' @param proj Proj4String of a coordinate reference system.
+#' @param nodata Value to indicate no data in the output.
+#' @param overwrite Should the output file be overwritten if it already exists. 
+#' Default is \code{False}. 
+#' @author Chris Jochem
 #'
+#' @aliases write_imageBinary
 #' @import mmap
 
-
+#' @name make_templateGrid
+#' @export
 make_templateGrid <- function(filename=NULL, datatype="FLT8S",  
                               template=NULL, interleave="BSQ", overwrite=FALSE){
   
@@ -74,7 +88,7 @@ make_templateGrid <- function(filename=NULL, datatype="FLT8S",
   return(filename)
 }
 
-
+#' @export
 # Based on: https://stackoverflow.com/questions/32910919/converting-band-interleaved-by-pixel-binary-files-into-raster-grids
 make_templateHeader <- function(filename, nrows, ncols, xmin, ymin, xmax, ymax, proj,
                                 datatype, nlayers=1, interleave="BSQ", nodata){
@@ -106,7 +120,7 @@ make_templateHeader <- function(filename, nrows, ncols, xmin, ymin, xmax, ymax, 
   invisible(filename)
 }
 
-
+#' @export
 write_imageBinary <- function(data, cellNumbers=1:length(data), filename, mapMode){ # TO DO add mmap mode lookup 
   if(missing(data)){
     stop("Data not found.")
