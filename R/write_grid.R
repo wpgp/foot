@@ -82,16 +82,20 @@ make_templateGrid <- function(filename=NULL, datatype="FLT8S",
   writeBin(raw(bytes), outf)
   close(outf)
   
-  make_templateHeader(filename, nrows, ncols, xmin, ymin, xmax, ymax, proj,
-                      datatype, nlayers, interleave, nodata=-9999)
+  make_templateHeader(filename, 
+                      nrows, ncols, xmin, ymin, xmax, ymax, 
+                      proj, datatype, nlayers, interleave, 
+                      nodata=-9999)
   
   return(filename)
 }
 
 #' @export
 # Based on: https://stackoverflow.com/questions/32910919/converting-band-interleaved-by-pixel-binary-files-into-raster-grids
-make_templateHeader <- function(filename, nrows, ncols, xmin, ymin, xmax, ymax, proj,
-                                datatype, nlayers=1, interleave="BSQ", nodata){
+make_templateHeader <- function(filename, 
+                                nrows, ncols, xmin, ymin, xmax, ymax, 
+                                proj, datatype, nlayers=1, interleave="BSQ", 
+                                nodata){
   
   filename <- sub("\\.[[:alnum:]]+$", "", filename)
   filename <- paste0(filename, ".grd")
@@ -121,7 +125,7 @@ make_templateHeader <- function(filename, nrows, ncols, xmin, ymin, xmax, ymax, 
 }
 
 #' @export
-write_imageBinary <- function(data, cellNumbers=1:length(data), filename, mapMode){ # TO DO add mmap mode lookup 
+write_imageBinary <- function(data, cellNumbers=1:length(data), filename, mapMode){ 
   if(missing(data)){
     stop("Data not found.")
   }
@@ -130,8 +134,22 @@ write_imageBinary <- function(data, cellNumbers=1:length(data), filename, mapMod
     stop("Missing output file.")
   }
   
+  rasterTypes=c("LOG1S","INT1S","INT1U","INT2S",
+                "INT2U","INT4S","INT4U","FLT4S","FLT8S")
+  mmType <- list(mmap::logi8(), mmap::int8(), mmap::uint8(), 
+                 mmap::int16(), mmap::uint16(), mmap::int32(), 
+                 NA, mmap::real32(), mmap::real64())
+  
+  matchType <- match(mapMode, rasterTypes)
+  
+  if(is.na(matchType)){
+    stop("Mmap C Type not found.")
+  } else{
+    mapMode <- mmap::as.Ctype(mmType[[matchType]])
+  }
+
   # writing step
-  mapOut <- mmap::mmap(filename, mmap::real64())
+  mapOut <- mmap::mmap(filename, mapMode)
   mapOut[cellNumbers] <- as.numeric(data)
   mmap::munmap(mapOut)
 }
