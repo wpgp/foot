@@ -49,35 +49,56 @@ zonalIndex.sf <- function(X, zone, zoneField=NULL, returnObject=TRUE, clip=FALSE
 #' @name zonalIndex
 #' @export
 zonalIndex.sfc <- function(X, zone, zoneField=NULL, returnObject=TRUE, clip=FALSE){
+  if(any(class(X) == "sp") | any(class(X) == "stars")){
+    # convert to sf
+    X <- sf::st_as_sf(X)
+  } else if (all(class(X) != "sf")) {
+    stop("Object format not valid.")
+  }
   
+  if(clip==TRUE & returnObject==FALSE){
+    clip <- FALSE
+    warning("Clipping only valid when returning a spatial object.")
+  }
+  
+  result <- get_zonal_index(X, zone, zoneField, returnObject, clip)
+  return(result)
 }
 
 
 #' @name zonalIndex
 #' @export
 zonalIndex.sp <- function(X, zone, zoneField=NULL, returnObject=TRUE, clip=FALSE){
-  
+  zone <- sf::st_as_sf(zone)
+  result <- zonalIndex(X, zone, zoneField, returnObject, clip)
+  return(result)
 }
 
 
 #' @name zonalIndex
 #' @export
 zonalIndex.stars <- function(X, zone, zoneField=NULL, returnObject=TRUE, clip=FALSE){
-  
+  zone <- sf::st_as_sf(zone)
+  result <- zonalIndex(X, zone, zoneField, returnObject, clip)
+  return(result)
 }
 
 
 #' @name zonalIndex
 #' @export
 zonalIndex.raster <- function(X, zone, zoneField=NULL, returnObject=TRUE, clip=FALSE){
-  
+  zone <- stars::st_as_stars(zone)
+  result <- zonalIndex(X, zone, zoneField, returnObject, clip)
+  return(result)
 }
 
 
 #' @name zonalIndex
 #' @export
 zonalIndex.character <- function(X, zone, zoneField=NULL, returnObject=TRUE, clip=FALSE){
-  
+  zone <- sf::st_read(zone)
+  result <- zonalIndex(X, zone, zoneField, returnObject, clip)
+  return(result)
 }
 
 
