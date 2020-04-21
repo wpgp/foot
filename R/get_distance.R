@@ -14,7 +14,7 @@ suggestUTMzone <- function(pt){
 }
 
 
-fs_NNdist <- function(X, maxSearch=1000, unit=NULL){
+fs_NNdist <- function(X, maxSearch=1000, unit="m"){
   
   if(!is.null(maxSearch) & maxSearch > 0){
     if(sf::st_is_longlat(X)){
