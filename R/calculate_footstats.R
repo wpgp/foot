@@ -88,7 +88,7 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, file){
   }
   
   if(class(index) == "sf"){
-    indxZones <- index # make copy
+    indexZones <- index # make copy
     X <- zonalIndex(X, index, returnObject=TRUE)
     index <- "zoneID"
   }
@@ -111,6 +111,22 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, file){
     perim_cv <- TRUE
   } else{
     perim_cv <- FALSE
+  }
+  
+  if(any(grepl("NNindex", metrics, fixed=T))){
+    metrics <- c(metrics, "fs_NNdist_mean", "fs_count")
+    metrics <- metrics[!grepl("NNindex", merics)]
+    nnIndex <- TRUE
+    
+    if(exists("zonalIndex")){
+      zonalArea <- data.table(index=index, zoneArea=fs_area(zonalIndex))
+    } else{
+      warnings("Nearest neighbour index requires zonal areas.")
+      nnIndex <- FALSE
+    }
+    
+  } else{
+    nnIndex <- FALSE
   }
   
   # pre-calcluate unit geometry measures
@@ -159,6 +175,13 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, file){
   
   if(perim_cv){
     merged_result[, fs_perim_cv:=fs_perim_m_sd / fs_perim_m_mean]
+  }
+  
+  if(nnIndex){
+    nniDT <- merged_result[,c(index, fs_NNdist_m_mean, fs_count)]
+    nniDT <- merge(nniDT, zonalArea, by.x="index", by.y="zoneID")
+    nniDT[, fs_NNindex := fs_NNdist_m_mean / (0.5 * sqrt(zoneArea / fs_count)), by=index]
+    merged_result <- merge(merged_result, nniDT[,c(index, fs_NNindex)], by=index)
   }
   
   # output
