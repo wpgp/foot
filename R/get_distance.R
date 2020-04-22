@@ -51,7 +51,7 @@ fs_NNdist <- function(X, Y, maxSearch=1000, unit="m"){
                           FUN=function(i){ sort(sf::st_distance(X[i,], X[-i,]))[1] })
   }
   
-  result <- do.call(rbind, distList)
+  result <- do.call(c, distList)
   
   if(!is.null(unit)){
     units::set_units(result, unit, mode="standard")
