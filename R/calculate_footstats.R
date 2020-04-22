@@ -150,16 +150,18 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, file){
   }
   
   # creating the names of the functions to call
-  metrics_calc <- paste0(unique(metrics), "_calc")
+  metrics <- unique(metrics)
+  metrics_calc <- paste0(metrics, "_calc")
   
   result <- lapply(seq_along(metrics_calc), function(current_metric){
     func <- get(metrics_calc[[current_metric]], mode="function")
-    # print(metrics_calc[[current_metric]])
+    
+    getUnit <- fs_footprint_metrics$default_units[match(metrics[[current_metric]], fs_footprint_metrics$name)]
+    assign("unit", value=getUnit, envir=parent.env(environment()))
     arguments <- names(formals(func))
-    # print(mget(arguments, envir=parent.env(environment())))
 
     tryCatch(do.call(what=func,
-                     args=mget(arguments, envir=parent.env(environment()))
+                     args=mget(arguments, envir=parent.env(environment()), ifnotfound=list(NULL))
                     ),
              error = function(e){
                message("")
