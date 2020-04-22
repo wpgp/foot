@@ -115,14 +115,16 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, file){
   
   if(any(grepl("NNindex", metrics, fixed=T))){
     metrics <- c(metrics, "fs_NNdist_mean", "fs_count")
-    metrics <- metrics[!grepl("NNindex", merics)]
+    metrics <- metrics[!grepl("NNindex", metrics)]
     nnIndex <- TRUE
     
-    if(exists("zonalIndex")){
-      zonalArea <- data.table(index=index, zoneArea=fs_area(zonalIndex))
+    if(exists("indexZones")){
+      zonalArea <- data.table(index=X[["zoneID"]], zoneArea=fs_area(indexZones))
     } else{
       warnings("Nearest neighbour index requires zonal areas.")
-      nnIndex <- FALSE
+      # nnIndex <- FALSE
+      zoneAreas <- fs_area(sf::st_as_sfc(sf::st_bbox(X), crs=sf::st_crs(X)))
+      zonalArea <- data.table(zoneID=1:length(zoneAreas), zoneArea=zoneAreas)
     }
     
   } else{
@@ -137,14 +139,14 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, file){
   
   if(any(grepl("perim", metrics, fixed=T))){
     X[["fs_perim"]] <- fs_perimeter(X, 
-                                    unit=foot::fs_footprint_metrics[foot::fs_footprint_metrics$name=="fs_perim_mean",
-                                                                    "default_units"])
+                                    unit=fs_footprint_metrics[fs_footprint_metrics$name=="fs_perim_mean",
+                                                              "default_units"])
   }
   
   if(any(grepl("NNdist", metrics, fixed=T))){
     X[["fs_NNdist"]] <- fs_NNdist(X, 
-                                  unit=foot::fs_footprint_metrics[foot::fs_footprint_metrics$name=="fs_NNdist_mean",
-                                                                    "default_units"])
+                                  unit=fs_footprint_metrics[fs_footprint_metrics$name=="fs_NNdist_mean",
+                                                            "default_units"])
   }
   
   # creating the names of the functions to call
@@ -178,10 +180,12 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, file){
   }
   
   if(nnIndex){
-    nniDT <- merged_result[,c(index, fs_NNdist_m_mean, fs_count)]
+    nniDT <- merged_result[, list(index, fs_NNdist_m_mean, fs_count)]
     nniDT <- merge(nniDT, zonalArea, by.x="index", by.y="zoneID")
     nniDT[, fs_NNindex := fs_NNdist_m_mean / (0.5 * sqrt(zoneArea / fs_count)), by=index]
-    merged_result <- merge(merged_result, nniDT[,c(index, fs_NNindex)], by=index)
+    units(nniDT$fs_NNindex) <- NULL
+    
+    merged_result <- merge(merged_result, nniDT[, list(index, fs_NNindex)], by=index)
   }
   
   # output
