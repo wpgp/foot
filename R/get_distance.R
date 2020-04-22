@@ -14,17 +14,29 @@ suggestUTMzone <- function(pt){
 }
 
 
-fs_NNdist <- function(X, maxSearch=1000, unit="m"){
+#' @name fs_NNdist
+#' @export
+fs_NNdist <- function(X, Y, maxSearch=1000, unit="m"){
   
   if(!is.null(maxSearch) & maxSearch > 0){
-    if(sf::st_is_longlat(X)){
+    if(missing(Y)){
+      searchBuffer <- X
+    } else{
+      searchBuffer <- Y
+    }
+    
+    if(sf::st_crs(X) != sf::st_crs(searchBuffer)){
+      stop("Coordinate reference systems do not match for zone indexing.")
+    }
+    
+    if(sf::st_is_longlat(searchBuffer)){
       zn <- suggestUTMzone(sf::st_coordinates(sf::st_centroid(sf::st_as_sfc(sf::st_bbox(X)))))
       
-      searchBuffer <- sf::st_transform(X, zn)
+      searchBuffer <- sf::st_transform(searchBuffer, zn)
       searchBuffer <- sf::st_buffer(searchBuffer, maxSearch)
       searchBuffer <- sf::st_transform(searchBuffer, sf::st_crs(X))
     } else{
-      searchBuffer <- sf::st_buffer(X, maxSearch)
+      searchBuffer <- sf::st_buffer(searchBuffer, maxSearch)
     }
     # get objects within search buffer
     intersects <- sf::st_intersects(searchBuffer, X)
