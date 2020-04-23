@@ -56,7 +56,7 @@ fs_angle_entropy.sf <- function(X, index=NULL, col=NULL, normalize=TRUE){
         result <- fs_angle_entropy_calc(X, index, normalize)
     }
   } else{
-      X[["fs_angle"]] <- fs_mbr(X)
+      X[["fs_angle"]] <- sapply(sf::st_geometry(X), fs_mbr)
       result <- fs_angle_entropy_calc(X, index, normalize)
   }
   return(result)
@@ -65,7 +65,7 @@ fs_angle_entropy.sf <- function(X, index=NULL, col=NULL, normalize=TRUE){
 
 fs_angle_entropy_calc <- function(X, index, normalize=TRUE){
   if(!"fs_angle" %in% names(X)){
-    X[["fs_angle"]] <- fs_mbr(X)
+    X[["fs_angle"]] <- sapply(sf::st_geometry(X), fs_mbr)
   }
   
   abins <- cut(0:360, seq(5, 355, 10), labels=F) + 1

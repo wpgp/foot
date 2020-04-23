@@ -23,8 +23,8 @@ fs_perimeter <- function(X, unit=NULL){
 
 # Based on: https://gis.stackexchange.com/questions/22895/finding-minimum-area-rectangle-for-given-points
 fs_mbr <- function(X, returnShape=FALSE){
-  if(class(X) == "sf"){
-    p <- sf::st_coordinates(X)
+  if(any(class(X) == "POLYGON") | any(class(X) == "MULTIPOLYGON")){
+    p <- sf::st_coordinates(X)[,1:2]
   } else if(class(X) != "Matrix"){
     stop("Invalid bounding rectangle coordinates.")
   }
@@ -47,13 +47,13 @@ fs_mbr <- function(X, returnShape=FALSE){
   # Form a rectangle from the extremes of the best edge
   R <- rbind(v[k,], w[k,])
   # print((atan2(R[2,1], R[1,1]) * 180/pi) %% 360)
-  mbr <- cbind(x[c(1,2,2,1,1),k], y[c(1,1,2,2,1),k]) %*% R)
+  mbr <- cbind(x[c(1,2,2,1,1),k], y[c(1,1,2,2,1),k]) %*% R
 
   if(returnShape){
     return(sf::st_polygon(list(mbr)))
     
   } else{
-    angle <- atan2(R[2,1], R[1,1]) * 180/pi) %% 360
+    angle <- (atan2(R[2,1], R[1,1]) * 180/pi) %% 360
     return(angle)
   }
 }
