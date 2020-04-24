@@ -91,6 +91,10 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, file){
     perim_cv <- FALSE
   }
   
+  if(any(grepl("angle", metrics, fixed=T))){
+    normalize <- TRUE
+  }
+  
   # pre-calcluate unit geometry measures
   if(any(grepl("area", metrics, fixed=T))){
     unit <- "ha"
