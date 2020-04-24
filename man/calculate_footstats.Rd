@@ -15,7 +15,8 @@ calculate_footstats(
   metrics = "all",
   gridded = TRUE,
   template = NULL,
-  file = NULL
+  outputPath = NULL,
+  driver = "GTiff"
 )
 
 \method{calculate_footstats}{sf}(
@@ -24,7 +25,8 @@ calculate_footstats(
   metrics = "all",
   gridded = TRUE,
   template = NULL,
-  file = NULL
+  outputPath = NULL,
+  driver = "GTiff"
 )
 
 \method{calculate_footstats}{sfc}(
@@ -33,7 +35,8 @@ calculate_footstats(
   metrics = "all",
   gridded = TRUE,
   template = NULL,
-  file = NULL
+  outputPath = NULL,
+  driver = "GTiff"
 )
 
 \method{calculate_footstats}{sp}(
@@ -42,7 +45,8 @@ calculate_footstats(
   metrics = "all",
   gridded = TRUE,
   template = NULL,
-  file = NULL
+  outputPath = NULL,
+  driver = "GTiff"
 )
 
 \method{calculate_footstats}{character}(
@@ -51,7 +55,8 @@ calculate_footstats(
   metrics = "all",
   gridded = TRUE,
   template = NULL,
-  file = NULL
+  outputPath = NULL,
+  driver = "GTiff"
 )
 
 \method{calculate_footstats}{list}(
@@ -60,7 +65,8 @@ calculate_footstats(
   metrics = "all",
   gridded = TRUE,
   template = NULL,
-  file = NULL
+  outputPath = NULL,
+  driver = "GTiff"
 )
 }
 \arguments{

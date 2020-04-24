@@ -32,21 +32,6 @@ fs_angle_entropy.sf <- function(X, index=NULL, col=NULL, normalize=TRUE){
     stop()
   }
   
-  if(is.null(index)){
-    warning("No index found, treating as one group.")
-    index <- rep(1, nrow(X))
-  } else{
-    if(length(index)==1){
-      if((is.numeric(index) & index <= ncol(X)) | 
-         (is.character(index) & index %in% names(X))){
-        index <- X[[index]]
-      }
-    } else if(length(index) != nrow(X)){
-      message("Invalid index")
-      stop()
-    }
-  } 
-  
   if(!is.null(col)){
     if(!col %in% names(X)){
       message("Error: column name not found.")
@@ -67,6 +52,21 @@ fs_angle_entropy_calc <- function(X, index, normalize=TRUE){
   if(!"fs_angle" %in% names(X)){
     X[["fs_angle"]] <- sapply(sf::st_geometry(X), fs_mbr)
   }
+  
+  if(is.null(index)){
+    warning("No index found, treating as one group.")
+    index <- rep(1, nrow(X))
+  } else{
+    if(length(index)==1){
+      if((is.numeric(index) & index <= ncol(X)) | 
+         (is.character(index) & index %in% names(X))){
+        index <- X[[index]]
+      }
+    } else if(length(index) != nrow(X)){
+      message("Invalid index")
+      stop()
+    }
+  } 
   
   # abins <- cut(0:360, seq(5, 355, 10), labels=F) + 1
   # abins[is.na(abins)] <- 1
