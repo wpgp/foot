@@ -87,10 +87,13 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, file){
     stop("Polygons must have a spatial reference.")
   }
   
-  if(class(index) == "sf"){
+  if(class(index) == "sf" & sf::st_geometry_type(index) %in% c("POLYGON","MULTIPOLYGON")){
     indexZones <- index # make copy
     X <- zonalIndex(X, index, returnObject=TRUE)
     index <- "zoneID"
+  } else{
+    warning("Index must be a polygon type. Ignoring input.")
+    index <- NULL
   }
   
   if(toupper(metrics[1]) == 'ALL'){
