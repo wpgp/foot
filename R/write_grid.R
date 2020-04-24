@@ -125,7 +125,7 @@ make_templateHeader <- function(filename,
 }
 
 #' @export
-write_imageBinary <- function(data, cellNumbers=1:length(data), filename, mapMode){ 
+write_imageBinary <- function(data, cellNumbers=1:length(data), filename, mapMode){
   if(missing(data)){
     stop("Data not found.")
   }
@@ -153,4 +153,3 @@ write_imageBinary <- function(data, cellNumbers=1:length(data), filename, mapMod
   mapOut[cellNumbers] <- as.numeric(data)
   mmap::munmap(mapOut)
 }
-
