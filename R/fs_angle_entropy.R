@@ -68,14 +68,14 @@ fs_angle_entropy_calc <- function(X, index, normalize=TRUE){
     X[["fs_angle"]] <- sapply(sf::st_geometry(X), fs_mbr)
   }
   
-  abins <- cut(0:360, seq(5, 355, 10), labels=F) + 1
-  abins[is.na(abins)] <- 1
+  # abins <- cut(0:360, seq(5, 355, 10), labels=F) + 1
+  # abins[is.na(abins)] <- 1
   
   colNam <- "fs_angle_entropy"
   DT <- data.table::data.table(index=c(index, index), 
                                area_calc=c(X[["fs_angle"]], (X[["fs_angle"]] + 180) %% 360)
                               )
-  DT[, bin := cut(area_calc, seq(5, 355, 10), labels=F)]
+  DT[, bin := cut(area_calc, seq(5, 355, 10), labels=F) + 1]
   DT[is.na(bin), bin := 1]
   
   data.table::setkey(DT, index)
