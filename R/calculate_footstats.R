@@ -93,8 +93,13 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, file){
     index <- "zoneID"
   }
   
-  if(metrics[1]=='all'){
+  if(toupper(metrics[1]) == 'ALL'){
     metrics <- foot::fs_footprint_metrics$name
+  }
+  
+  if(toupper(metrics[1]) == "NODIST"){
+    metrics <- foot::fs_footprint_metrics$name
+    metrics <- metrcs[!grepl("NNdist", metrics)]
   }
   
   if(any(grepl("area_cv", metrics, fixed=T))){

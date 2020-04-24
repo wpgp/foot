@@ -26,7 +26,7 @@ fs_mbr <- function(X, returnShape=FALSE){
   if(any(class(X) == "POLYGON") | any(class(X) == "MULTIPOLYGON")){
     p <- sf::st_coordinates(X)[,1:2]
   } else if(class(X) != "Matrix"){
-    stop("Invalid bounding rectangle coordinates.")
+    stop("Invalid coordinates.")
   }
 
   # Analyze the convex hull edges     
