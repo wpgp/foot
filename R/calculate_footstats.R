@@ -129,6 +129,9 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, file){
     
   } else{
     nnIndex <- FALSE
+
+  if(any(grepl("angle", metrics, fixed=T))){
+    normalize <- TRUE
   }
   
   # pre-calcluate unit geometry measures

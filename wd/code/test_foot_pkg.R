@@ -45,6 +45,7 @@ mgrid <- raster(wpgpGetCountryDataset(ISO3="SSD", covariate="level0_100m_2000_20
 
 #######
 library(foot)
+library(raster)
 # load local files for testing
 buildings <- st_read("C:/Users/Admin/Documents/GitHub/foot/wd/in/ssd_sample_buildings.shp")
 mgrid <- raster("C:/Users/Admin/Documents/GitHub/foot/wd/in/ssd_mgrid.tif")
@@ -56,6 +57,9 @@ nni <- calculate_footstats(buildings, metrics="fs_NNindex", gridded=F)
 centroids <- st_centroid(buildings)
 centroids <- st_transform(centroids, crs=st_crs(mgrid)$epsg)
 cID <- cellFromXY(mgrid, st_coordinates(centroids))
+
+res <- fs_angle_entropy(buildings, index=cID)
+res <- calculate_footstats(buildings, cID, metrics="fs_angle_entropy", gridded=F)
 
 
 res <- calculate_footstats(buildings, "all", index=cID, gridded=F)
