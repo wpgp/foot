@@ -1,8 +1,10 @@
-#' Count of locations per pixel
+#' Count of footprint locations per zone
 #' 
-#' @description Calculate selected metrics of building footprints
-#' @param txt Text to append to "foot"
-#' @return TBD.
+#' @description Calculate and summarise selected metrics of building 
+#' footprints within zones.
+#' @inheritParams fs_area_mean
+#' @return \code{data.table} of zonal indices and values.
+#' 
 #' @author Chris Jochem
 #' 
 #' @import data.table

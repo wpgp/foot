@@ -1,4 +1,4 @@
-#' write_imageBinary
+#' Writing gridded data to binary files
 #'
 #' @description Write data to binary files and structure as native \code{raster} files.
 #' @param filename character string path to desired output file.
@@ -10,6 +10,11 @@
 #' @param nodata Value to indicate no data in the output.
 #' @param overwrite Should the output file be overwritten if it already exists. 
 #' Default is \code{False}. 
+#' 
+#' @details These functions provide a lightweight interface to binary writing demonstrated
+#' in the \code{\link[spatial.tools]{}} package. The advantage of using binary files is 
+#' the opportunity to using memory mapping (\code{mmap}) to support parallel writing.
+#' 
 #' @author Chris Jochem
 #'
 #' @aliases write_imageBinary
@@ -90,6 +95,8 @@ make_templateGrid <- function(filename=NULL, datatype="FLT8S",
   return(filename)
 }
 
+
+#' @name make_templateHeader
 #' @export
 # Based on: https://stackoverflow.com/questions/32910919/converting-band-interleaved-by-pixel-binary-files-into-raster-grids
 make_templateHeader <- function(filename, 
@@ -124,6 +131,7 @@ make_templateHeader <- function(filename,
   invisible(filename)
 }
 
+#' @name write_imageBinary
 #' @export
 write_imageBinary <- function(data, cellNumbers=1:length(data), filename, mapMode){
   if(missing(data)){

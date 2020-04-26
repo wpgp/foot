@@ -1,8 +1,17 @@
-#' Building area calculation
+#' Building area mean calculation
 #' 
-#' @description Calculate selected metrics of building footprints
-#' @param txt Text to append to "foot"
-#' @return TBD.
+#' @description Calculate and summarise selected metrics of building 
+#' footprint polygons within zones.
+#' 
+#' @param X Spatial object with building footprint polygons
+#' @param index A character or numeric value identifying a column within \code{X} 
+#' which provides a zonal index for summarising values. Alternatively a vector of 
+#' indices can be provided. If omitted all observations with \code{X} are assumed 
+#' to be within one zone.
+#' @param unit character or \code{units} object to define area. 
+#' Default is \code{NULL} which will use the units of the spatial reference system
+#' @param col column name within \code{X} with pre-calculated area measures
+#' @return \code{data.table} of zonal indices and values
 #' @author Chris Jochem
 #' 
 #' @import data.table

@@ -1,8 +1,25 @@
 #' Raster adjacencies
 #' 
-#' @description Find adjacent grid cells in a regular raster
-#' @param txt Text to append to "foot"
-#' @return TBD.
+#' @description Find adjacent grid cells in a regular raster dataset.
+#' 
+#' @param r A gridded, raster object on which to search.
+#' @param cells A vector of cell numbers in \code{r} to search for adjacencies.
+#' @param directions The dimension to define neighbouring cells by contiguity. 
+#' Accepted options include: 8, 4, "queen", "bishop", "rook" or a matrix. See 
+#' details. Default is 8 which is a queen's contiguity.
+#' @param include logical. Should the cell number of interest should be considered 
+#' adjacent to itself? Dfault is \code{FALSE}.
+#' @param dataTable logical. Should the processing and return value use \code{data.table}?
+#' @return A table with cells numbers ("from") and their adjacent ("to").
+#' 
+#' @details The \code{directions} parameter defines neighbouring cells. This parameter 
+#' follows typical contiguity measures for lattice data (e.g. "queen" or "rook"), or 
+#' more complex adjacencies can be found by supplying a matrix. To use a matrix to define 
+#' adjacencies, the center value should be set to zero, all adjacent cells should be 1 and
+#' any cells to ignore should be set to \code{NA}.
+#' 
+#' @seealso \code{\link{make_circular_filter}}
+#' 
 #' @author Chris Jochem
 #' 
 #' @import data.table
@@ -14,6 +31,9 @@
 #' @name adjacentCells
 #' @export
 adjacentCells <- function(r, cells, directions=8, include=FALSE, dataTable=FALSE){
+  if(missing(r) | missing(cells)){
+    stop("Must provide a raster and cell numbers.")
+  }
   
   if(is.matrix(directions)){
     w <- directions

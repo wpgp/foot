@@ -1,8 +1,20 @@
 #' Building angle calculation
 #' 
-#' @description Calculate selected metrics of building footprints
-#' @param txt Text to append to "foot"
-#' @return TBD.
+#' @description Calculate the entropy of rotation angles for building footprint
+#' polygons within zones.
+#' 
+#' @inheritParams fs_area_mean
+#' @param normalize A logical value indicating whether to normalize the entropy. 
+#' Default is \code{TRUE}.
+#' 
+#' @details This measure uses the angle of the minimum rotated rectangle enclosing 
+#' each footprint poygon. Entropy is an information criteria measure. When summarising
+#' the angles of footprints, higher entropy values may suggest less formally planned 
+#' or zoned areas. The entropy calculation uses the common Shannon's Entropy. The 
+#' normalization step produces an indicator for how much a zone departs from a grid.
+#'
+#' @return \code{data.table} of zonal indices and values.
+#' 
 #' @author Chris Jochem
 #' 
 #' @import data.table

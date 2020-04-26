@@ -4,7 +4,7 @@
 \alias{fs_perim_mean}
 \alias{fs_perim_mean.sp}
 \alias{fs_perim_mean.sf}
-\title{Building area calculation}
+\title{Building perimeter mean calculation}
 \usage{
 fs_perim_mean(X, index = NULL, unit = NULL, col = NULL)
 
@@ -12,14 +12,13 @@ fs_perim_mean(X, index = NULL, unit = NULL, col = NULL)
 
 \method{fs_perim_mean}{sf}(X, index = NULL, unit = NULL, col = NULL)
 }
-\arguments{
-\item{txt}{Text to append to "foot"}
-}
 \value{
-TBD.
+\code{data.table} of zonal indices and values
 }
 \description{
-Calculate selected metrics of building footprints
+Calculate and summarise selected metrics of building 
+footprint polygons within zones.
+#' @inheritParams fs_area_mean
 }
 \author{
 Chris Jochem

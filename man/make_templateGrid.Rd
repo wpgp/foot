@@ -3,7 +3,7 @@
 \name{make_templateGrid}
 \alias{make_templateGrid}
 \alias{write_imageBinary}
-\title{write_imageBinary}
+\title{Writing gridded data to binary files}
 \usage{
 make_templateGrid(
   filename = NULL,
@@ -32,6 +32,11 @@ Default is \code{False}.}
 }
 \description{
 Write data to binary files and structure as native \code{raster} files.
+}
+\details{
+These functions provide a lightweight interface to binary writing demonstrated
+in the \code{\link[spatial.tools]{}} package. The advantage of using binary files is 
+the opportunity to using memory mapping (\code{mmap}) to support parallel writing.
 }
 \author{
 Chris Jochem

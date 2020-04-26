@@ -15,18 +15,20 @@ calculate_footstats <- function(X,
                                 metrics='all',
                                 gridded=TRUE, 
                                 template=NULL,
-                                file=NULL) UseMethod("calculate_footstats")
+                                outputPath=NULL,
+                                driver="GTiff") UseMethod("calculate_footstats")
 
 #' @name calculate_footstats
 #' @export
 calculate_footstats.sf <- function(X, index=NULL, metrics='all', 
-                                   gridded=TRUE, template=NULL, file=NULL){
+                                   gridded=TRUE, template=NULL, 
+                                   outputPath=NULL, driver="GTiff"){
   if(any(!st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON") )){
     message("Footprint statistics require polygon shapes.")
     stop()
   }
   
-  result <- calc_fs_internal(X, index, metrics, gridded, template, file)
+  result <- calc_fs_internal(X, index, metrics, gridded, template, outputPath, driver)
   
   return(result)
 }
@@ -35,12 +37,14 @@ calculate_footstats.sf <- function(X, index=NULL, metrics='all',
 #' @name calculate_footstats
 #' @export
 calculate_footstats.sfc <- function(X, index=NULL, metrics='all', 
-                                    gridded=TRUE, template=NULL, file=NULL){
+                                    gridded=TRUE, template=NULL, 
+                                    outputPath=NULL, driver="GTiff"){
   # cast to sf for consistency
   X <- sf::st_as_sf(X)
   
   result <- calculate_footstats(X, index=index, metrics=metrics, 
-                                gridded=gridded, template=template, file=file)
+                                gridded=gridded, template=template, 
+                                outputPath=outputPath, driver=driver)
   return(result)
 }
 
@@ -48,12 +52,14 @@ calculate_footstats.sfc <- function(X, index=NULL, metrics='all',
 #' @name calculate_footstats
 #' @export
 calculate_footstats.sp <- function(X, index=NULL, metrics='all', 
-                                   gridded=TRUE, template=NULL, file=NULL){
+                                   gridded=TRUE, template=NULL, 
+                                   outputPath=NULL, driver="GTiff"){
   # convert to sf
   X <- sf::st_as_sf(X)
   
   result <- calculate_footstats(X, index=index, metrics=metrics, 
-                                gridded=gridded, template=template, file=file)
+                                gridded=gridded, template=template, 
+                                outputPath=outputPath, driver=driver)
   return(result)
 }
 
@@ -61,12 +67,14 @@ calculate_footstats.sp <- function(X, index=NULL, metrics='all',
 #' @name calculate_footstats
 #' @export
 calculate_footstats.character <- function(X, index=NULL, metrics='all', 
-                                          gridded=TRUE, template=NULL, file=NULL){
+                                          gridded=TRUE, template=NULL, 
+                                          outputPath=NULL, driver="GTiff"){
   # attempt to read in file
   X <- sf::st_read(X)
   
   result <- calculate_footstats(X, index=index, metrics=metrics, 
-                                gridded=gridded, template=template, file=file)
+                                gridded=gridded, template=template, 
+                                outputPath=outputPath, driver=driver)
   return(result)
 }
 
@@ -74,27 +82,40 @@ calculate_footstats.character <- function(X, index=NULL, metrics='all',
 #' @name calculate_footstats
 #' @export
 calculate_footstats.list <- function(X, index=NULL, metrics='all', 
-                                     gridded=TRUE, template=NULL, file=NULL){
+                                     gridded=TRUE, template=NULL, 
+                                     outputPath=NULL, driver="GTiff"){
   result <- lapply(X, FUN=calculate_footstats(X, index=index, metrics=metrics, 
-                                              gridded=gridded, template=template, file=file))
+                                              gridded=gridded, template=template, 
+                                              outputPath=outputPath, driver=driver))
   
   return(result)  # should the list be simplified?
 }
 
 
-calc_fs_internal <- function(X, index, metrics, gridded, template, file){
+calc_fs_internal <- function(X, index, metrics, gridded, template, outputPath, driver){
   if(is.na(st_crs(X))){
     stop("Polygons must have a spatial reference.")
   }
   
-  if(class(index) == "sf" & sf::st_geometry_type(index) %in% c("POLYGON","MULTIPOLYGON")){
-    indexZones <- index # make copy
-    X <- zonalIndex(X, index, returnObject=TRUE)
-    index <- "zoneID"
-  } else{
-    warning("Index must be a polygon type. Ignoring input.")
-    index <- NULL
+  if(!is.null(index)){
+    if(inherits(index, "sf")){
+      if(sf::st_geometry_type(index) %in% c("POLYGON","MULTIPOLYGON")){
+        indexZones <- index # make copy
+        X <- zonalIndex(X, index, returnObject=TRUE)
+        index <- "zoneID"
+      }
+    } else if(class(index) == "numeric"){
+      if(length(index) != nrow(X)) stop("Index length does not match footprints.")
+      
+    } else if(class(index) == "character"){
+      index <- index[1]
+      
+    } else{
+      warning("Index must be a polygon or a column name. Ignoring input.")
+      index <- NULL
+    }
   }
+
   
   if(toupper(metrics[1]) == 'ALL'){
     metrics <- foot::fs_footprint_metrics$name
@@ -161,6 +182,11 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, file){
                                                             "default_units"])
   }
   
+    
+  if(any(grepl("angle", metrics, fixed=T))){
+    X[["fs_angle"]] <- sapply(sf::st_geometry(X), fs_mbr)
+  }
+  
   # creating the names of the functions to call
   metrics <- unique(metrics)
   metrics_calc <- paste0(metrics, "_calc")
@@ -204,20 +230,44 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, file){
   
   # output
   if(gridded==TRUE){
-    if(is.null(file)){
-      file <- tempdir()
+    if(is.null(outputPath)){
+      outputPath <- tempdir()
+    } else{
+      outputPath <- dir.create(outputPath)
     }
     
+    # get template for aligning gridded output
     if(is.null(template)){
       template <- stars::st_as_stars(sf::st_bbox(X), values=NA_real_)  # default resolution
-    } 
-    
-    if(sf::st_crs(template) != sf::st_crs(X)){
-      stop("CRS for buildings and template raster not matching.")
+    } else if(inherits(template, "stars")){
+      # no change?
+    } else if(class(template) == "RasterLayer"){
+      template <- stars::read_stars(raster::filename(template), proxy=TRUE)
+    } else if(class(template) == "character"){
+      template <- stars::read_stars(template)
+    } else{
+      stop("Error opening template dataset.")
     }
-    
-    for(r in result){
+        
+    if(exists("indexZones")){ # process buildings
+      spatial_result <- merge(indexZones, merged_result, by.x=index, by.y="index")
       
+    } else{
+      if(sf::st_crs(template) != sf::st_crs(X)){
+        stop("CRS for buildings and template raster not matching.")
+      }
+      
+      if(!sf::st_geometry_type(X) %in% c("POINT")){
+        X <- sf::st_centroid(X)
+      } 
+      spatial_result <- merge(X, merged_result, by.x=index, by.y="index")
+    }
+
+    for(val in names(merged_result)[!names(merged_result) %in% "index"]){
+      stars::st_rasterize(spatial_result[val], 
+                          file=file.path(outputPath, paste(val, "tif", sep=".")), 
+                          template=template,
+                          options="compress=LZW")
     }
   }
   
