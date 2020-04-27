@@ -10,7 +10,7 @@
 #' Default is \code{False}. 
 #' 
 #' @details These functions provide a lightweight interface to binary writing demonstrated
-#' in the \code{\link[spatial.tools]{}} package. The advantage of using binary files is 
+#' in the \code{\link[spatial.tools]{create_blank_raster}} package. The advantage of using binary files is 
 #' the opportunity to using memory mapping (\code{mmap}) to support parallel writing.
 #' 
 #' @author Chris Jochem
