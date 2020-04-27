@@ -39,7 +39,7 @@ fs_angle_entropy.sp <- function(X, index=NULL, col=NULL, normalize=TRUE){
 #' @name fs_angle_entropy
 #' @export
 fs_angle_entropy.sf <- function(X, index=NULL, col=NULL, normalize=TRUE){
-  if(any(!st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON") )){
+  if(any(!sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON") )){
     message("Angle requires polygon shapes.")
     stop()
   }

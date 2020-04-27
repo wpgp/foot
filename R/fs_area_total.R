@@ -28,12 +28,12 @@ fs_area_total.sp <- function(X, index=NULL, unit=NULL, col=NULL){
 #' @name fs_area_total
 #' @export
 fs_area_total.sf <- function(X, index=NULL, unit=NULL, col=NULL){
-  if(any(!st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON") )){
+  if(any(!sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON") )){
     message("Area requires polygon shapes.")
     stop()
   }
   
-  if(is.na(st_crs(X))){
+  if(is.na(sf::st_crs(X))){
     warning("Polygons have no spatial projection. Units ignored.")
     unit <- NULL
     

@@ -30,7 +30,7 @@ fs_NNdist_sd.sp <- function(X, index=NULL, unit=NULL, col=NULL){
 #' @export
 fs_NNdist_sd.sf <- function(X, index=NULL, unit=NULL, col=NULL){
 
-  if(is.na(st_crs(X))){
+  if(is.na(sf::st_crs(X))){
     warning("Objects have no spatial projection. Units ignored.")
     unit <- NULL
     
