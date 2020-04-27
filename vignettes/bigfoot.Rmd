@@ -1,0 +1,19 @@
+---
+title: "Create gridded building metric covariates"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Create gridded building metric covariates}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(foot)
+```
