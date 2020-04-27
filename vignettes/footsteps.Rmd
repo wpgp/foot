@@ -1,5 +1,11 @@
 ---
 title: "Basic building footprint calculations"
+description: >
+  Building footprints or polygons representing the outline shape of structures
+  can provide a unique data source for studying urban at high spatial
+  resolutions. This vignette will introduce the foot package and demonstrate
+  some of the tools provided to calculate summary measures of geometric
+  properties and to produce tabular and gridded outputs.
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Basic building footprint calculations}
@@ -14,6 +20,49 @@ knitr::opts_chunk$set(
 )
 ```
 
+While remote sensing has long been used to monitor urbanisation patterns, in
+recent years there has been an increasing availability in finer resolutions
+atellite data covering large areas of the globe. This very high resolution
+imagery (often <1 m spatial resolution, combined with increased computing power
+is producing new datasets on urban areas. In particular machine learning
+algorithms are being applied to detect and automatically extract and map full
+sets of building features in a scene. Such building footprint datasets provide a
+new level of detail on urban areas, particularly in places which might otherwise
+lack detailed maps on cities and rapidly growing areas. Despite their spatial
+detail, building footprints typically lack any other attribute information to
+help differentiate land uses or other neighbourhood characteristics. However,
+the size, shape, orientation, and clustering of structures produces a spatial
+pattern that can suggest areas of different land use or activities.
+
 ```{r setup}
 library(foot)
 ```
+
+The `foot` package was developed by WorldPop at the University of Southampton to
+support geometric calculations and zonal summaries of measures from building
+footprint polygons. This vignette will demonstrate some of the core
+functionality in the package, including:
+
+* The available measurements and summary statistics
+* How to define different types of spatial zones for summaries
+* An example workflow to produce tabular and gridded output
+
+To demonstrate the package, this vignette will use a supplied sample of building
+footprint polygons produced by Microsoft Bing Maps
+([Source](https://github.com/microsoft/Uganda-Tanzania-Building-Footprints))
+from an area in Kampala, Uganda.
+
+## Load the sample dataset
+```{r}
+data("kampala")
+
+buildings <- kampala$buildings
+adminzones <- kampala$adminZones
+clusters <- kampala$clusters
+```
+
+
+
+
+
+
