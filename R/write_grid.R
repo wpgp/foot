@@ -5,10 +5,8 @@
 #' @param dataType character string of \code{raster} data types. Default is \code{FLT8S}
 #' @param template A filepath or a gridded data object to be used as a 
 #' template to define the output file's resolution and positioning.
-#' @param interleave Band interleaving. Currently only BSQ supported.
-#' @param proj Proj4String of a coordinate reference system.
-#' @param nodata Value to indicate no data in the output.
-#' @param overwrite Should the output file be overwritten if it already exists. 
+#' @param interleave character string for band interleaving. Currently only 'BSQ' supported.
+#' @param overwrite logical. Should the output file be overwritten if it already exists?
 #' Default is \code{False}. 
 #' 
 #' @details These functions provide a lightweight interface to binary writing demonstrated
@@ -17,9 +15,8 @@
 #' 
 #' @author Chris Jochem
 #'
-#' @aliases write_imageBinary
 #' @import mmap
-
+#' 
 #' @name make_templateGrid
 #' @export
 make_templateGrid <- function(filename=NULL, datatype="FLT8S",  
@@ -95,7 +92,20 @@ make_templateGrid <- function(filename=NULL, datatype="FLT8S",
   return(filename)
 }
 
-
+#' @title Construct headers for gridded data
+#' @description Creates a .grd file with information on resolution and spatial extent for 
+#' use with a binary file (.gri). 
+#' @inheritParams make_templateGrid
+#' @param nrows number of rows in the data
+#' @param ncols number of columns in the data
+#' @param xmin,ymin,xmax,ymax geographic extent coordinates of the output data
+#' @param proj Proj4String of a coordinate reference system.
+#' @param nlayers number of layers (multiband) in the gridded data. Default is 1.
+#' @param nodata Value to represent no data in the output.
+#' 
+#' @details These gridded files are the native files used by the 
+#' \code{raster} package. The .gri (data) and .grd (header) files must have matching filenames.
+#' 
 #' @name make_templateHeader
 #' @export
 # Based on: https://stackoverflow.com/questions/32910919/converting-band-interleaved-by-pixel-binary-files-into-raster-grids
@@ -131,6 +141,34 @@ make_templateHeader <- function(filename,
   invisible(filename)
 }
 
+#' @title Fast writing of binary files
+#' @description \code{write_imageBinary} uses memory mapping functions to write 
+#' gridded data to a binary output format. Binary outputs can be read natively 
+#' but some software, or with the addition of header files, be converted to 
+#' formats easily read by most software.
+#' 
+#' @param data vector of 
+#' @param cellNumbers vector of cell indices to update with data values
+#' @param filename character string of path to the output file
+#' @param mapMode character string of the \code{raster} data type.
+#' 
+#' @details The function uses \code{\link[mmap]{mmap}} create and update a 
+#' binary output file on the hard drive.
+#' 
+#' The mapMode converts the \code{raster} data type strings to a \code{CType} used 
+#' by \code{mmap}. 
+#' \itemize{
+#' \item "LOG1S" \code{mmap::logi8()}
+#' \item "INT1S" \code{mmap::int8()}
+#' \item "INT1U" \code{mmap::uint8()}
+#' \item "INT2S" \code{mmap::int16()}
+#' \item "INT2U" \code{mmap::uint16()}
+#' \item "INT4S" \code{mmap::int32()}
+#' \item "INT4U" \code{NA}
+#' \item "INT4S" \code{mmap::real32()}
+#' \item "INT8S" \code{mmap::real64()}
+#' } 
+#' 
 #' @name write_imageBinary
 #' @export
 write_imageBinary <- function(data, cellNumbers=1:length(data), filename, mapMode){

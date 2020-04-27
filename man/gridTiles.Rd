@@ -3,19 +3,19 @@
 \name{gridTiles}
 \alias{gridTiles}
 \alias{gridTiles.stars}
-\alias{gridTiles.raster}
+\alias{gridTiles.RasterLayer}
 \title{gridTiles}
 \usage{
 gridTiles(X, n = NULL, px = c(1000, 1000), overlap = 0)
 
 \method{gridTiles}{stars}(X, n = NULL, px = c(1000, 1000), overlap = 0)
 
-\method{gridTiles}{raster}(X, n = NULL, px = c(1000, 1000), overlap = 0)
+\method{gridTiles}{RasterLayer}(X, n = NULL, px = c(1000, 1000), overlap = 0)
 }
 \arguments{
-\item{X}{The gridded (raster or Stars) object to find tiles}
+\item{X}{The gridded (\code{raster} or \code{stars}) object to find tiles}
 
-\item{n}{number of tiles. Can be a vector length 1 or length 2 (rows, columns)}
+\item{n}{number of tiles. Can be a vector length 1 or of length 2 (rows, columns)}
 
 \item{px}{number of pixels per side of a tile. Can be a vector of length 2 
 (rows, column pixels). Ignored if n provided. Default is 1000.}
@@ -23,13 +23,25 @@ gridTiles(X, n = NULL, px = c(1000, 1000), overlap = 0)
 \item{overlap}{number of pixels of overlap between internal tiles}
 }
 \value{
-TBD.
+\code{data.frame} where each row is a set of tile indices and sizes.
+\itemize{
+\item xl leftmost column index
+\item yl lowest row index
+\item xu rightmost column index
+\item yu topmost row index
+\item cropXsize number of columns in the tile
+\item cropYsize number of rows in the tile 
+}
 }
 \description{
 Split gridded data extents into subsets for parallel processing.
 }
 \details{
 gridTiles
+
+\code{gridTiles} provides a convenient way for splitting a gridded 
+dataset into subdatasets for cropping or processing individually. The splitting 
+uses the extent of the total grid, potentially including noData cells.
 }
 \author{
 Chris Jochem

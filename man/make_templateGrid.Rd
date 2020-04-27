@@ -2,7 +2,6 @@
 % Please edit documentation in R/write_grid.R
 \name{make_templateGrid}
 \alias{make_templateGrid}
-\alias{write_imageBinary}
 \title{Writing gridded data to binary files}
 \usage{
 make_templateGrid(
@@ -19,16 +18,12 @@ make_templateGrid(
 \item{template}{A filepath or a gridded data object to be used as a 
 template to define the output file's resolution and positioning.}
 
-\item{interleave}{Band interleaving. Currently only BSQ supported.}
+\item{interleave}{character string for band interleaving. Currently only 'BSQ' supported.}
 
-\item{overwrite}{Should the output file be overwritten if it already exists. 
+\item{overwrite}{logical. Should the output file be overwritten if it already exists?
 Default is \code{False}.}
 
 \item{dataType}{character string of \code{raster} data types. Default is \code{FLT8S}}
-
-\item{proj}{Proj4String of a coordinate reference system.}
-
-\item{nodata}{Value to indicate no data in the output.}
 }
 \description{
 Write data to binary files and structure as native \code{raster} files.
