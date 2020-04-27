@@ -1,0 +1,19 @@
+---
+title: "Basic building footprint calculations"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Basic building footprint calculations}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(foot)
+```
