@@ -11,7 +11,12 @@ fs_area <- function(X, unit=NULL){
 
 
 fs_perimeter <- function(X, unit=NULL){
-  perim_calc <- lwgeom::st_perimeter(X)
+  if(st_is_longlat(X)){
+    perim_calc <- sf::st_length(sf::st_cast(X, "LINESTRING"))
+  } else{
+    perim_calc <- sf::st_length(X)
+  }
+  # perim_calc <- lwgeom::st_perimeter(X)
   
   if(!is.null(unit)){
     perim_calc <- units::set_units(perim_calc, unit, mode="standard")

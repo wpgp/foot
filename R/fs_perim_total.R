@@ -52,7 +52,7 @@ fs_perim_total.sf <- function(X, index=NULL, unit=NULL, col=NULL){
         result <- fs_perim_total_calc(X, index, unit)
     }
   } else{
-      X[["fs_perim"]] <- fs_perim(X, unit)
+      X[["fs_perim"]] <- fs_perimeter(X, unit)
       result <- fs_perim_total_calc(X, index, unit)
   }
   return(result)
