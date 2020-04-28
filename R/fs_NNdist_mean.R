@@ -29,17 +29,6 @@ fs_NNdist_mean.sp <- function(X, index=NULL, unit=NULL, col=NULL){
 #' @name fs_NNdist_mean
 #' @export
 fs_NNdist_mean.sf <- function(X, index=NULL, unit=NULL, col=NULL){
-
-  if(is.na(sf::st_crs(X))){
-    warning("Objects have no spatial projection. Units ignored.")
-    unit <- NULL
-    
-  } else{
-    if(is.null(unit)){
-      unit <- "m"
-    }
-  }
-
   if(!is.null(col)){
     if(!col %in% names(X)){
       message("Error: column name not found.")
@@ -49,7 +38,17 @@ fs_NNdist_mean.sf <- function(X, index=NULL, unit=NULL, col=NULL){
         result <- fs_NNdist_mean_calc(X, index, unit)
     }
   } else{
-      X[["fs_NNdist"]] <- fs_NNdist(X, unit) # using default search radius
+      if(is.na(sf::st_crs(X))){
+        warning("Objects have no spatial projection. Units ignored.")
+        unit <- NULL
+        
+      } else{
+        if(is.null(unit)){
+          unit <- "m"
+        }
+      }
+    
+      X[["fs_NNdist"]] <- fs_NNdist(X, unit=unit) # using default search radius
       result <- fs_NNdist_mean_calc(X, index, unit)
   }
   return(result)
@@ -58,7 +57,7 @@ fs_NNdist_mean.sf <- function(X, index=NULL, unit=NULL, col=NULL){
 
 fs_NNdist_mean_calc <- function(X, index=NULL, unit=NULL){
   if(!"fs_NNdist" %in% names(X)){
-    X[["fs_NNdist"]] <- fs_NNdist(X, unit) # default search radius
+    X[["fs_NNdist"]] <- fs_NNdist(X, unit=unit) # default search radius
   }
   
   if(is.null(index)){
