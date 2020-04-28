@@ -12,7 +12,7 @@ fs_area <- function(X, unit=NULL){
 
 fs_perimeter <- function(X, unit=NULL){
   if(st_is_longlat(X)){
-    perim_calc <- sf::st_length(sf::st_cast(X, "LINESTRING"))
+    perim_calc <- sf::st_length(sf::st_cast(sf::st_geometry(X), "LINESTRING"))
   } else{
     perim_calc <- sf::st_length(X)
   }
