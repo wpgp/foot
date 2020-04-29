@@ -4,27 +4,29 @@
 \alias{fs_NNdist}
 \title{Nearest neighbour distance calculation}
 \usage{
-fs_NNdist(X, Y, maxSearch = 1000, unit = "m")
+fs_NNdist(X, Y, maxSearch = 100, unit = "m")
 }
 \arguments{
-\item{X}{Spatial object, typically polygons or points.}
+\item{X}{Spatial object of \code{sf} type, typically polygons or points.}
 
 \item{Y}{(Optional) Spatial object to measure distances to.}
 
-\item{maxSearch}{Maximum search radius around \code{X} to search. Distance in meters. 
-Default is 1000.}
+\item{maxSearch}{Maximum search radius around \code{X} to search. Distance in
+meters. Default is 1000.}
 
-\item{unit}{Character abbreviation for the units to return from the distance calculation.}
+\item{unit}{Character abbreviation for the units to return from the distance
+calculation.}
 }
 \description{
-Helper function to provide a distance calculation between spatial
-ojects. The distance to the first nearest neighbour found (optionally within 
-a maximum search radisu) is returned.
+Helper function to provide a distance calculation between
+  spatial ojects. The distance to the first nearest neighbour found
+  (optionally within a maximum search radisu) is returned.
 }
 \details{
-If \code{Y} is omitted the nearest neighbour distances are found within \code{X}. 
-Otherwise, the distance for each object in \code{X} to its nearest neighbour in \code{Y} is
-returned. Providing a maximum search radius is strongly advised to speed up the calcluation.
+If \code{Y} is omitted the nearest neighbour distances are found
+  within \code{X}. Otherwise, the distance for each object in \code{X} to its
+  nearest neighbour in \code{Y} is returned. Providing a maximum search
+  radius is strongly advised to speed up the calcluation.
 }
 \author{
 Chris Jochem
