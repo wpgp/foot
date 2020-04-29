@@ -70,13 +70,35 @@ calculate_footstats(
 )
 }
 \arguments{
-\item{txt}{Text to append to "foot"}
+\item{X}{object with building footprint polygons. This argument can take
+multiple spatial types, including \code{sf} and \code{sp}, or a fileparth
+string to a building footprint files, or a list where each list member
+provides a spatial object or a filepath.}
+
+\item{index}{A character or numeric value identifying a column within
+\code{X} which provides a zonal index for summarising values. Alternatively
+a vector of indices can be provided. If omitted all observations with
+\code{X} are assumed to be within one zone.}
+
+\item{metrics}{character vector. Names of footprint statistics in the form of
+"fs_area_mean", etc. Other options include \code{ALL} or \code{NODIST} to
+calculate all available metrics and all except nearest neighbour distances,
+respectively.}
+
+\item{template}{(optional). When creating a gridded output, a supplied
+\code{stars} or \code{raster} dataset to align the data.}
+
+\item{outputPath}{(optional). When creating a gridded output, a path for the
+location of the output.}
+
+\item{driver}{character. Currently supports geotiff ("GTiff").}
 }
 \value{
-TBD.
+a \code{data.table} with an 'index' column and named columns for each
+  footprint statistic. Alternatively, geoTiffs of
 }
 \description{
-Calculate selected metrics of building footprints
+Calculate groups of metrics for building footprint datasets
 }
 \details{
 calculate_footstats

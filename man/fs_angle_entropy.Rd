@@ -17,7 +17,7 @@ fs_angle_entropy(X, index = NULL, col = NULL, normalize = TRUE)
 
 \item{index}{A character or numeric value identifying a column within \code{X} 
 which provides a zonal index for summarising values. Alternatively a vector of 
-indices can be provided. If omitted all observations with \code{X} are assumed 
+indices can be provided. If omitted all observations in \code{X} are assumed 
 to be within one zone.}
 
 \item{col}{column name within \code{X} with pre-calculated area measures}

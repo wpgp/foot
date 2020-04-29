@@ -17,7 +17,7 @@ fs_area_mean(X, index = NULL, unit = NULL, col = NULL)
 
 \item{index}{A character or numeric value identifying a column within \code{X} 
 which provides a zonal index for summarising values. Alternatively a vector of 
-indices can be provided. If omitted all observations with \code{X} are assumed 
+indices can be provided. If omitted all observations in \code{X} are assumed 
 to be within one zone.}
 
 \item{unit}{character or \code{units} object to define area. 

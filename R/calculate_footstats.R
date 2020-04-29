@@ -1,9 +1,28 @@
 #' calculate_footstats
 #' 
 #' @title calculate_footstats
-#' @description Calculate selected metrics of building footprints
-#' @param txt Text to append to "foot"
-#' @return TBD.
+#' @description Calculate groups of metrics for building footprint datasets
+#' @param X object with building footprint polygons. This argument can take
+#'   multiple spatial types, including \code{sf} and \code{sp}, or a fileparth
+#'   string to a building footprint files, or a list where each list member
+#'   provides a spatial object or a filepath.
+#' @param index A character or numeric value identifying a column within
+#'   \code{X} which provides a zonal index for summarising values. Alternatively
+#'   a vector of indices can be provided. If omitted all observations with
+#'   \code{X} are assumed to be within one zone.
+#' @param metrics character vector. Names of footprint statistics in the form of
+#'   "fs_area_mean", etc. Other options include \code{ALL} or \code{NODIST} to
+#'   calculate all available metrics and all except nearest neighbour distances,
+#'   respectively.
+#' @param template (optional). When creating a gridded output, a supplied
+#'   \code{stars} or \code{raster} dataset to align the data.
+#' @param outputPath (optional). When creating a gridded output, a path for the
+#'   location of the output.
+#' @param driver character. Currently supports geotiff ("GTiff").
+#' 
+#' @return a \code{data.table} with an 'index' column and named columns for each
+#'   footprint statistic. Alternatively, geoTiffs of 
+#'   
 #' @author Chris Jochem
 #' 
 #' @aliases calculate_footstats
@@ -99,10 +118,13 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, outputPath, d
   
   if(!is.null(index)){
     if(inherits(index, "sf")){
-      if(sf::st_geometry_type(index) %in% c("POLYGON","MULTIPOLYGON")){
+      if(any(sf::st_geometry_type(index) %in% c("POLYGON","MULTIPOLYGON"))){
         indexZones <- index # make copy
         X <- zonalIndex(X, index, returnObject=TRUE)
         index <- "zoneID"
+      } else{
+        warning("Index must be a polygon or a column name. Ignoring input.")
+        index <- NULL
       }
     } else if(class(index) == "numeric"){
       if(length(index) != nrow(X)) stop("Index length does not match footprints.")
@@ -151,9 +173,9 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, outputPath, d
       zonalArea <- data.table(index=X[["zoneID"]], zoneArea=fs_area(indexZones))
     } else{
       warnings("Nearest neighbour index requires zonal areas.")
-      # nnIndex <- FALSE
-      zoneAreas <- fs_area(sf::st_as_sfc(sf::st_bbox(X), crs=sf::st_crs(X)))
-      zonalArea <- data.table(zoneID=1:length(zoneAreas), zoneArea=zoneAreas)
+      nnIndex <- FALSE
+      # zoneAreas <- fs_area(sf::st_as_sfc(sf::st_bbox(X), crs=sf::st_crs(X)))
+      # zonalArea <- data.table(zoneID=1:length(zoneAreas), zoneArea=zoneAreas)
     }
     
   } else{
