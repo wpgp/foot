@@ -1,18 +1,18 @@
 #' Index buildings footprints to 'zones'
 #' 
-#' @description Find the area, grid cells, or other zone that a building 
-#' polygon overlaps or is located in
+#' @description Find the area, grid cells, or other zone that a building polygon
+#'   overlaps or is located in
 #' @param X Spatial data (or path to file) with building footprint polygons
-#' @param zone Spatial data (or path to file) with polygon zones or a spatial 
-#' grid ("raster")
+#' @param zone Spatial data (or path to file) with polygon zones or a spatial
+#'   grid ("raster")
 #' @param zoneField (Optional) Unique identifier for each zone
-#' @param returnObject Logical of whether to return an sf object of X with 
-#' zonal information. Default TRUE.
-#' @param clip Logical of whether polygons of X which span multiple zones should 
-#' be clipped to the zone. If not clipped, then whole building footprints are linked
-#' to each zone. Default FALSE.
-#' @return 'sf' object with attributes of X plus the unique zone ID or a data.table 
-#' with the ID to X and the zone IDs.
+#' @param returnObject Logical of whether to return an sf object of X with zonal
+#'   information. Default TRUE.
+#' @param clip Logical of whether polygons of X which span multiple zones should
+#'   be clipped to the zone. If not clipped, then whole building footprints are
+#'   linked to each zone. Default FALSE.
+#' @return 'sf' object with attributes of X plus the unique zone ID or a
+#'   data.table with the ID to the records in \code{X} and the zone IDs.
 #' @author Chris Jochem
 #' 
 #' @import data.table
@@ -103,16 +103,22 @@ zonalIndex.character <- function(X, zone, zoneField=NULL, returnObject=TRUE, cli
 
 
 get_zonal_index <- function(X, zone, zoneField=NULL, returnObject=TRUE, clip=FALSE){
-  if(is.na(st_crs(X)) | is.na(st_crs(zone))){
+  if(missing(X)){
+    stop("Missing footprint dataset")
+  } else if (all(!class(X) %in% c("sf","sfc"))){
+    X <- sf::st_as_sf(X)
+  }
+  
+  if(is.na(sf::st_crs(X)) | is.na(sf::st_crs(zone))){
     stop("Missing CRS.")
   }
   
-  if(st_crs(X) != st_crs(zone)){
+  if(sf::st_crs(X) != sf::st_crs(zone)){
     stop("Coordinate systems do not match")
   }
   
   if(any(sf::st_geometry_type(X) == "MULTIPOLYGON")){
-    X <- st_cast(X, "POLYGON")
+    X <- sf::st_cast(X, "POLYGON")
   }
   
   if(any(sf::st_geometry_type(zone) == "MULTIPOLYGON")){
@@ -120,7 +126,7 @@ get_zonal_index <- function(X, zone, zoneField=NULL, returnObject=TRUE, clip=FAL
   }
   
   if(is.null(zoneField)){
-    zone[["zoneID"]] <- 1:nrow(zone)
+    zone[["zoneID"]] <- 1:length(sf::st_geometry(zone))
     zoneField <- "zoneID"
   } else if(!zoneField %in% names(zone)){
     stop("Field identifying zones not found")
@@ -157,7 +163,8 @@ get_zonal_index <- function(X, zone, zoneField=NULL, returnObject=TRUE, clip=FAL
       result <- sf::st_as_sf(DT)
     }
   } else{
-    result <- data.table::data.table(xID=unlist(i), zoneID=rep(zone[[zoneField]], lengths(i)))
+    result <- data.table::data.table(xID=unlist(i), 
+                                     zoneID=rep(zone[[zoneField]], lengths(i)))
     data.table::setkey(result, zoneID)
   }
   

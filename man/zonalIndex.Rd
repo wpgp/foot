@@ -27,25 +27,25 @@ zonalIndex(X, zone, zoneField = NULL, returnObject = TRUE, clip = FALSE)
 \arguments{
 \item{X}{Spatial data (or path to file) with building footprint polygons}
 
-\item{zone}{Spatial data (or path to file) with polygon zones or a spatial 
+\item{zone}{Spatial data (or path to file) with polygon zones or a spatial
 grid ("raster")}
 
 \item{zoneField}{(Optional) Unique identifier for each zone}
 
-\item{returnObject}{Logical of whether to return an sf object of X with 
-zonal information. Default TRUE.}
+\item{returnObject}{Logical of whether to return an sf object of X with zonal
+information. Default TRUE.}
 
-\item{clip}{Logical of whether polygons of X which span multiple zones should 
-be clipped to the zone. If not clipped, then whole building footprints are linked
-to each zone. Default FALSE.}
+\item{clip}{Logical of whether polygons of X which span multiple zones should
+be clipped to the zone. If not clipped, then whole building footprints are
+linked to each zone. Default FALSE.}
 }
 \value{
-'sf' object with attributes of X plus the unique zone ID or a data.table 
-with the ID to X and the zone IDs.
+'sf' object with attributes of X plus the unique zone ID or a
+  data.table with the ID to the records in \code{X} and the zone IDs.
 }
 \description{
-Find the area, grid cells, or other zone that a building 
-polygon overlaps or is located in
+Find the area, grid cells, or other zone that a building polygon
+  overlaps or is located in
 }
 \author{
 Chris Jochem

@@ -58,7 +58,7 @@ fs_NNdist <- function(X, Y, maxSearch=100, unit="m"){
   data.table::setindex(DT, uid)
   
   # buffer search
-  if(!is.null(maxSearch) & maxSearch > 0){
+  if(!is.null(maxSearch)){
     if(sf::st_is_longlat(searchObj)){
       zn <- suggestUTMzone(sf::st_coordinates(sf::st_centroid(sf::st_as_sfc(sf::st_bbox(X)))))
       
@@ -69,17 +69,17 @@ fs_NNdist <- function(X, Y, maxSearch=100, unit="m"){
       searchBuffer <- sf::st_buffer(searchObj, maxSearch)
     }
     # get objects within search buffer
-    intersects2 <- sf::st_intersects(searchBuffer, X)
+    intersects2 <- sf::st_intersects(X, searchBuffer)
     # restricted distance calculation
-    DT[, intersects := lapply(intersects2, function(i) uid[i])]
+    DT[, intersects := lapply(intersects2, function(i) i)]
     
     DT[is.na(dist), 
-       dist := sort(sf::st_distance(X$geometry[uid], X$geometry[unlist(intersects)]))[2], #, tolerance=1
+       dist := sort(sf::st_distance(X$geometry[uid], searchObj$geometry[unlist(intersects)]))[2], #, tolerance=1
        by = uid]
 
   } else{  # unrestricted distance search (slower)
     DT[is.na(dist), 
-       dist := sort(sf::st_distance(X$geometry[uid], X$geometry[unlist(intersects)]))[2],
+       dist := sort(sf::st_distance(X$geometry[uid], searchObj$geometry))[2],
        by = uid]
   }
 

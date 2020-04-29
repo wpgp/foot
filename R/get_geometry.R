@@ -48,7 +48,7 @@ fs_perimeter <- function(X, unit=NULL){
 #' @export
 # Based on: https://gis.stackexchange.com/questions/22895/finding-minimum-area-rectangle-for-given-points
 fs_mbr <- function(X, returnShape=FALSE){
-  if(any(class(X) == "POLYGON") | any(class(X) == "MULTIPOLYGON")){
+  if(sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON", "POINT", "MULTIPOINT")){
     p <- sf::st_coordinates(X)[,1:2]
   } else if(class(X) != "Matrix"){
     stop("Invalid coordinates.")
