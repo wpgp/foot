@@ -7,7 +7,7 @@
 \alias{calculate_footstats.sp}
 \alias{calculate_footstats.character}
 \alias{calculate_footstats.list}
-\title{calculate_footstats}
+\title{calculate_footstats: Feature statistics of building footprints}
 \usage{
 calculate_footstats(
   X,

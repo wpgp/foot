@@ -121,12 +121,15 @@ perim_sd
 With no other argument supplied, all the footprints are treated as coming from
 the same zone for the summary. Default unit values are used for geometry
 measurements. All functions return the same format - a `data.table` with a
-column for the index and the named column for summarised footprint metric.
+column for the index and the named column for the summarised footprint metric.
+
+There is also an option to supply pre-calculated column to each function with 
+the `col=` argument. While unlikely to be used often, 
 
 All functions follow the same template, and, because the first argument is
 always data, all the functions allow for "piping" syntax.
 
-```{r}
+```{r, tidy=F}
 # random sample of buildings
 result <- buildings %>%
           dplyr::filter(FID_1 %in% sample(FID_1, 1000)) %>%
@@ -175,8 +178,11 @@ fs_mbr(buildings[5,], returnShape=F)
 
 ```
 
-The angles can be summarised as an entropy measure and normalised to describe
-how much the angles of structures depart from a regular grid pattern.
+At present, the `fs_mbr()` function is not vectorized because of how it relies
+on `chull` and a loop is required to calculate all features. The angles can be
+summarised as an entropy measure and normalised to describe how much the angles
+of structures depart from a regular grid pattern (available in
+`fs_angle_entropy`).
 
 
 ## Creating and supplying zone indices
@@ -275,13 +281,14 @@ These side effects are allowed because they allow for flexibility to support
 types of "focal" summaries of statistics and to produce a true gridded measure
 of footprint metrics.
 
+
 ## Calculating multiple metrics
-The ```calculate_footstats``` function provides a convenient wrapper to the
+The `calculate_footstats` function provides a convenient wrapper to the
 individual footprint statistic functions and other helper functions. The
-function accepts a variety of input formats (see ```?calculate_footstats```).
+function accepts a variety of input formats (see `?calculate_footstats`).
 Multiple metrics can be calculated for the same sets of buildings and zones.
 
-```{r}
+```{r, tidy=F}
 # Creates zonal index and calculates multiple metrics
 results <- calculate_footstats(buildings, 
                                adminzones, 
@@ -299,11 +306,11 @@ CV.
 ## Gridded outputs 
 Often the desired output is a gridded dataset of a measure, rather than
 summarising metrics to polygon zones. A gridded dataset can be achieved with the
-```foot``` functions in several ways.
+`foot` functions in several ways.
 
 (@) The simplest method is to attach buildings (and summary measures) to grid
-cells by the centroid point location. A fast approach is use cell numbers.
-```{r, fig.width=6, fig.height=6}
+cells by the centroid point location. A fast approach is to use cell numbers.
+```{r, fig.width=6, fig.height=6, tidy=F}
 mgrid <- kampala$mastergrid # ~100m raster layer
 
 # get the cell numbers from the grid
@@ -312,24 +319,33 @@ cellIDs <- raster::cellFromXY(mgrid,
 # use these numbers as the zone
 gridRes <- calculate_footstats(buildings, 
                                index=cellIDs, 
-                               metrics=c("fs_perim_total","fs_count","fs_settled"),
+                               metrics=c("fs_perim_total",
+                                         "fs_area_total",
+                                         "fs_count",
+                                         "fs_settled"),
                                gridded=F)
 # buildings lacking a grid cell are NA
 gridRes <- na.omit(gridRes)
   gridRes
   
 # create a blank raster and fill with summary measures
+outSettled <- mgrid
+outSettled[] <- NA
+outSettled[gridRes$index] <- gridRes$fs_area_ha_total
+
 outCount <- mgrid
 outCount[] <- NA
 outCount[gridRes$index] <- gridRes$fs_count
 
 raster::plot(outCount)
+plot(sf::st_geometry(buildings), add=T)
 ```
 
-(@) Pixel-level calculation. While centroid-based calculations are fast, sometimes it may be 
-necessary to know the true amount of settlement *per pixel*. The zonal index functions can be 
-use to intersect buildings to grid squares, as shown.
-```{r warning=FALSE}
+(@) Pixel-level calculation. While centroid-based calculations are fast,
+sometimes it may be necessary to know the true amount of settlement *per pixel*.
+The zonal index functions can be used to intersect buildings to grid squares,
+and supplied to the feature calculations as shown.
+```{r warning=FALSE, tidy=F}
 # convert the grid to a stars object and then sf to get polygons
 sgrid <- stars::st_as_stars(mgrid)
 sgrid <- sf::st_as_sf(sgrid)
@@ -339,7 +355,8 @@ sgrid$cellIDs <- raster::cellFromXY(mgrid, sf::st_coordinates(sf::st_centroid(sg
 
 # create a zonal index on the building objects
 pxZone <- zonalIndex(buildings, 
-                     sgrid, "cellIDs", 
+                     sgrid, 
+                     "cellIDs", 
                      returnObject=T, 
                      clip=T)
 
@@ -348,19 +365,51 @@ pxResult <- calculate_footstats(pxZone,
                                 metrics=c("fs_area_total", "fs_settled"))
   print(pxResult)
 ```
+
 As before, the metrics are linked to the grid by their cell numbers. The results
-can also be remerged to the ```stars``` or ```sf``` representation of the grid
-and quickly rasterized based on geometry.
+can also be merged to the `stars` or `sf` representation of the grid and quickly
+rasterized based on geometry. The difference between using centroids or pixels
+is most visible with large structures.
+```{r, fig.cap="Centroid-based (left) and a pixel-based (right) map of total building area", fig.show='hold', fig.width=6}
+# create output
+pxSettled <- mgrid
+pxSettled[] <- NA
+pxSettled[pxResult$index] <- pxResult$fs_area_ha_total
 
-(@) Write gridded data to GeoTiff files. Using ```calculate_footstats``` a template raster and 
-an output location can be specified. Each metrics will be written to a separate grid.
-```{r}
+# compare centroid and pixel settled maps
+par(mfrow=c(1,2))
+raster::plot(outSettled, zlim=c(0,1), xlim=c(32.623, 32.626), ylim=c(0.338, 0.342))
+plot(sf::st_geometry(buildings), add=T)
+raster::plot(pxSettled, zlim=c(0,1), xlim=c(32.623, 32.626), ylim=c(0.338, 0.342))
+plot(sf::st_geometry(buildings), add=T)
+```
 
+(@) Write gridded data to GeoTiff files. Using `calculate_footstats` a template
+raster and an output location can be specified. The template can be a `raster`
+or `stars` object. Each metric will be written to a separate grid. This approach
+also demonstrates how an index of `sf` type can be provided to the wrapper
+function.
+```{r, fig.width=6, fig.height=6, tidy=F}
+outputPath <- tempdir()
+
+# re-using the sf pixels as "zones"
+calculate_footstats(buildings, 
+                    index=sgrid, 
+                    metrics=c("fs_area_mean", "fs_settled"),
+                    gridded=TRUE, 
+                    template=mgrid,  # using a rasterlayer
+                    outputPath=outputPath # or a temp directory is created
+                   )
+
+# get the output
+raster::plot(raster::raster(paste0(outputPath, "/fs_area_ha_mean.tif")))
+plot(st_geometry(buildings), add=T)
 ```
 
 The above approaches work fine for small study areas, but may be too slow over
-large areas. Producing  country-scale gridded datasets with tools from
-```foot``` is addressed in the second vignette ("bigfoot").
+large areas and with many footprint features. Producing country-scale gridded
+datasets with tools from `foot` is addressed in the second vignette ("bigfoot").
+
 
 ***
 ```{r}

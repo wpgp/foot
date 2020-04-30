@@ -1,6 +1,6 @@
 #' calculate_footstats
 #' 
-#' @title calculate_footstats
+#' @title calculate_footstats: Feature statistics of building footprints
 #' @description Calculate groups of metrics for building footprint datasets
 #' @param X object with building footprint polygons. This argument can take
 #'   multiple spatial types, including \code{sf} and \code{sp}, or a fileparth
@@ -120,6 +120,8 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, outputPath, d
     if(inherits(index, "sf")){
       if(any(sf::st_geometry_type(index) %in% c("POLYGON","MULTIPOLYGON"))){
         indexZones <- index # make copy
+        indexZones$index <- 1:nrow(indexZones)
+        
         X <- zonalIndex(X, index, returnObject=TRUE)
         index <- "zoneID"
       } else{
@@ -170,7 +172,8 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, outputPath, d
     nnIndex <- TRUE
     
     if(exists("indexZones")){
-      zonalArea <- data.table(index=X[["zoneID"]], zoneArea=fs_area(indexZones))
+      zonalArea <- data.table::data.table(index=indexZones$index, 
+                                          zoneArea=fs_area(indexZones, unit="ha"))
     } else{
       warnings("Nearest neighbour index requires zonal areas.")
       nnIndex <- FALSE
@@ -255,7 +258,7 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, outputPath, d
     if(is.null(outputPath)){
       outputPath <- tempdir()
     } else{
-      outputPath <- dir.create(outputPath)
+      dir.create(outputPath)
     }
     
     # get template for aligning gridded output
@@ -264,15 +267,17 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, outputPath, d
     } else if(inherits(template, "stars")){
       # no change?
     } else if(class(template) == "RasterLayer"){
-      template <- stars::read_stars(raster::filename(template), proxy=TRUE)
+      template <- stars::st_as_stars(template)
     } else if(class(template) == "character"){
-      template <- stars::read_stars(template)
+      template <- stars::read_stars(template)[1]
     } else{
       stop("Error opening template dataset.")
     }
+    
+    template[!is.na(template)] <- NA
         
     if(exists("indexZones")){ # process buildings
-      spatial_result <- merge(indexZones, merged_result, by.x=index, by.y="index")
+      spatial_result <- merge(indexZones, merged_result, by.x="index", by.y="index")
       
     } else{
       if(sf::st_crs(template) != sf::st_crs(X)){
@@ -289,6 +294,7 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, outputPath, d
       stars::st_rasterize(spatial_result[val], 
                           file=file.path(outputPath, paste(val, "tif", sep=".")), 
                           template=template,
+                          driver=driver,
                           options="compress=LZW")
     }
   }
