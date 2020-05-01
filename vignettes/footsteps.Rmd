@@ -4,7 +4,7 @@ date: '`r format(Sys.Date(), "%B %d, %Y")`'
 description: >
   Building footprints or polygons representing the outline shape of structures
   can provide a unique data source for studying urban at high spatial
-  resolutions. This vignette will introduce the foot package and demonstrate
+  resolutions. This vignette will introduce the `foot` package and demonstrate
   some of the tools provided to calculate summary measures of geometric
   properties and to produce tabular and gridded outputs.
 output: rmarkdown::html_vignette
@@ -24,8 +24,8 @@ knitr::opts_chunk$set(
 ```
 
 While remote sensing has long been used to monitor urbanisation patterns, in
-recent years there has been an increasing availability in finer resolutions
-atellite data covering large areas of the globe. This very high resolution
+recent years there has been an increasing availability in finer resolution
+satellite data covering large areas of the globe. This very high resolution
 imagery (often <1 m spatial resolution, combined with increased computing power
 is producing new datasets on urban areas. In particular machine learning
 algorithms are being applied to detect and automatically extract and map full

@@ -1,0 +1,153 @@
+---
+title: "Create gridded building metric covariates"
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+description: >
+  Building footprints or polygons representing the outline shape of structures
+  can provide a unique data source for studying urban at high spatial
+  resolutions. This vignette will introduce a workflow using the `foot` package
+  and the tools provided to produce gridded covariates of footprint metrics for
+  large regions.
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Create gridded building metric covariates}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## TO-DO
+* move to a vignette? How to include/access footprints?
+* alternative: create a separate building dataset from MS buildings
+* re-write and add parallel looping code for tiles
+* check mdsumner's grout package for GDAL-native tiles
+
+
+## Demonstration workflow
+```{r setup}
+library(foot)
+library(stars)   # for reading/writing some GDAL files
+library(raster)  # to demonstrate with raster tools
+
+# Package to download WorldPop mastergrids
+# devtools::install_github("wgpg/wpgpDownloadR")
+library(wpgpDownloadR) 
+```
+
+This demonstration will use a set of building footprints produced by Ecopia in
+partnership with Maxar (Digitize Africa data © 2020 Maxar Technologies,
+Ecopia.AI). These cover South Sudan and have been reprocessed to merge into a
+single Geopackage file in WGS84 projection (4326).
+```{r}
+# path to building footprint data
+bldgPath <- "//worldpop.files.soton.ac.uk/worldpop/Projects/WP517763_GRID3/Working/SSD/sett/made_2/ssd_buildings_wgs84_merge.gpkg"
+```
+
+
+The processing will create an output that aligns with the WorldPop mastergrid.
+Each pixel will also become a processing location to summarise the footprint
+metrics.
+```{r, tidy=F}
+# load the mastergrid
+mgPath <- wpgpGetCountryDataset(ISO3="SSD", 
+                                covariate="level0_100m_2000_2020")
+mgrid <- read_stars(mgPath, proxy=TRUE)
+  
+  print(mgrid)
+```
+Note that the proxy setting for `stars` does not bring the file into memory, but 
+provides access to the files's dimensions.
+
+### Create processing tiles
+The large extent of the mastergrid is split into roughly equal sized tiles.
+These tiles can then be used to process the footprint metrics in parallel across
+multiple cores or multiple machines. If the metrics require a local summary,
+such as within a buffer around the processing location, then the tiles need a
+buffer (or "halo") as well.
+
+```{r, tidy=F}
+# create tiles
+tiles <- gridTiles(mgrid, 
+                   px=c(200, 200), # approximate size row, col pixels
+                   overlap=0
+                  )
+
+# create buffered tiles (assuming max of 250m buffer at each location)
+tilesBuff <- gridTiles(mgrid,
+                       px=c(200,200),
+                       overlap=3  # overlap in pixels, at least 250m
+                      )
+
+  head(tiles)
+```
+
+In an actual process, each row in the table of tiles serves a "job" to be done 
+in parallel. For this demonstration, one tile will be use.
+```{r}
+i <- 200 # example
+```
+
+Example job tile for processing
+```{r, tidy=F}
+# select the tile
+job <- tiles[i,]
+
+# get the tile extent
+rio <- list(nXOff = job[[1]], 
+            nYOff = job[[2]], 
+            nXSize = job[[5]], 
+            nYSize = job[[6]], 
+            bands = c(1))
+
+# create a tile from the mastergrid
+# without a buffer will define the output locations
+mgTile <- read_stars(mgPath,
+                     RasterIO=rio,
+                     proxy=TRUE
+                    )
+
+# and create a buffered tile for extracting buildings
+job <- tilesBuff[i,]
+
+# get the tile extent
+rio <- list(nXOff = job[[1]], 
+            nYOff = job[[2]], 
+            nXSize = job[[5]], 
+            nYSize = job[[6]], 
+            bands = c(1))
+
+# in the same way
+mgBuffTile <- read_stars(mgPath,
+                         RasterIO=rio,
+                         proxy=TRUE
+                        )
+```
+
+The buffered tiles have an extra 3 pixel on each side.
+```{r}
+dim(mgTile)
+dim(mgBuffTile)
+```
+
+### Extract buildings
+The building footprints should be extracted using the extent of the buffered
+tile so that a focal window analysis at each processing location can be
+computed. If the computer has enough RAM to read in the full datafile, then the 
+spatial filter step can be skipped and more quickly subset/cropped with `[`.
+```{r}
+# set-up a spatial filter for file reading
+# based on the bounding box of the tile
+wkt <- st_as_text(st_as_sfc(st_bbox(mgBuffTile)))
+
+# read in the footprints
+buildings <- st_read(bldgPath,
+                     wkt_filter=wkt
+                    )
+  buildings
+```
+

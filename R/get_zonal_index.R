@@ -142,7 +142,7 @@ get_zonal_index <- function(X, zone, zoneField=NULL, returnObject=TRUE, clip=FAL
   
   if(returnObject){
     if(clip){
-      intList <- suppressMessages( lapply(seq(hits),  # TO-DO move to parallel
+      intList <- suppressWarnings( lapply(seq(hits),  # TO-DO move to parallel
                         FUN=function(j){ 
                           ints <- sf::st_intersection(zone[j, c(zoneField, zoneGeo)], 
                                                       X[i[[j]],] )
