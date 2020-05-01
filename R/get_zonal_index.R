@@ -137,12 +137,14 @@ get_zonal_index <- function(X, zone, zoneField=NULL, returnObject=TRUE, clip=FAL
   # subset the objects to limit search space
   i <- i[hits]
   zone <- zone[hits,]
-
+  # get the name of the geometry column
+  zoneGeo <- attr(zone, "sf_column") 
+  
   if(returnObject){
     if(clip){
       intList <- suppressMessages( lapply(seq(hits),  # TO-DO move to parallel
                         FUN=function(j){ 
-                          ints <- sf::st_intersection(zone[j, c(zoneField, "geometry")], 
+                          ints <- sf::st_intersection(zone[j, c(zoneField, zoneGeo)], 
                                                       X[i[[j]],] )
                           if(any(sf::st_geometry_type(ints)=="MULTIPOLYGON")){
                             ints <- sf::st_cast(
