@@ -11,7 +11,7 @@ WorldPop Research Group, University of Southampton
 
 ~~4. Check out the example function in `./R/footFun.R`.~~
 
-3. Run the vignette("footsteps") to explore basic usage.
+3. Run the `vignette("footsteps")` to explore basic usage.
 
 ### Installation
 Instead of cloning the repo, the *foot* package can be installed directly from Github.
