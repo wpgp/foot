@@ -4,9 +4,13 @@ WorldPop Research Group, University of Southampton
 ### Quick Start  
 
 1. Clone the repository to your computer (easiest with GitHub Desktop)
+
 2. Install the *foot* package using the code in `./pkg_build.R`
+
 ~~3. Run the example script in `./wd/code/example_script.R`.~~
+
 ~~4. Check out the example function in `./R/footFun.R`.~~
+
 3. Run the vignette("footsteps") to explore basic usage.
 
 ### Installation
