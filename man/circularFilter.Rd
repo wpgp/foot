@@ -16,6 +16,9 @@ Matrix with values inside the circle set to 1, the center set to 0, and corners 
 \description{
 Make an approximately circular filter inside of an 'n x n' matrix.
 }
+\details{
+Filters for gridded data
+}
 \author{
 Chris Jochem
 }

@@ -13,13 +13,31 @@ fs_angle_entropy(X, index = NULL, col = NULL, normalize = TRUE)
 \method{fs_angle_entropy}{sf}(X, index = NULL, col = NULL, normalize = TRUE)
 }
 \arguments{
-\item{txt}{Text to append to "foot"}
+\item{X}{Spatial object with building footprint polygons}
+
+\item{index}{A character or numeric value identifying a column within \code{X} 
+which provides a zonal index for summarising values. Alternatively a vector of 
+indices can be provided. If omitted all observations in \code{X} are assumed 
+to be within one zone.}
+
+\item{col}{column name within \code{X} with pre-calculated area measures}
+
+\item{normalize}{A logical value indicating whether to normalize the entropy. 
+Default is \code{TRUE}.}
 }
 \value{
-TBD.
+\code{data.table} of zonal indices and values.
 }
 \description{
-Calculate selected metrics of building footprints
+Calculate the entropy of rotation angles for building footprint
+polygons within zones.
+}
+\details{
+This measure uses the angle of the minimum rotated rectangle enclosing 
+each footprint poygon. Entropy is an information criteria measure. When summarising
+the angles of footprints, higher entropy values may suggest less formally planned 
+or zoned areas. The entropy calculation uses the common Shannon's Entropy. The 
+normalization step produces an indicator for how much a zone departs from a grid.
 }
 \author{
 Chris Jochem

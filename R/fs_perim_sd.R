@@ -1,8 +1,9 @@
-#' Building area calculation
+#' Building perimeter standard deviation calculation
 #' 
-#' @description Calculate selected metrics of building footprints
-#' @param txt Text to append to "foot"
-#' @return TBD.
+#' @description Calculate and summarise selected metrics of building 
+#' footprint polygons within zones.
+#' #' @inheritParams fs_area_mean
+#' @return \code{data.table} of zonal indices and values
 #' @author Chris Jochem
 #' 
 #' @import data.table
@@ -27,9 +28,42 @@ fs_perim_sd.sp <- function(X, index=NULL, unit=NULL, col=NULL){
 #' @name fs_perim_sd
 #' @export
 fs_perim_sd.sf <- function(X, index=NULL, unit=NULL, col=NULL){
-  if(any(!st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON") )){
-    message("Perimeter requires polygon shapes.")
-    stop()
+  if(!is.null(col)){
+    if(!col %in% names(X)){
+      message("Error: column name not found.")
+      stop()
+    } else{
+        names(X)[which(names(X)==col)] <- "fs_perim"
+        result <- fs_perim_sd_calc(X, index, unit)
+    }
+  } else{
+      if(any(!sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON") )){
+        message("Perimeter requires polygon shapes.")
+        stop()
+      }
+      
+      if(is.na(sf::st_crs(X))){
+        warning("Polygons have no spatial projection. Units ignored.")
+        unit <- NULL
+        
+      } else{
+        if(is.null(unit)){
+          unit <- "m"
+        }
+      }
+    
+      X[["fs_perim"]] <- fs_perimeter(X, unit)
+      result <- fs_perim_sd_calc(X, index, unit)
+  }
+  return(result)
+}
+
+
+fs_perim_sd_calc <- function(X, index=NULL, unit=NULL){
+  if(!"fs_perim" %in% names(X)){
+    X[["fs_perim"]] <- fs_perimeter(X, unit)
+  } else{
+    unit <- st_crs(buildings)$units
   }
   
   if(is.null(index)){
@@ -46,39 +80,6 @@ fs_perim_sd.sf <- function(X, index=NULL, unit=NULL, col=NULL){
       stop()
     }
   } 
-  
-  if(is.na(st_crs(X))){
-    warning("Polygons have no spatial projection. Units ignored.")
-    unit <- NULL
-    
-  } else{
-    if(is.null(unit)){
-      unit <- "m"
-    }
-  }
-
-  if(!is.null(col)){
-    if(!col %in% names(X)){
-      message("Error: column name not found.")
-      stop()
-    } else{
-        names(X)[which(names(X)==col)] <- "fs_perim"
-        result <- fs_perim_sd_calc(X, index, unit)
-    }
-  } else{
-      X[["fs_perim"]] <- fs_perim(X, unit)
-      result <- fs_perim_sd_calc(X, index, unit)
-  }
-  return(result)
-}
-
-
-fs_perim_sd_calc <- function(X, index, unit=NULL){
-  if(!"fs_perim" %in% names(X)){
-    X[["fs_perim"]] <- fs_perimeter(X, unit)
-  } else{
-    unit <- st_crs(buildings)$units
-  }
   
   colNam <- paste0("fs_perim_", unit, "_sd")
   DT <- data.table::data.table(index=index, 

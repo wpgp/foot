@@ -10,10 +10,11 @@ usethis::use_package("data.table")
 devtools::document()
 
 # # vignettes
-# devtools::build_vignettes('pkg')
+devtools::build_vignettes()
 
 # install package
 # install.packages(getwd(), repo=NULL, type='source')
 devtools::install()
 devtools::reload(devtools::inst('foot'))
 .rs.restartR()
+

@@ -4,7 +4,7 @@
 \alias{fs_count}
 \alias{fs_count.sp}
 \alias{fs_count.sf}
-\title{Count of locations per pixel}
+\title{Count of footprint locations per zone}
 \usage{
 fs_count(X, index = NULL, col = NULL)
 
@@ -13,13 +13,21 @@ fs_count(X, index = NULL, col = NULL)
 \method{fs_count}{sf}(X, index = NULL, col = NULL)
 }
 \arguments{
-\item{txt}{Text to append to "foot"}
+\item{X}{Spatial object with building footprint polygons}
+
+\item{index}{A character or numeric value identifying a column within \code{X} 
+which provides a zonal index for summarising values. Alternatively a vector of 
+indices can be provided. If omitted all observations in \code{X} are assumed 
+to be within one zone.}
+
+\item{col}{column name within \code{X} with pre-calculated area measures}
 }
 \value{
-TBD.
+\code{data.table} of zonal indices and values.
 }
 \description{
-Calculate selected metrics of building footprints
+Calculate and summarise selected metrics of building 
+footprints within zones.
 }
 \author{
 Chris Jochem

@@ -11,7 +11,12 @@ fs_area <- function(X, unit=NULL){
 
 
 fs_perimeter <- function(X, unit=NULL){
-  perim_calc <- lwgeom::st_perimeter(X)
+  if(st_is_longlat(X)){
+    perim_calc <- sf::st_length(sf::st_cast(sf::st_geometry(X), "LINESTRING"))
+  } else{
+    perim_calc <- sf::st_length(X)
+  }
+  # perim_calc <- lwgeom::st_perimeter(X)
   
   if(!is.null(unit)){
     perim_calc <- units::set_units(perim_calc, unit, mode="standard")
@@ -21,12 +26,32 @@ fs_perimeter <- function(X, unit=NULL){
 }
 
 
+#' @title Rotated minimum bounding rectangle
+#'
+#' @description Helper function to provide the minimum rotated bounding rectange
+#'   of a polygon or set of points. Optionally, the function will return the
+#'   bearing angle in degrees from vertical in a clockwise direction.
+#'
+#' @param X matrix of point coordinates in two columns or a polygon of \code{sf}
+#'   type.
+#' @param returnShape logical. Should the function return the \code{sf} polygon
+#'   of the rotated bounding rectange or should it retun the angle (in degrees).
+#'
+#' @details This function is currently not vectorized and processing is limited
+#'   to one shape.
+#'
+#' @source
+#'   \link[https://gis.stackexchange.com/questions/22895/finding-minimum-area-rectangle-for-given-points]{https://gis.stackexchange.com/questions/22895/finding-minimum-area-rectangle-for-given-points}
+#'
+#'   
+#' @name fs_mbr
+#' @export
 # Based on: https://gis.stackexchange.com/questions/22895/finding-minimum-area-rectangle-for-given-points
 fs_mbr <- function(X, returnShape=FALSE){
-  if(any(class(X) == "POLYGON") | any(class(X) == "MULTIPOLYGON")){
+  if(sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON", "POINT", "MULTIPOINT")){
     p <- sf::st_coordinates(X)[,1:2]
   } else if(class(X) != "Matrix"){
-    stop("Invalid bounding rectangle coordinates.")
+    stop("Invalid coordinates.")
   }
 
   # Analyze the convex hull edges     

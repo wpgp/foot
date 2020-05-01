@@ -1,8 +1,17 @@
-#' Building area calculation
+#' Building area mean calculation
 #' 
-#' @description Calculate selected metrics of building footprints
-#' @param txt Text to append to "foot"
-#' @return TBD.
+#' @description Calculate and summarise selected metrics of building 
+#' footprint polygons within zones.
+#' 
+#' @param X Spatial object with building footprint polygons
+#' @param index A character or numeric value identifying a column within \code{X} 
+#' which provides a zonal index for summarising values. Alternatively a vector of 
+#' indices can be provided. If omitted all observations in \code{X} are assumed 
+#' to be within one zone.
+#' @param unit character or \code{units} object to define area. 
+#' Default is \code{NULL} which will use the units of the spatial reference system
+#' @param col column name within \code{X} with pre-calculated area measures
+#' @return \code{data.table} of zonal indices and values
 #' @author Chris Jochem
 #' 
 #' @import data.table
@@ -27,9 +36,40 @@ fs_area_mean.sp <- function(X, index=NULL, unit=NULL, col=NULL){
 #' @name fs_area_mean
 #' @export
 fs_area_mean.sf <- function(X, index=NULL, unit=NULL, col=NULL){
-  if(any(!st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON") )){
-    message("Area requires polygon shapes.")
-    stop()
+  if(!is.null(col)){
+    if(!col %in% names(X)){
+      message("Error: column name not found.")
+      stop()
+    } else{
+        names(X)[which(names(X)==col)] <- "fs_area"
+        result <- fs_area_mean_calc(X, index, unit)
+    }
+  } else{
+      if(any(!sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON") )){
+        message("Area requires polygon shapes.")
+        stop()
+      }
+      
+      if(is.na(sf::st_crs(X))){
+        warning("Polygons have no spatial projection. Units ignored.")
+        unit <- NULL
+        
+      } else{
+        if(is.null(unit)){
+          unit <- "ha"
+        }
+      }
+    
+      X[["fs_area"]] <- fs_area(X, unit)
+      result <- fs_area_mean_calc(X, index, unit)
+  }
+  return(result)
+}
+
+
+fs_area_mean_calc <- function(X, index=NULL, unit=NULL){
+  if(!"fs_area" %in% names(X)){
+    X[["fs_area"]] <- fs_area(X, unit)
   }
   
   if(is.null(index)){
@@ -46,37 +86,6 @@ fs_area_mean.sf <- function(X, index=NULL, unit=NULL, col=NULL){
       stop()
     }
   } 
-  
-  if(is.na(st_crs(X))){
-    warning("Polygons have no spatial projection. Units ignored.")
-    unit <- NULL
-    
-  } else{
-    if(is.null(unit)){
-      unit <- "ha"
-    }
-  }
-
-  if(!is.null(col)){
-    if(!col %in% names(X)){
-      message("Error: column name not found.")
-      stop()
-    } else{
-        names(X)[which(names(X)==col)] <- "fs_area"
-        result <- fs_area_mean_calc(X, index, unit)
-    }
-  } else{
-      X[["fs_area"]] <- fs_area(X, unit)
-      result <- fs_area_mean_calc(X, index, unit)
-  }
-  return(result)
-}
-
-
-fs_area_mean_calc <- function(X, index, unit=NULL){
-  if(!"fs_area" %in% names(X)){
-    X[["fs_area"]] <- fs_area(X, unit)
-  }
   
   colNam <- paste0("fs_area_", unit, "_mean")
   DT <- data.table::data.table(index=index, 

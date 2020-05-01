@@ -49,10 +49,33 @@ library(raster)
 # load local files for testing
 buildings <- st_read("C:/Users/Admin/Documents/GitHub/foot/wd/in/ssd_sample_buildings.shp")
 mgrid <- raster("C:/Users/Admin/Documents/GitHub/foot/wd/in/ssd_mgrid.tif")
+mgrid <- stars::read_stars("C:/Users/Admin/Documents/GitHub/foot/wd/in/ssd_mgrid.tif", proxy=F)
+
+res <- calculate_footstats(buildings, metrics="fs_area_mean", gridded=F)
+  res
+  
+# NNI
+nni <- calculate_footstats(buildings, metrics="fs_NNindex", gridded=F)
+  nni
+
+res <- calculate_footstats(buildings, metrics="fs_angle_entropy", gridded=F)
+  res
 
 centroids <- st_centroid(buildings)
 centroids <- st_transform(centroids, crs=st_crs(mgrid)$epsg)
-cID <- cellFromXY(mgrid, st_coordinates(centroids))
+buildings$cID <- cellFromXY(mgrid, st_coordinates(centroids))
+
+res <- calculate_footstats(buildings, index="cID", metrics="fs_area_mean", gridded=T) 
+
+b <- sf::st_transform(buildings, crs=st_crs(mgrid))
+calculate_footstats(b, index="cID", metrics="fs_settled", gridded=T, template=mgrid)
+
+
+res <- calculate_footstats(buildings, index=cID, metrics="fs_area_mean", gridded=F)
+  res
+
+res <- calculate_footstats(buildings, index=cID, metrics="fs_angle_entropy", gridded=F)
+res
 
 res <- fs_angle_entropy(buildings, index=cID)
 res <- calculate_footstats(buildings, cID, metrics="fs_angle_entropy", gridded=F)

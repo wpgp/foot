@@ -4,7 +4,7 @@
 \alias{fs_settled}
 \alias{fs_settled.sp}
 \alias{fs_settled.sf}
-\title{Binary settled status}
+\title{Binary indicator of settled status}
 \usage{
 fs_settled(X, index = NULL, col = NULL)
 
@@ -13,13 +13,21 @@ fs_settled(X, index = NULL, col = NULL)
 \method{fs_settled}{sf}(X, index = NULL, col = NULL)
 }
 \arguments{
-\item{txt}{Text to append to "foot"}
+\item{X}{Spatial object with building footprint polygons}
+
+\item{index}{A character or numeric value identifying a column within \code{X} 
+which provides a zonal index for summarising values. Alternatively a vector of 
+indices can be provided. If omitted all observations in \code{X} are assumed 
+to be within one zone.}
+
+\item{col}{column name within \code{X} with pre-calculated area measures}
 }
 \value{
-TBD.
+\code{data.table} of zonal indices and values.
 }
 \description{
-Calculate selected metrics of building footprints
+Calculate and summarise selected metrics of building 
+footprint polygons within zones.
 }
 \author{
 Chris Jochem

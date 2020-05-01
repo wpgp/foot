@@ -1,8 +1,9 @@
 #' Building area total calculation
 #' 
-#' @description Calculate selected metrics of building footprints
-#' @param txt Text to append to "foot"
-#' @return TBD.
+#' @description Calculate and summarise selected metrics of building 
+#' footprint polygons within zones.
+#' @inheritParams fs_area_mean
+#' @return \code{data.table} of zonal indices and values
 #' @author Chris Jochem
 #' 
 #' @import data.table
@@ -27,27 +28,12 @@ fs_area_total.sp <- function(X, index=NULL, unit=NULL, col=NULL){
 #' @name fs_area_total
 #' @export
 fs_area_total.sf <- function(X, index=NULL, unit=NULL, col=NULL){
-  if(any(!st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON") )){
+  if(any(!sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON") )){
     message("Area requires polygon shapes.")
     stop()
   }
   
-  if(is.null(index)){
-    warning("No index found, treating as one group.")
-    index <- rep(1, nrow(X))
-  } else{
-    if(length(index)==1){
-      if((is.numeric(index) & index <= ncol(X)) | 
-         (is.character(index) & index %in% names(X))){
-        index <- X[[index]]
-      }
-    } else if(length(index) != nrow(X)){
-      message("Invalid index")
-      stop()
-    }
-  } 
-  
-  if(is.na(st_crs(X))){
+  if(is.na(sf::st_crs(X))){
     warning("Polygons have no spatial projection. Units ignored.")
     unit <- NULL
     
@@ -76,6 +62,21 @@ fs_area_total.sf <- function(X, index=NULL, unit=NULL, col=NULL){
 fs_area_total_calc <- function(X, index, unit=NULL){
   if(!"fs_area" %in% names(X)){
     X[["fs_area"]] <- fs_area(X, unit)
+  }
+  
+  if(is.null(index)){
+    warning("No index found, treating as one group.")
+    index <- rep(1, nrow(X))
+  } else{
+    if(length(index)==1){
+      if((is.numeric(index) & index <= ncol(X)) | 
+         (is.character(index) & index %in% names(X))){
+        index <- X[[index]]
+      }
+    } else if(length(index) != nrow(X)){
+      message("Invalid index")
+      stop()
+    }
   }
   
   colNam <- paste0("fs_area_", unit, "_total")
