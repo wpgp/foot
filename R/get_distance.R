@@ -74,12 +74,13 @@ fs_NNdist <- function(X, Y, maxSearch=100, unit="m"){
     DT[, intersects := lapply(intersects2, function(i) i)]
     
     DT[is.na(dist), 
-       dist := sort(sf::st_distance(X$geometry[uid], searchObj$geometry[unlist(intersects)]))[2], #, tolerance=1
+       # dist := sort(sf::st_distance(X$geometry[uid], searchObj$geometry[unlist(intersects)]))[2], #, tolerance=1
+       dist := sort(sf::st_distance(sf::st_geometry(X)[uid], sf::st_geometry(searchObj)[unlist(intersects)]))[2], #, tolerance=1
        by = uid]
 
   } else{  # unrestricted distance search (slower)
     DT[is.na(dist), 
-       dist := sort(sf::st_distance(X$geometry[uid], searchObj$geometry))[2],
+       dist := sort(sf::st_distance(sf::st_geometry(X)[uid], sf::st_geometry(searchObj)))[2],
        by = uid]
   }
 
