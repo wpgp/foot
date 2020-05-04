@@ -173,7 +173,7 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, outputPath, d
     
     if(exists("indexZones")){
       zonalArea <- data.table::data.table(index=indexZones$index, 
-                                          zoneArea=fs_area(indexZones, unit="ha"))
+                                          zoneArea=fs_area(indexZones, unit="m^2"))
     } else{
       warnings("Nearest neighbour index requires zonal areas.")
       nnIndex <- FALSE
