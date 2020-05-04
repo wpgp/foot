@@ -1,9 +1,26 @@
 #' Building Nearest Neighbour Index (NNI)
 #' 
-#' @description Calculate and summarise selected metrics of building 
-#' footprint polygons within zones.
-#' @inheritParams fs_area_mean
+#' @description Calculate and summarise selected metrics of building footprint
+#'   polygons within zones.
+#' @param X Spatial object with building footprints or their centroid locations.
+#' @param index A spatial polygon object of \code{sf} or \code{sp} type. If
+#'   omitted all observations in \code{X} are assumed to be within one zone and
+#'   the area of the bounding box is used for the nearest neighbour index.
+#' @param unit character or \code{units} object to define distance. Default is
+#'   NULL
+#' @param col column name or index within \code{X} with pre-calculated distance
+#'   measures.
 #' @return \code{data.table} of zonal indices and values
+#'
+#' @details The nearest neighbour index (NNI) is a measure of clustering. It
+#'   compares the observed mean neighbour distances with a hypothetical maximum
+#'   of dispersed observations given the area of the zone. Note that NNI is
+#'   sensitive to changes in the zone area.
+#'   
+#'   NNI_z = (NNDbar_z) / (0.5 * sqrt(A_z / n_z)), 
+#'   where z is the zone, A is the area, NNDbar is the mean nearest neighbour
+#'   distance, and n is the count.
+#' 
 #' @author Chris Jochem
 #' 
 #' @import data.table
