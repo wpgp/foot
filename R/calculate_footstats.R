@@ -166,6 +166,12 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, outputPath, d
     perim_cv <- FALSE
   }
   
+  if(any(grepl("compact", metrics, fixed=T))){
+    compact <- TRUE
+  } else{
+    compact <- FALSE
+  }
+  
   if(any(grepl("NNindex", metrics, fixed=T))){
     metrics <- c(metrics, "fs_NNdist_mean", "fs_count")
     metrics <- metrics[!grepl("NNindex", metrics)]
@@ -190,12 +196,12 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, outputPath, d
   }
   
   # pre-calcluate unit geometry measures
-  if(any(grepl("area", metrics, fixed=T))){
+  if(any(grepl("area", metrics, fixed=T)) | compact==TRUE){
     unit <- "ha"
     X[["fs_area"]] <- fs_area(X, unit)
   }
   
-  if(any(grepl("perim", metrics, fixed=T))){
+  if(any(grepl("perim", metrics, fixed=T)) | compact==TRUE){
     X[["fs_perim"]] <- fs_perimeter(X, 
                                     unit=fs_footprint_metrics[fs_footprint_metrics$name=="fs_perim_mean",
                                                               "default_units"])
