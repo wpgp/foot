@@ -33,7 +33,9 @@ Rasters (or tables):
 1. Settlement (binary)
 2. Building count
 3. Total building area
+
 ~~5. Building density~~
+
 4. Average building area
 5. Standard deviation of building area
 6. Coefficient of variation of building area
@@ -44,6 +46,7 @@ Rasters (or tables):
 11. Standard deviation of nearest neighbour distance
 12. Nearest neighbour index
 13. Entropy of structure orientation
+14. Average compactness measure (Polsby-Popper)
 
 ### Repository Structure
 The repository is structured as an R package with an additional folder "wd" that is a working directory for storing scripts, input data, and output data.
