@@ -17,7 +17,8 @@ calculate_footstats(
   template = NULL,
   outputPath = NULL,
   outputTag = NULL,
-  driver = "GTiff"
+  driver = "GTiff",
+  verbose = FALSE
 )
 
 \method{calculate_footstats}{sf}(
@@ -28,7 +29,8 @@ calculate_footstats(
   template = NULL,
   outputPath = NULL,
   outputTag = NULL,
-  driver = "GTiff"
+  driver = "GTiff",
+  verbose = FALSE
 )
 
 \method{calculate_footstats}{sfc}(
@@ -39,7 +41,8 @@ calculate_footstats(
   template = NULL,
   outputPath = NULL,
   outputTag = NULL,
-  driver = "GTiff"
+  driver = "GTiff",
+  verbose = FALSE
 )
 
 \method{calculate_footstats}{sp}(
@@ -50,7 +53,8 @@ calculate_footstats(
   template = NULL,
   outputPath = NULL,
   outputTag = NULL,
-  driver = "GTiff"
+  driver = "GTiff",
+  verbose = FALSE
 )
 
 \method{calculate_footstats}{character}(
@@ -61,7 +65,8 @@ calculate_footstats(
   template = NULL,
   outputPath = NULL,
   outputTag = NULL,
-  driver = "GTiff"
+  driver = "GTiff",
+  verbose = FALSE
 )
 
 \method{calculate_footstats}{list}(
@@ -72,7 +77,8 @@ calculate_footstats(
   template = NULL,
   outputPath = NULL,
   outputTag = NULL,
-  driver = "GTiff"
+  driver = "GTiff",
+  verbose = FALSE
 )
 }
 \arguments{
@@ -103,6 +109,9 @@ then the names of the list items will be used or a vector of tags of the
 same length as \code{X} should be supplied.}
 
 \item{driver}{character. Currently supports geotiff ("GTiff").}
+
+\item{verbose}{logical. Should progress messages be printed. 
+Default \code{False}.}
 }
 \value{
 a \code{data.table} with an 'index' column and named columns for each
