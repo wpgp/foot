@@ -16,6 +16,7 @@ calculate_footstats(
   gridded = TRUE,
   template = NULL,
   outputPath = NULL,
+  outputTag = NULL,
   driver = "GTiff"
 )
 
@@ -26,6 +27,7 @@ calculate_footstats(
   gridded = TRUE,
   template = NULL,
   outputPath = NULL,
+  outputTag = NULL,
   driver = "GTiff"
 )
 
@@ -36,6 +38,7 @@ calculate_footstats(
   gridded = TRUE,
   template = NULL,
   outputPath = NULL,
+  outputTag = NULL,
   driver = "GTiff"
 )
 
@@ -46,6 +49,7 @@ calculate_footstats(
   gridded = TRUE,
   template = NULL,
   outputPath = NULL,
+  outputTag = NULL,
   driver = "GTiff"
 )
 
@@ -56,6 +60,7 @@ calculate_footstats(
   gridded = TRUE,
   template = NULL,
   outputPath = NULL,
+  outputTag = NULL,
   driver = "GTiff"
 )
 
@@ -66,6 +71,7 @@ calculate_footstats(
   gridded = TRUE,
   template = NULL,
   outputPath = NULL,
+  outputTag = NULL,
   driver = "GTiff"
 )
 }
@@ -90,6 +96,11 @@ respectively.}
 
 \item{outputPath}{(optional). When creating a gridded output, a path for the
 location of the output.}
+
+\item{outputTag}{(optional). A character string that will be added tagged to
+the beginning of the output gridded files. If \code{X} is a \code{list},
+then the names of the list items will be used or a vector of tags of the
+same length as \code{X} should be supplied.}
 
 \item{driver}{character. Currently supports geotiff ("GTiff").}
 }

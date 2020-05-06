@@ -5,10 +5,13 @@ Date: 2020-03-27
 Author: WorldPop Research Group, University of Southampton
 Maintainer: Doug Leasure <D.R.Leasure@soton.ac.uk>
 License: None
-Imports: data.table
-Suggest: 
+Imports: 
+    data.table,
+    sf,
+    stars
 LazyData: true
 Description: An R package for processing building footprints
+Encoding: UTF-8
 RoxygenNote: 7.1.0
 Suggests: 
     knitr,

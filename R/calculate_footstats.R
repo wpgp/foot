@@ -18,6 +18,10 @@
 #'   \code{stars} or \code{raster} dataset to align the data.
 #' @param outputPath (optional). When creating a gridded output, a path for the
 #'   location of the output.
+#' @param outputTag (optional). A character string that will be added tagged to
+#'   the beginning of the output gridded files. If \code{X} is a \code{list},
+#'   then the names of the list items will be used or a vector of tags of the
+#'   same length as \code{X} should be supplied.
 #' @param driver character. Currently supports geotiff ("GTiff").
 #' 
 #' @return a \code{data.table} with an 'index' column and named columns for each
@@ -35,19 +39,24 @@ calculate_footstats <- function(X,
                                 gridded=TRUE, 
                                 template=NULL,
                                 outputPath=NULL,
+                                outputTag=NULL,
                                 driver="GTiff") UseMethod("calculate_footstats")
 
 #' @name calculate_footstats
 #' @export
 calculate_footstats.sf <- function(X, index=NULL, metrics='all', 
                                    gridded=TRUE, template=NULL, 
-                                   outputPath=NULL, driver="GTiff"){
+                                   outputPath=NULL, 
+                                   outputTag=NULL,
+                                   driver="GTiff"){
+  
   if(any(!st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON") )){
     message("Footprint statistics require polygon shapes.")
     stop()
   }
   
-  result <- calc_fs_internal(X, index, metrics, gridded, template, outputPath, driver)
+  result <- calc_fs_internal(X, index, metrics, gridded, 
+                             template, outputPath, outputTag, driver)
   
   return(result)
 }
@@ -57,13 +66,17 @@ calculate_footstats.sf <- function(X, index=NULL, metrics='all',
 #' @export
 calculate_footstats.sfc <- function(X, index=NULL, metrics='all', 
                                     gridded=TRUE, template=NULL, 
-                                    outputPath=NULL, driver="GTiff"){
+                                    outputPath=NULL, 
+                                    outputTag=NULL,
+                                    driver="GTiff"){
   # cast to sf for consistency
   X <- sf::st_as_sf(X)
   
   result <- calculate_footstats(X, index=index, metrics=metrics, 
                                 gridded=gridded, template=template, 
-                                outputPath=outputPath, driver=driver)
+                                outputPath=outputPath, 
+                                outputTag=outputTag,
+                                driver=driver)
   return(result)
 }
 
@@ -72,13 +85,17 @@ calculate_footstats.sfc <- function(X, index=NULL, metrics='all',
 #' @export
 calculate_footstats.sp <- function(X, index=NULL, metrics='all', 
                                    gridded=TRUE, template=NULL, 
-                                   outputPath=NULL, driver="GTiff"){
+                                   outputPath=NULL, 
+                                   outputTag=NULL,
+                                   driver="GTiff"){
   # convert to sf
   X <- sf::st_as_sf(X)
   
   result <- calculate_footstats(X, index=index, metrics=metrics, 
                                 gridded=gridded, template=template, 
-                                outputPath=outputPath, driver=driver)
+                                outputPath=outputPath, 
+                                outputTag=outputTag,
+                                driver=driver)
   return(result)
 }
 
@@ -87,13 +104,17 @@ calculate_footstats.sp <- function(X, index=NULL, metrics='all',
 #' @export
 calculate_footstats.character <- function(X, index=NULL, metrics='all', 
                                           gridded=TRUE, template=NULL, 
-                                          outputPath=NULL, driver="GTiff"){
+                                          outputPath=NULL, 
+                                          outputTag=NULL,
+                                          driver="GTiff"){
   # attempt to read in file
   X <- sf::st_read(X)
   
   result <- calculate_footstats(X, index=index, metrics=metrics, 
                                 gridded=gridded, template=template, 
-                                outputPath=outputPath, driver=driver)
+                                outputPath=outputPath, 
+                                outputTag=outputTag,
+                                driver=driver)
   return(result)
 }
 
@@ -102,16 +123,40 @@ calculate_footstats.character <- function(X, index=NULL, metrics='all',
 #' @export
 calculate_footstats.list <- function(X, index=NULL, metrics='all', 
                                      gridded=TRUE, template=NULL, 
-                                     outputPath=NULL, driver="GTiff"){
-  result <- lapply(X, FUN=calculate_footstats(X, index=index, metrics=metrics, 
-                                              gridded=gridded, template=template, 
-                                              outputPath=outputPath, driver=driver))
+                                     outputPath=NULL, 
+                                     outputTag=NULL,
+                                     driver="GTiff"){
+  
+  if(is.null(outputTag)){
+    if(is.null(names(X))){
+      outputTag <- seq_along(X)
+    } else{
+      outputTag <- names(X)
+    }
+  } else{
+    if(length(outputTag) == 1 | length(outputTag) != length(X)){
+      stop("Invalid output tag length.")
+    } 
+  }
+  
+  result <- lapply(seq_along(X), FUN=function(i){
+    calculate_footstats(X[[i]], index=index, metrics=metrics,
+                        gridded=gridded, template=template,
+                        outputPath=outputPath, outputTag=outputTag[[i]],
+                        driver=driver)
+  })
+  # result <- lapply(X, FUN=calculate_footstats(X, index=index, metrics=metrics, 
+  #                                             gridded=gridded, template=template, 
+  #                                             outputPath=outputPath, driver=driver))
   
   return(result)  # should the list be simplified?
 }
 
 
-calc_fs_internal <- function(X, index, metrics, gridded, template, outputPath, driver){
+calc_fs_internal <- function(X, index, metrics, 
+                             gridded, template, 
+                             outputPath, outputTag, driver){
+  
   if(is.na(st_crs(X))){
     stop("Polygons must have a spatial reference.")
   }
@@ -297,8 +342,14 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, outputPath, d
     }
 
     for(val in names(merged_result)[!names(merged_result) %in% "index"]){
+      if(is.null(outputTag)){
+        outName <- paste(val, "tif", sep=".")
+      } else{
+        outName <- paste(outputTag, "_", val, "tif", sep=".")
+      }
+      
       stars::st_rasterize(spatial_result[val], 
-                          file=file.path(outputPath, paste(val, "tif", sep=".")), 
+                          file=file.path(outputPath, outName), 
                           template=template,
                           driver=driver,
                           options="compress=LZW")
