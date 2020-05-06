@@ -9,8 +9,8 @@
 #'   summarised as the mean for all footprints in the zone identified by
 #'   \code{index}.
 #'   
-#'   PP_z = (4PI * A_z) / (P_z)^2, where P and A are the perimeter and area of 
-#'   zone 'z', respectively.
+#'   \deqn{ PP_z = \frac{4$\pi$ * A_z}{P_z^2} },
+#'   where P and A are the perimeter and area of zone 'z', respectively.
 #'   
 #' @source Polsby, Daniel D., and Robert D. Popper. 1991. “The Third Criterion:
 #'   Compactness as a procedural safeguard against partisan gerrymandering.”

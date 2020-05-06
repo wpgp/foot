@@ -22,7 +22,7 @@ knitr::opts_chunk$set(
 ```
 
 ## TO-DO
-* move to a vignette? How to include/access footprints?
+* move to a vignette? How to include/access large set of footprints?
 * alternative: create a separate building dataset from MS buildings
 * re-write and add parallel looping code for tiles
 * check mdsumner's grout package for GDAL-native tiles
