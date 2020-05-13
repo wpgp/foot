@@ -26,11 +26,58 @@ fs_perimeter <- function(X, unit=NULL){
 }
 
 
+fs_compact <- function(X){
+  if(!"fs_area" %in% names(X)){
+    if(any(!sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON"))){
+      stop("Area requires polygons")
+    } else{
+      X[["fs_area"]] <- fs_area(X, unit="m^2")
+    }
+  }
+  
+  if(!"fs_perimeter" %in% names(X)){
+    if(any(!sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON"))){
+      stop("Perimeter requires polygons.")
+    } else{
+      X[["fs_perimeter"]] <- fs_perimeter(X, unit="m")
+    }
+  }
+  
+  compactness <- (4 * pi * X[["fs_area"]]) / (X[["fs_perimeter"]]^2)
+  units(compactness) <- NULL
+  
+  return(compactness)
+} 
+
+
+fs_shape <- function(X){
+  if(!"fs_area" %in% names(X)){
+    if(any(!sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON"))){
+      stop("Area requires polygons")
+    } else{
+      X[["fs_area"]] <- fs_area(X, unit="m^2")
+    }
+  }
+  
+  if(any(!sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON"))){
+    stop("Area requires polygons")
+  } else{
+    mbc <- fs_mbc(X)
+    mbcA <- fs_area(mbc, unit="m^2")
+  }
+  
+  shapeIdx <- X[["fs_area"]] / mbcA
+  units(shapeIdx) <- NULL
+  
+  return(shapeIdx)
+}
+
+
 #' @title Rotated minimum bounding rectangle
 #'
-#' @description Helper function to provide the minimum rotated bounding rectange
-#'   of a polygon or set of points. Optionally, the function will return the
-#'   bearing angle in degrees from vertical in a clockwise direction.
+#' @description Helper function to provide the minimum rotated bounding
+#'   rectangle of a polygon or set of points. Optionally, the function will
+#'   return the bearing angle in degrees from vertical in a clockwise direction.
 #'
 #' @param X matrix of point coordinates in two columns or a polygon of \code{sf}
 #'   type.
@@ -81,4 +128,24 @@ fs_mbr <- function(X, returnShape=FALSE){
     angle <- (atan2(R[2,1], R[1,1]) * 180/pi) %% 360
     return(angle)
   }
+}
+
+
+#' @title Minimum bounding circle
+#' 
+#' @description Helper function to calculate the minimum circle that bounds the
+#'   polygon feature.
+#' 
+#' @import lwgeom
+#' 
+#' @name fs_mbc
+#' @export
+fs_mbc <- function(X){
+  if(any(!sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON"))){
+    stop("Bounding circle requires polygons.")
+  } else{
+    mbc <- lwgeom::st_minimum_bounding_circle(X)
+  }
+  
+  return(mbc)
 }

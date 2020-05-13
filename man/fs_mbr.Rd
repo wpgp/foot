@@ -17,9 +17,9 @@ type.}
 of the rotated bounding rectange or should it retun the angle (in degrees).}
 }
 \description{
-Helper function to provide the minimum rotated bounding rectange
-  of a polygon or set of points. Optionally, the function will return the
-  bearing angle in degrees from vertical in a clockwise direction.
+Helper function to provide the minimum rotated bounding
+  rectangle of a polygon or set of points. Optionally, the function will
+  return the bearing angle in degrees from vertical in a clockwise direction.
 }
 \details{
 This function is currently not vectorized and processing is limited
