@@ -145,20 +145,29 @@ calculate_footstats.list <- function(X, index=NULL, metrics='all',
       outputTag <- names(X)
     }
   } else{
-    if(length(outputTag) == 1 | length(outputTag) != length(X)){
+    if(length(outputTag) != length(X)){
       stop("Invalid output tag length.")
     } 
   }
   
+  # expand other arguments - recycling values
+  args <- list(index=index, metrics=metrics, gridded=gridded, 
+               template=template, outputPath=outputPath, driver=driver, 
+               verbose=verbose)
+  maxL <- max(lengths(args), length(X))
+  args <- lapply(args, rep, length.out=maxL)
+  
   result <- lapply(seq_along(X), FUN=function(i){
-    calculate_footstats(X[[i]], index=index, metrics=metrics,
-                        gridded=gridded, template=template,
-                        outputPath=outputPath, outputTag=outputTag[[i]],
-                        driver=driver, verbose=verbose)
+    calculate_footstats(X[[i]], 
+                        index=args$index[i], 
+                        metrics=args$metrics[i],
+                        gridded=args$gridded[i], 
+                        template=args$template[i],
+                        outputPath=args$outputPath[i], 
+                        outputTag=outputTag[[i]],
+                        driver=args$driver[i], 
+                        verbose=args$verbose[i])
   })
-  # result <- lapply(X, FUN=calculate_footstats(X, index=index, metrics=metrics, 
-  #                                             gridded=gridded, template=template, 
-  #                                             outputPath=outputPath, driver=driver))
   
   return(result)  # should the list be simplified?
 }
