@@ -214,8 +214,10 @@ calc_fs_internal <- function(X, index, metrics,
   }
   
   if(toupper(metrics[1]) == "NODIST"){
-    metrics <- foot::fs_footprint_metrics$name
+    # metrics <- foot::fs_footprint_metrics$name
     metrics <- metrcs[!grepl("NNdist", metrics)]
+    metrics <- foot::fs_footprint_metrics[foot::fs_footprint_metrics$group != "NNdist", 
+                                          "name"]
   }
   
   if(any(grepl("area_cv", metrics, fixed=T))){
