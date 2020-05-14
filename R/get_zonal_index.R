@@ -122,7 +122,7 @@ get_zonal_index <- function(X, zone, zoneField=NULL, returnObject=TRUE, clip=FAL
   }
   
   if(any(sf::st_geometry_type(zone) == "MULTIPOLYGON")){
-    zone <- sf::st_cast(sf::st_cast(lwgeom::st_make_valid(zone), "MULTIPOLYGON"), "POLYGON")
+    zone <- sf::st_cast(sf::st_cast(sf::st_make_valid(zone), "MULTIPOLYGON"), "POLYGON")
   }
   
   if(is.null(zoneField)){
@@ -149,7 +149,7 @@ get_zonal_index <- function(X, zone, zoneField=NULL, returnObject=TRUE, clip=FAL
                           if(any(sf::st_geometry_type(ints)=="MULTIPOLYGON")){
                             ints <- sf::st_cast(
                               sf::st_cast(
-                                lwgeom::st_make_valid(ints), "MULTIPOLYGON"), "POLYGON")
+                                sf::st_make_valid(ints), "MULTIPOLYGON"), "POLYGON")
                           }
                           return(ints)
                         }) )
