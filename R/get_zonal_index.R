@@ -142,7 +142,7 @@ get_zonal_index <- function(X, zone, zoneField=NULL, returnObject=TRUE, clip=FAL
   
   if(returnObject){
     if(clip){
-      intList <- suppressWarnings( lapply(seq(hits),  # TO-DO move to parallel
+      intList <- suppressMessages(suppressWarnings( lapply(seq(hits),  # TO-DO move to parallel
                         FUN=function(j){ 
                           ints <- sf::st_intersection(zone[j, c(zoneField, zoneGeo)], 
                                                       X[i[[j]],] )
@@ -152,7 +152,7 @@ get_zonal_index <- function(X, zone, zoneField=NULL, returnObject=TRUE, clip=FAL
                                 sf::st_make_valid(ints), "MULTIPOLYGON"), "POLYGON")
                           }
                           return(ints)
-                        }) )
+                        }) ))
       DT <- data.table::rbindlist(intList)
       data.table::setkeyv(DT, zoneField)
       data.table::setcolorder(DT, neworder=c(names(X), zoneField))
