@@ -382,7 +382,7 @@ calc_fs_internal <- function(X, index, metrics,
         outName <- paste(outputTag, "_", val, "tif", sep=".")
       }
       
-      if(vebose){ cat(" ", outName, "\n") }
+      if(verbose){ cat(" ", outName, "\n") }
       stars::st_rasterize(spatial_result[val], 
                           file=file.path(outputPath, outName), 
                           template=template,
