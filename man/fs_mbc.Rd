@@ -6,7 +6,18 @@
 \usage{
 fs_mbc(X)
 }
+\arguments{
+\item{X}{Building footprint polygons in \code{sf} or \code{sp} or other valid
+spatial types.}
+}
+\value{
+Object of the same class as \code{X}
+}
 \description{
 Helper function to calculate the minimum circle that bounds the
-  polygon feature.
+  polygon features.
+}
+\details{
+\code{fs_mbc} uses \code{lwgeom::st_minimum_bounding_circle} to
+  calculate the minimum bounding circle.
 }

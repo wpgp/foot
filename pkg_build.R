@@ -7,6 +7,7 @@ setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 usethis::use_package("data.table")
 usethis::use_package("sf")
 usethis::use_package("stars")
+usethis::use_package("lwgeom")
 
 # package documentation
 devtools::document()

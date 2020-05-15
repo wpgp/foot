@@ -16,6 +16,10 @@ type.}
 \item{returnShape}{logical. Should the function return the \code{sf} polygon
 of the rotated bounding rectange or should it retun the angle (in degrees).}
 }
+\value{
+a numeric angle from 0 to 360 degrees or the rotated rectangle as a
+  polygon of type \code{sf}.
+}
 \description{
 Helper function to provide the minimum rotated bounding
   rectangle of a polygon or set of points. Optionally, the function will
