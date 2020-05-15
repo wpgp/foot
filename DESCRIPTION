@@ -1,10 +1,23 @@
 Package: foot
 Title: foot
-Version: 0.1.0
-Date: 2020-03-27
-Author: WorldPop Research Group, University of Southampton
-Maintainer: Doug Leasure <D.R.Leasure@soton.ac.uk>
+Version: 0.2.0
+Date: 2020-05-15
+Authors@R: 
+	c(person(given="WorldPop Research Group, University of Southampton", 
+			 role="aut"),
+	  person(family="Jochem", 
+			 given="Chris", 
+			 role="ctb",
+	  person(family="Dooley", 
+			 given="Claire", 
+			 role="ctb"),
+	  person(family="Leasure", 
+			 given="Doug", 
+			 role="cre", 
+			 email="D.R.Leasure@soton.ac.uk"),
+	)
 License: None
+URL: https://github.com/wpgp/foot
 Imports: 
     data.table,
     sf,
