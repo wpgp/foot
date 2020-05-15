@@ -4,7 +4,6 @@
 #'   polygons within zones.
 #' @inheritParams fs_area_mean
 #' @return \code{data.table} of zonal indices and values
-#' @author Chris Jochem
 #' 
 #' @details The compactness measure is the Polsby-Popper test. This is
 #'   summarised as the mean for all footprints in the zone identified by

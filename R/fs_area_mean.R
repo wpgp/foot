@@ -12,7 +12,6 @@
 #' Default is \code{NULL} which will use the units of the spatial reference system
 #' @param col column name within \code{X} with pre-calculated area measures
 #' @return \code{data.table} of zonal indices and values
-#' @author Chris Jochem
 #' 
 #' @import data.table
 #' 

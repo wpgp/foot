@@ -22,8 +22,6 @@
 #' \item cropYsize number of rows in the tile 
 #' }
 #' 
-#' @author Chris Jochem
-#' 
 #' @aliases gridTiles
 #' @rdname gridTiles
 #' 

@@ -4,7 +4,6 @@
 #' @description Calculate selected metrics of building footprints
 #' @param txt Text to append to "foot"
 #' @return TBD.
-#' @author Chris Jochem
 #' 
 #' @aliases calculate_pixel_footstats
 #' @rdname calculate_pixel_footstats

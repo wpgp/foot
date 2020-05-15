@@ -21,8 +21,6 @@
 #'   where z is the zone, A is the area, NND is the mean nearest neighbour
 #'   distance, and n is the count.
 #' 
-#' @author Chris Jochem
-#' 
 #' @import data.table
 #' 
 #' @aliases fs_NNindex

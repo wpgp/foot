@@ -5,8 +5,6 @@
 #' @inheritParams fs_area_mean
 #' @return \code{data.table} of zonal indices and values.
 #' 
-#' @author Chris Jochem
-#' 
 #' @import data.table
 #' 
 #' @aliases fs_settled

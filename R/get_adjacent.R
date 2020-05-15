@@ -20,8 +20,6 @@
 #' 
 #' @seealso \code{\link{make_circular_filter}}
 #' 
-#' @author Chris Jochem
-#' 
 #' @import data.table
 #' @aliases adjacentCells
 #' @rdname adjacentCells

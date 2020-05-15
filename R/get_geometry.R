@@ -62,8 +62,6 @@ fs_perimeter <- function(X, unit=NULL){
 #' @source Polsby, Daniel D., and Robert D. Popper. 1991. “The Third Criterion:
 #'   Compactness as a procedural safeguard against partisan gerrymandering.”
 #'   Yale Law & Policy Review 9 (2): 301–353.
-#'   
-#' @author Chris Jochem
 #' 
 #' @name fs_shape
 #' @export
@@ -109,7 +107,6 @@ fs_compact <- function(X){
 #' 
 #' The function first looks for pre-calculated values of area in a field called
 #' \code{fs_area}. If not present, the areas are calculated in m^2.
-#' @author Chris Jochem
 #' 
 #' @name fs_shape
 #' @export
