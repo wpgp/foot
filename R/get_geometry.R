@@ -1,4 +1,13 @@
-
+#' @title Area
+#' @description Helper geometry function to measure the area of building
+#'   footprint polygons.
+#' @param X polygons of building footprints of type \code{sf}.
+#' @param unit string indicating unit of measure. Passed to
+#'   \code{units::set_units}.
+#' @return numeric vector of area measured for each item in \code{X}.
+#'
+#' @name fs_area
+#' @export
 fs_area <- function(X, unit=NULL){
   area_calc <- sf::st_area(X)
   
@@ -10,6 +19,16 @@ fs_area <- function(X, unit=NULL){
 }
 
 
+#' @title Perimeter
+#' @description Helper geometry function to measure the perimeter of building
+#'   footprint polygons.
+#' @param X polygons of building footprints of type \code{sf}.
+#' @param unit string indicating unit of measure. Passed to
+#'   \code{units::set_units}.
+#' @return numeric vector of perimeter measured for each item in \code{X}.
+#'
+#' @name fs_perimeter
+#' @export
 fs_perimeter <- function(X, unit=NULL){
   if(st_is_longlat(X)){
     perim_calc <- sf::st_length(sf::st_cast(sf::st_geometry(X), "LINESTRING"))
@@ -26,7 +45,33 @@ fs_perimeter <- function(X, unit=NULL){
 }
 
 
+#' @title Compactness index
+#' 
+#' @description Calculates an approximate measure of shape "compactness".
+#' @param X polygons of building footprints of type \code{sf}.
+#' @return numeric vector of compactness values ranging from 0 to 1 for each
+#'   item in \code{X}.
+#' 
+#' @details The compactness measure is the Polsby-Popper test based on the
+#'   perimeter and area of each footprint.
+#'   
+#'   \deqn{ PP_i = \frac{4$\pi$ * A_z}{P_i^2} },
+#'   where P and A are the perimeter and area of footprint 'i', respectively.
+#'   Values closer to 1 indicate more compact shapes.
+#'   
+#' @source Polsby, Daniel D., and Robert D. Popper. 1991. “The Third Criterion:
+#'   Compactness as a procedural safeguard against partisan gerrymandering.”
+#'   Yale Law & Policy Review 9 (2): 301–353.
+#'   
+#' @author Chris Jochem
+#' 
+#' @name fs_shape
+#' @export
 fs_compact <- function(X){
+  if(!inherits(X, 'sf')){
+    X <- sf::st_as_sf(X)
+  }
+  
   if(!"fs_area" %in% names(X)){
     if(any(!sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON"))){
       stop("Area requires polygons")
@@ -50,7 +95,29 @@ fs_compact <- function(X){
 } 
 
 
+#' @title Shape index
+#' 
+#' @description Calculates a measure of shape or "roundness".
+#' @param X polygons of building footprints of type \code{sf}.
+#' @return numeric vector with shape index values ranging from 0 to 1 or each
+#'   item in \code{X}.
+#' 
+#' @details The shape index is calculated as the ratio of footprint polygon's
+#'   area to the area of minimum bounding circle. The mbc is calculated using
+#'   \code{fs_mbc} and \code{lwgeom}. Values closer 1 suggest more rounded
+#'   shapes.
+#' 
+#' The function first looks for pre-calculated values of area in a field called
+#' \code{fs_area}. If not present, the areas are calculated in m^2.
+#' @author Chris Jochem
+#' 
+#' @name fs_shape
+#' @export
 fs_shape <- function(X){
+  if(!inherits(X, "sf")){
+    X <- sf::st_as_sf(X)
+  }
+  
   if(!"fs_area" %in% names(X)){
     if(any(!sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON"))){
       stop("Area requires polygons")
@@ -83,14 +150,14 @@ fs_shape <- function(X){
 #'   type.
 #' @param returnShape logical. Should the function return the \code{sf} polygon
 #'   of the rotated bounding rectange or should it retun the angle (in degrees).
-#'
+#' @return a numeric angle from 0 to 360 degrees or the rotated rectangle as a
+#'   polygon of type \code{sf}.
 #' @details This function is currently not vectorized and processing is limited
 #'   to one shape.
 #'
 #' @source
-#'   \link[https://gis.stackexchange.com/questions/22895/finding-minimum-area-rectangle-for-given-points]{https://gis.stackexchange.com/questions/22895/finding-minimum-area-rectangle-for-given-points}
+#' \link[https://gis.stackexchange.com/questions/22895/finding-minimum-area-rectangle-for-given-points]{https://gis.stackexchange.com/questions/22895/finding-minimum-area-rectangle-for-given-points}
 #'
-#'   
 #' @name fs_mbr
 #' @export
 # Based on: https://gis.stackexchange.com/questions/22895/finding-minimum-area-rectangle-for-given-points
@@ -134,7 +201,12 @@ fs_mbr <- function(X, returnShape=FALSE){
 #' @title Minimum bounding circle
 #' 
 #' @description Helper function to calculate the minimum circle that bounds the
-#'   polygon feature.
+#'   polygon features.
+#' @param X Building footprint polygons in \code{sf} or \code{sp} or other valid
+#'   spatial types.
+#' @return Object of the same class as \code{X} 
+#' @details \code{fs_mbc} uses \code{lwgeom::st_minimum_bounding_circle} to
+#'   calculate the minimum bounding circle.
 #' 
 #' @import lwgeom
 #' 
