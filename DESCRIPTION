@@ -7,14 +7,14 @@ Authors@R:
 			 role="aut"),
 	  person(family="Jochem", 
 			 given="Chris", 
-			 role="ctb",
+			 role="ctb"),
 	  person(family="Dooley", 
 			 given="Claire", 
 			 role="ctb"),
 	  person(family="Leasure", 
 			 given="Doug", 
 			 role="cre", 
-			 email="D.R.Leasure@soton.ac.uk"),
+			 email="D.R.Leasure@soton.ac.uk")
 	)
 License: None
 URL: https://github.com/wpgp/foot
