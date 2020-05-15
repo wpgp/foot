@@ -32,7 +32,7 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(foot)
 library(stars)   # for reading/writing some GDAL files
-library(raster)  # to demonstrate with raster tools
+library(raster)  # to demonstrate interaction with raster tools
 
 # Package to download WorldPop mastergrids
 # devtools::install_github("wgpg/wpgpDownloadR")

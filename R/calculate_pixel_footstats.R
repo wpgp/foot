@@ -1,33 +1,36 @@
-#' calculate_pixel_footstats
+#' calculate_bigfoot
 #' 
-#' @title calculate_pixel_footstats
-#' @description Calculate selected metrics of building footprints
+#' @title calculate_bigfoot
+#' @description Calculate selected metrics of building footprints for
+#'   high-spatial resolution gridded outputs.
 #' @param txt Text to append to "foot"
 #' @return TBD.
 #' @author Chris Jochem
 #' 
-#' @aliases calculate_pixel_footstats
-#' @rdname calculate_pixel_footstats
+#' @aliases calculate_bigfoot
+#' @rdname calculate_bigfoot
 #' 
 #' @export
-calculate_pixel_footstats <- function(X, 
-                                      metrics='all',
-                                      gridded=TRUE, 
-                                      template=NULL,
-                                      parallel=TRUE,
-                                      tileSize=c(1000, 1000),
-                                      overlap=0,
-                                      file=NULL) UseMethod("calculate_pixel_footstats")
+calculate_bigfoot <- function(X, 
+                              metrics='all',
+                              gridded=TRUE, 
+                              template=NULL,
+                              parallel=TRUE,
+                              tileSize=c(1000, 1000),
+                              overlap=0,
+                              file=NULL) UseMethod("calculate_bigfoot")
 
-#' @name calculate_pixel_footstats
+
+#' @name calculate_bigfoot
 #' @export
-calculate_pixel_footstats.sf <- function(X, metrics='all', 
-                                         gridded=TRUE, template=NULL, 
-                                         parallel=TRUE,
-                                         tileSize=c(1000, 1000),
-                                         overlap=0,
-                                         file=NULL){
-  
+calculate_bigfoot.sf <- function(X, 
+                                 metrics='all', 
+                                 gridded=TRUE, template=NULL, 
+                                 parallel=TRUE,
+                                 tileSize=c(1000, 1000),
+                                 overlap=0,
+                                 file=NULL){
+
   if(any(!st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON") )){
     message("Footprint statistics require polygon shapes.")
     stop()
@@ -41,14 +44,15 @@ calculate_pixel_footstats.sf <- function(X, metrics='all',
 }
 
 
-#' @name calculate_pixel_footstats
+#' @name calculate_bigfoot
 #' @export
-calculate_pixel_footstats.character <- function(X, metrics='all', 
-                                                gridded=TRUE, template=NULL, 
-                                                parallel=TRUE,
-                                                tileSize=c(1000, 1000),
-                                                overlap=0,
-                                                file=NULL){
+calculate_bigfoot.character <- function(X, 
+                                        metrics='all', 
+                                        gridded=TRUE, template=NULL, 
+                                        parallel=TRUE,
+                                        tileSize=c(1000, 1000),
+                                        overlap=0,
+                                        file=NULL){
   
 }
 
