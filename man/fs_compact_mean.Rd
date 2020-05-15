@@ -45,3 +45,6 @@ The compactness measure is the Polsby-Popper test. This is
   \deqn{ PP_z = \frac{4$\pi$ * A_z}{P_z^2} },
   where P and A are the perimeter and area of zone 'z', respectively.
 }
+\author{
+Chris Jochem
+}

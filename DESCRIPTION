@@ -8,7 +8,8 @@ License: None
 Imports: 
     data.table,
     sf,
-    stars
+    stars,
+    lwgeom
 LazyData: true
 Description: An R package for processing building footprints
 Encoding: UTF-8
