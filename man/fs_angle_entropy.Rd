@@ -39,6 +39,3 @@ the angles of footprints, higher entropy values may suggest less formally planne
 or zoned areas. The entropy calculation uses the common Shannon's Entropy. The 
 normalization step produces an indicator for how much a zone departs from a grid.
 }
-\author{
-Chris Jochem
-}

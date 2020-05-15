@@ -43,6 +43,3 @@ gridTiles
 dataset into subdatasets for cropping or processing individually. The splitting 
 uses the extent of the total grid, potentially including noData cells.
 }
-\author{
-Chris Jochem
-}

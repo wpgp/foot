@@ -45,8 +45,3 @@ The shape index is calculated as the ratio of footprint polygon's
 The function first looks for pre-calculated values of area in a field called
 \code{fs_area}. If not present, the areas are calculated in m^2.
 }
-\author{
-Chris Jochem
-
-Chris Jochem
-}

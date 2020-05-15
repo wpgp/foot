@@ -51,6 +51,3 @@ Calculate selected metrics of building footprints
 \details{
 calculate_pixel_footstats
 }
-\author{
-Chris Jochem
-}

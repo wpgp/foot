@@ -32,6 +32,3 @@ Default is \code{NULL} which will use the units of the spatial reference system}
 Calculate and summarise selected metrics of building 
 footprint polygons within zones.
 }
-\author{
-Chris Jochem
-}
