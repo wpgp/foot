@@ -4,7 +4,6 @@
 #' footprint polygons within zones.
 #' #' @inheritParams fs_area_mean
 #' @return \code{data.table} of zonal indices and values
-#' @author Chris Jochem
 #' 
 #' @import data.table
 #' 

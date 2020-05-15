@@ -123,6 +123,3 @@ Calculate groups of metrics for building footprint datasets
 \details{
 calculate_footstats
 }
-\author{
-Chris Jochem
-}

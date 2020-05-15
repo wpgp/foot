@@ -42,6 +42,3 @@ The nearest neighbour index (NNI) is a measure of clustering. It
   where z is the zone, A is the area, NND is the mean nearest neighbour
   distance, and n is the count.
 }
-\author{
-Chris Jochem
-}

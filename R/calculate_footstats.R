@@ -28,8 +28,6 @@
 #' 
 #' @return a \code{data.table} with an 'index' column and named columns for each
 #'   footprint statistic. Alternatively, geoTiffs of 
-#'   
-#' @author Chris Jochem
 #' 
 #' @aliases calculate_footstats
 #' @rdname calculate_footstats

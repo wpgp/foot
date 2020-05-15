@@ -29,6 +29,3 @@ to be within one zone.}
 Calculate and summarise selected metrics of building 
 footprints within zones.
 }
-\author{
-Chris Jochem
-}

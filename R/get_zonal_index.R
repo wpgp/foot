@@ -13,7 +13,6 @@
 #'   linked to each zone. Default FALSE.
 #' @return 'sf' object with attributes of X plus the unique zone ID or a
 #'   data.table with the ID to the records in \code{X} and the zone IDs.
-#' @author Chris Jochem
 #' 
 #' @import data.table
 #' @aliases zonalIndex

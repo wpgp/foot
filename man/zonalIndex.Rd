@@ -47,6 +47,3 @@ linked to each zone. Default FALSE.}
 Find the area, grid cells, or other zone that a building polygon
   overlaps or is located in
 }
-\author{
-Chris Jochem
-}

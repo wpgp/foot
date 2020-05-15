@@ -52,6 +52,3 @@ Calculate selected metrics of building footprints for
 \details{
 calculate_bigfoot
 }
-\author{
-Chris Jochem
-}

@@ -30,8 +30,6 @@ suggestUTMzone <- function(pt){
 #'   within \code{X}. Otherwise, the distance for each object in \code{X} to its
 #'   nearest neighbour in \code{Y} is returned. Providing a maximum search
 #'   radius is strongly advised to speed up the calcluation.
-#'
-#' @author Chris Jochem
 #' 
 #' @name fs_NNdist
 #' @export

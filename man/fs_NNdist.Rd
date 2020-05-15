@@ -28,6 +28,3 @@ If \code{Y} is omitted the nearest neighbour distances are found
   nearest neighbour in \code{Y} is returned. Providing a maximum search
   radius is strongly advised to speed up the calcluation.
 }
-\author{
-Chris Jochem
-}

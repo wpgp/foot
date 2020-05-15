@@ -5,7 +5,6 @@
 #'   high-spatial resolution gridded outputs.
 #' @param txt Text to append to "foot"
 #' @return TBD.
-#' @author Chris Jochem
 #' 
 #' @aliases calculate_bigfoot
 #' @rdname calculate_bigfoot

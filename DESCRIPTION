@@ -1,17 +1,30 @@
 Package: foot
-Title: foot
-Version: 0.1.0
-Date: 2020-03-27
-Author: WorldPop Research Group, University of Southampton
-Maintainer: Doug Leasure <D.R.Leasure@soton.ac.uk>
+Title: A package for processing building footprints
+Version: 0.2.0
+Date: 2020-05-15
+Authors@R: 
+	c(person(given="WorldPop Research Group, University of Southampton", 
+			 role="aut"),
+	  person(family="Jochem", 
+			 given="Chris", 
+			 role="ctb"),
+	  person(family="Dooley", 
+			 given="Claire", 
+			 role="ctb"),
+	  person(family="Leasure", 
+			 given="Doug", 
+			 role="cre", 
+			 email="D.R.Leasure@soton.ac.uk")
+	)
 License: None
+URL: https://github.com/wpgp/foot
 Imports: 
     data.table,
     sf,
     stars,
     lwgeom
 LazyData: true
-Description: An R package for processing building footprints
+Description: Support for morphometric calculations and zonal summaries of measures derived from building footprint polygons.
 Encoding: UTF-8
 RoxygenNote: 7.1.0
 Suggests: 
@@ -19,4 +32,4 @@ Suggests:
     rmarkdown
 VignetteBuilder: knitr
 Depends: 
-    R (>= 2.10)
+    R (>= 3.5)
