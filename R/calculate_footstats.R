@@ -367,9 +367,18 @@ calc_fs_internal <- function(X, index, metrics,
         stop("CRS for buildings and template raster not matching.")
       }
       
+      # use building centroids to rasterize
       if(!any(sf::st_geometry_type(X) %in% c("POINT"))){
         X <- sf::st_centroid(X)
-      } 
+      }
+
+      mp <- sf::st_cast(sf::st_geometry(X), 
+                        to="MULTIPOINT", 
+                        ids=X[[index]], 
+                        group_or_split=TRUE)
+      X <- sf::st_sf(index=unique(X[[index]]), geometry=mp, crs=sf::st_crs(X))
+      names(X)[1] <- index
+      
       spatial_result <- merge(X, merged_result, by.x=index, by.y="index")
     }
     
