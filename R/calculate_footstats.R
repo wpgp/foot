@@ -14,6 +14,7 @@
 #'   "fs_area_mean", etc. Other options include \code{ALL} or \code{NODIST} to
 #'   calculate all available metrics and all except nearest neighbour distances,
 #'   respectively.
+#' @param gridded Should a gridded output be created? Default \code{TRUE}.
 #' @param template (optional). When creating a gridded output, a supplied
 #'   \code{stars} or \code{raster} dataset to align the data.
 #' @param outputPath (optional). When creating a gridded output, a path for the
