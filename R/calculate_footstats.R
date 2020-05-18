@@ -367,7 +367,7 @@ calc_fs_internal <- function(X, index, metrics,
         stop("CRS for buildings and template raster not matching.")
       }
       
-      if(!sf::st_geometry_type(X) %in% c("POINT")){
+      if(!any(sf::st_geometry_type(X) %in% c("POINT"))){
         X <- sf::st_centroid(X)
       } 
       spatial_result <- merge(X, merged_result, by.x=index, by.y="index")
