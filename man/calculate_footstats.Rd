@@ -97,6 +97,8 @@ a vector of indices can be provided. If omitted all observations with
 calculate all available metrics and all except nearest neighbour distances,
 respectively.}
 
+\item{gridded}{Should a gridded output be created? Default \code{TRUE}.}
+
 \item{template}{(optional). When creating a gridded output, a supplied
 \code{stars} or \code{raster} dataset to align the data.}
 
