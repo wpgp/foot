@@ -187,11 +187,9 @@ fs_mbr(buildings[5,], returnShape=F)
 
 ```
 
-At present, the `fs_mbr()` function is not vectorized because of how it relies
-on `chull()` and a loop is required to calculate all features. The angles can be
-summarised as an entropy measure and normalised to describe how much the angles
-of structures depart from a regular grid pattern (available in
-`fs_angle_entropy()`).
+The angles can be summarised as an entropy measure and normalised to describe
+how much the angles of structures depart from a regular grid pattern (available
+in `fs_angle_entropy()`).
 
 
 ## Creating and supplying zone indices

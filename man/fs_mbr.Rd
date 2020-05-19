@@ -10,8 +10,7 @@
 fs_mbr(X, returnShape = FALSE)
 }
 \arguments{
-\item{X}{matrix of point coordinates in two columns or a polygon of \code{sf}
-type.}
+\item{X}{polygons of building footprints in type \code{sf}.}
 
 \item{returnShape}{logical. Should the function return the \code{sf} polygon
 of the rotated bounding rectange or should it retun the angle (in degrees).}

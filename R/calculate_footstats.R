@@ -287,7 +287,8 @@ calc_fs_internal <- function(X, index, metrics,
   
   if(any(grepl("angle", metrics, fixed=T))){
     if(verbose){ cat("Pre-calculating angles \n") }
-    X[["fs_angle"]] <- sapply(sf::st_geometry(X), fs_mbr)
+    # X[["fs_angle"]] <- sapply(sf::st_geometry(X), fs_mbr)
+    X[["fs_angle"]] <- fs_mbr(X)
   }
   
   # creating the names of the functions to call
