@@ -18,12 +18,15 @@ where, "tkn" is an authentication token. This is required because *foot* is stil
 
 Note that building and running the code may require additional packages: `stars`, `raster`, `sf`, `data.table`, `lwgeom`.
 
+### Contributions
+Contributions are welcome. Raise or respond to an issue, or create a new branch to develop a feature/modification and submit a pull request.
+
 ### Inputs
-Building footprints:  
+Building footprints (for example):  
 
 //worldpop.files.soton.ac.uk/worldpop/Projects/WP517763_GRID3/DataIn/raw/DigitizeAfrica_building_footprints/
 
-Sample dataset:
+Sample dataset provided:
 `data("kampala"); kampala$buildings`
 
 ### Outputs
