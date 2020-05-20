@@ -17,11 +17,9 @@
 #'   of dispersed observations given the area of the zone. Note that NNI is
 #'   sensitive to changes in the zone area.
 #'   
-#'   NNI_z = (NNDbar_z) / (0.5 * sqrt(A_z / n_z)), 
-#'   where z is the zone, A is the area, NNDbar is the mean nearest neighbour
+#'   \deqn{ NNI_z = \frac{\bar{NND_z}}{(0.5 * \sqrt{\frac{A_z}{n_z}}})}, 
+#'   where z is the zone, A is the area, NND is the mean nearest neighbour
 #'   distance, and n is the count.
-#' 
-#' @author Chris Jochem
 #' 
 #' @import data.table
 #' 

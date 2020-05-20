@@ -14,16 +14,21 @@
 #'   "fs_area_mean", etc. Other options include \code{ALL} or \code{NODIST} to
 #'   calculate all available metrics and all except nearest neighbour distances,
 #'   respectively.
+#' @param gridded Should a gridded output be created? Default \code{TRUE}.
 #' @param template (optional). When creating a gridded output, a supplied
 #'   \code{stars} or \code{raster} dataset to align the data.
 #' @param outputPath (optional). When creating a gridded output, a path for the
 #'   location of the output.
+#' @param outputTag (optional). A character string that will be added tagged to
+#'   the beginning of the output gridded files. If \code{X} is a \code{list},
+#'   then the names of the list items will be used or a vector of tags of the
+#'   same length as \code{X} should be supplied.
 #' @param driver character. Currently supports geotiff ("GTiff").
+#' @param verbose logical. Should progress messages be printed. 
+#' Default \code{False}.
 #' 
 #' @return a \code{data.table} with an 'index' column and named columns for each
 #'   footprint statistic. Alternatively, geoTiffs of 
-#'   
-#' @author Chris Jochem
 #' 
 #' @aliases calculate_footstats
 #' @rdname calculate_footstats
@@ -35,19 +40,26 @@ calculate_footstats <- function(X,
                                 gridded=TRUE, 
                                 template=NULL,
                                 outputPath=NULL,
-                                driver="GTiff") UseMethod("calculate_footstats")
+                                outputTag=NULL,
+                                driver="GTiff",
+                                verbose=FALSE) UseMethod("calculate_footstats")
 
 #' @name calculate_footstats
 #' @export
 calculate_footstats.sf <- function(X, index=NULL, metrics='all', 
                                    gridded=TRUE, template=NULL, 
-                                   outputPath=NULL, driver="GTiff"){
+                                   outputPath=NULL, 
+                                   outputTag=NULL,
+                                   driver="GTiff",
+                                   verbose=FALSE){
+  
   if(any(!st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON") )){
     message("Footprint statistics require polygon shapes.")
     stop()
   }
   
-  result <- calc_fs_internal(X, index, metrics, gridded, template, outputPath, driver)
+  result <- calc_fs_internal(X, index, metrics, gridded, 
+                             template, outputPath, outputTag, driver, verbose)
   
   return(result)
 }
@@ -57,13 +69,19 @@ calculate_footstats.sf <- function(X, index=NULL, metrics='all',
 #' @export
 calculate_footstats.sfc <- function(X, index=NULL, metrics='all', 
                                     gridded=TRUE, template=NULL, 
-                                    outputPath=NULL, driver="GTiff"){
+                                    outputPath=NULL, 
+                                    outputTag=NULL,
+                                    driver="GTiff",
+                                    verbose=FALSE){
   # cast to sf for consistency
   X <- sf::st_as_sf(X)
   
   result <- calculate_footstats(X, index=index, metrics=metrics, 
                                 gridded=gridded, template=template, 
-                                outputPath=outputPath, driver=driver)
+                                outputPath=outputPath, 
+                                outputTag=outputTag,
+                                driver=driver,
+                                verbose=verbose)
   return(result)
 }
 
@@ -72,13 +90,19 @@ calculate_footstats.sfc <- function(X, index=NULL, metrics='all',
 #' @export
 calculate_footstats.sp <- function(X, index=NULL, metrics='all', 
                                    gridded=TRUE, template=NULL, 
-                                   outputPath=NULL, driver="GTiff"){
+                                   outputPath=NULL, 
+                                   outputTag=NULL,
+                                   driver="GTiff",
+                                   verbose=FALSE){
   # convert to sf
   X <- sf::st_as_sf(X)
   
   result <- calculate_footstats(X, index=index, metrics=metrics, 
                                 gridded=gridded, template=template, 
-                                outputPath=outputPath, driver=driver)
+                                outputPath=outputPath, 
+                                outputTag=outputTag,
+                                driver=driver,
+                                verbose=verbose)
   return(result)
 }
 
@@ -87,13 +111,19 @@ calculate_footstats.sp <- function(X, index=NULL, metrics='all',
 #' @export
 calculate_footstats.character <- function(X, index=NULL, metrics='all', 
                                           gridded=TRUE, template=NULL, 
-                                          outputPath=NULL, driver="GTiff"){
+                                          outputPath=NULL, 
+                                          outputTag=NULL,
+                                          driver="GTiff",
+                                          verbose=FALSE){
   # attempt to read in file
   X <- sf::st_read(X)
   
   result <- calculate_footstats(X, index=index, metrics=metrics, 
                                 gridded=gridded, template=template, 
-                                outputPath=outputPath, driver=driver)
+                                outputPath=outputPath, 
+                                outputTag=outputTag,
+                                driver=driver,
+                                verbose=verbose)
   return(result)
 }
 
@@ -102,19 +132,55 @@ calculate_footstats.character <- function(X, index=NULL, metrics='all',
 #' @export
 calculate_footstats.list <- function(X, index=NULL, metrics='all', 
                                      gridded=TRUE, template=NULL, 
-                                     outputPath=NULL, driver="GTiff"){
-  result <- lapply(X, FUN=calculate_footstats(X, index=index, metrics=metrics, 
-                                              gridded=gridded, template=template, 
-                                              outputPath=outputPath, driver=driver))
+                                     outputPath=NULL, 
+                                     outputTag=NULL,
+                                     driver="GTiff",
+                                     verbose=FALSE){
+  
+  if(is.null(outputTag)){
+    if(is.null(names(X))){
+      outputTag <- seq_along(X)
+    } else{
+      outputTag <- names(X)
+    }
+  } else{
+    if(length(outputTag) != length(X)){
+      stop("Invalid output tag length.")
+    } 
+  }
+  
+  # expand other arguments - recycling values
+  args <- list(index=index, metrics=metrics, gridded=gridded, 
+               template=template, outputPath=outputPath, driver=driver, 
+               verbose=verbose)
+  maxL <- max(lengths(args), length(X))
+  args <- lapply(args, rep, length.out=maxL)
+  
+  result <- lapply(seq_along(X), FUN=function(i){
+    calculate_footstats(X[[i]], 
+                        index=args$index[i], 
+                        metrics=args$metrics[i],
+                        gridded=args$gridded[i], 
+                        template=args$template[i],
+                        outputPath=args$outputPath[i], 
+                        outputTag=outputTag[[i]],
+                        driver=args$driver[i], 
+                        verbose=args$verbose[i])
+  })
   
   return(result)  # should the list be simplified?
 }
 
 
-calc_fs_internal <- function(X, index, metrics, gridded, template, outputPath, driver){
+calc_fs_internal <- function(X, index, metrics, 
+                             gridded, template, 
+                             outputPath, outputTag, driver, verbose){
+  
   if(is.na(st_crs(X))){
     stop("Polygons must have a spatial reference.")
   }
+  
+  if(verbose){ cat("Creating index \n") }
   
   if(!is.null(index)){
     if(inherits(index, "sf")){
@@ -139,15 +205,18 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, outputPath, d
       index <- NULL
     }
   }
-
   
+  if(verbose){ cat("Selectinig metrics \n") }
+
   if(toupper(metrics[1]) == 'ALL'){
     metrics <- foot::fs_footprint_metrics$name
   }
   
   if(toupper(metrics[1]) == "NODIST"){
-    metrics <- foot::fs_footprint_metrics$name
+    # metrics <- foot::fs_footprint_metrics$name
     metrics <- metrcs[!grepl("NNdist", metrics)]
+    metrics <- foot::fs_footprint_metrics[foot::fs_footprint_metrics$group != "NNdist", 
+                                          "name"]
   }
   
   if(any(grepl("area_cv", metrics, fixed=T))){
@@ -164,6 +233,12 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, outputPath, d
     perim_cv <- TRUE
   } else{
     perim_cv <- FALSE
+  }
+  
+  if(any(grepl("compact", metrics, fixed=T))){
+    compact <- TRUE
+  } else{
+    compact <- FALSE
   }
   
   if(any(grepl("NNindex", metrics, fixed=T))){
@@ -190,33 +265,39 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, outputPath, d
   }
   
   # pre-calcluate unit geometry measures
-  if(any(grepl("area", metrics, fixed=T))){
+  if(any(grepl("area", metrics, fixed=T)) | compact==TRUE){
+    if(verbose){ cat("Pre-calculating footprint areas \n") }
     unit <- "ha"
     X[["fs_area"]] <- fs_area(X, unit)
   }
   
-  if(any(grepl("perim", metrics, fixed=T))){
+  if(any(grepl("perim", metrics, fixed=T)) | compact==TRUE){
+    if(verbose){ cat("Pre-calculating footprint perimeters \n")}
     X[["fs_perim"]] <- fs_perimeter(X, 
                                     unit=fs_footprint_metrics[fs_footprint_metrics$name=="fs_perim_mean",
                                                               "default_units"])
   }
   
   if(any(grepl("NNdist", metrics, fixed=T))){
+    if(verbose){ cat("Pre-calculating nearest neighbour distances \n") }
     X[["fs_NNdist"]] <- fs_NNdist(X, 
                                   unit=fs_footprint_metrics[fs_footprint_metrics$name=="fs_NNdist_mean",
                                                             "default_units"])
   }
   
-    
   if(any(grepl("angle", metrics, fixed=T))){
-    X[["fs_angle"]] <- sapply(sf::st_geometry(X), fs_mbr)
+    if(verbose){ cat("Pre-calculating angles \n") }
+    # X[["fs_angle"]] <- sapply(sf::st_geometry(X), fs_mbr)
+    X[["fs_angle"]] <- fs_mbr(X)
   }
   
   # creating the names of the functions to call
   metrics <- unique(metrics)
   metrics_calc <- paste0(metrics, "_calc")
+  if(verbose){ cat("\nCalculating ", length(metrics_calc)  ," metrics ... \n")}
   
   result <- lapply(seq_along(metrics_calc), function(current_metric){
+    if(verbose){ cat("  ", metrics[[current_metric]], " \n") }
     func <- get(metrics_calc[[current_metric]], mode="function")
     
     getUnit <- fs_footprint_metrics$default_units[match(metrics[[current_metric]], fs_footprint_metrics$name)]
@@ -252,9 +333,12 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, outputPath, d
     
     merged_result <- merge(merged_result, nniDT[, list(index, fs_NNindex)], by=index)
   }
+  if(verbose){ cat("Finished calculating metrics. \n") }
   
   # output
   if(gridded==TRUE){
+    if(verbose){ cat("\nCreating gridded datasets \n") }
+    
     if(is.null(outputPath)){
       outputPath <- tempdir()
     } else{
@@ -284,21 +368,39 @@ calc_fs_internal <- function(X, index, metrics, gridded, template, outputPath, d
         stop("CRS for buildings and template raster not matching.")
       }
       
-      if(!sf::st_geometry_type(X) %in% c("POINT")){
+      # use building centroids to rasterize
+      if(!any(sf::st_geometry_type(X) %in% c("POINT"))){
         X <- sf::st_centroid(X)
-      } 
+      }
+
+      mp <- sf::st_cast(sf::st_geometry(X), 
+                        to="MULTIPOINT", 
+                        ids=X[[index]], 
+                        group_or_split=TRUE)
+      X <- sf::st_sf(index=unique(X[[index]]), geometry=mp, crs=sf::st_crs(X))
+      names(X)[1] <- index
+      
       spatial_result <- merge(X, merged_result, by.x=index, by.y="index")
     }
-
+    
+    if(verbose){ cat("Writing grids... \n") }
     for(val in names(merged_result)[!names(merged_result) %in% "index"]){
+      if(is.null(outputTag)){
+        outName <- paste(val, "tif", sep=".")
+      } else{
+        outName <- paste(outputTag, "_", val, "tif", sep=".")
+      }
+      
+      if(verbose){ cat(" ", outName, "\n") }
       stars::st_rasterize(spatial_result[val], 
-                          file=file.path(outputPath, paste(val, "tif", sep=".")), 
+                          file=file.path(outputPath, outName), 
                           template=template,
                           driver=driver,
                           options="compress=LZW")
     }
   }
   
+  if(verbose){ cat("Finished!\n") }
   return(merged_result)
 }
 

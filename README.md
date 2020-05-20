@@ -7,10 +7,6 @@ WorldPop Research Group, University of Southampton
 
 2. Install the *foot* package using the code in `./pkg_build.R`
 
-~~3. Run the example script in `./wd/code/example_script.R`.~~
-
-~~4. Check out the example function in `./R/footFun.R`.~~
-
 3. Run the `vignette("footsteps")` to explore basic usage.
 
 ### Installation
@@ -20,12 +16,18 @@ devtools::install_github("wgpg/foot", auth_token="tkn", build_vignettes=TRUE)
 ```
 where, "tkn" is an authentication token. This is required because *foot* is still in a private repo. You can obtain a token from <https://github.com/settings/tokens> and generating a personal token with 'repo' level access. This will be a long character string.
 
-Note that building and running the vignettes may require additional packages: `stars`, `raster`, `sf`, `data.table`.
+Note that building and running the code may require additional packages: `stars`, `raster`, `sf`, `data.table`, `lwgeom`.
+
+### Contributions
+Contributions are welcome. Raise or respond to an issue, or create a new branch to develop a feature/modification and submit a pull request.
 
 ### Inputs
-Building footprints:  
+Building footprints (for example):  
 
 //worldpop.files.soton.ac.uk/worldpop/Projects/WP517763_GRID3/DataIn/raw/DigitizeAfrica_building_footprints/
+
+Sample dataset provided:
+`data("kampala"); kampala$buildings`
 
 ### Outputs
 Rasters (or tables):  
@@ -33,7 +35,6 @@ Rasters (or tables):
 1. Settlement (binary)
 2. Building count
 3. Total building area
-~~5. Building density~~
 4. Average building area
 5. Standard deviation of building area
 6. Coefficient of variation of building area
@@ -44,6 +45,8 @@ Rasters (or tables):
 11. Standard deviation of nearest neighbour distance
 12. Nearest neighbour index
 13. Entropy of structure orientation
+14. Average compactness measure (Polsby-Popper)
+15. Average roundness measure
 
 ### Repository Structure
 The repository is structured as an R package with an additional folder "wd" that is a working directory for storing scripts, input data, and output data.

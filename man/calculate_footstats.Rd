@@ -16,7 +16,9 @@ calculate_footstats(
   gridded = TRUE,
   template = NULL,
   outputPath = NULL,
-  driver = "GTiff"
+  outputTag = NULL,
+  driver = "GTiff",
+  verbose = FALSE
 )
 
 \method{calculate_footstats}{sf}(
@@ -26,7 +28,9 @@ calculate_footstats(
   gridded = TRUE,
   template = NULL,
   outputPath = NULL,
-  driver = "GTiff"
+  outputTag = NULL,
+  driver = "GTiff",
+  verbose = FALSE
 )
 
 \method{calculate_footstats}{sfc}(
@@ -36,7 +40,9 @@ calculate_footstats(
   gridded = TRUE,
   template = NULL,
   outputPath = NULL,
-  driver = "GTiff"
+  outputTag = NULL,
+  driver = "GTiff",
+  verbose = FALSE
 )
 
 \method{calculate_footstats}{sp}(
@@ -46,7 +52,9 @@ calculate_footstats(
   gridded = TRUE,
   template = NULL,
   outputPath = NULL,
-  driver = "GTiff"
+  outputTag = NULL,
+  driver = "GTiff",
+  verbose = FALSE
 )
 
 \method{calculate_footstats}{character}(
@@ -56,7 +64,9 @@ calculate_footstats(
   gridded = TRUE,
   template = NULL,
   outputPath = NULL,
-  driver = "GTiff"
+  outputTag = NULL,
+  driver = "GTiff",
+  verbose = FALSE
 )
 
 \method{calculate_footstats}{list}(
@@ -66,7 +76,9 @@ calculate_footstats(
   gridded = TRUE,
   template = NULL,
   outputPath = NULL,
-  driver = "GTiff"
+  outputTag = NULL,
+  driver = "GTiff",
+  verbose = FALSE
 )
 }
 \arguments{
@@ -85,13 +97,23 @@ a vector of indices can be provided. If omitted all observations with
 calculate all available metrics and all except nearest neighbour distances,
 respectively.}
 
+\item{gridded}{Should a gridded output be created? Default \code{TRUE}.}
+
 \item{template}{(optional). When creating a gridded output, a supplied
 \code{stars} or \code{raster} dataset to align the data.}
 
 \item{outputPath}{(optional). When creating a gridded output, a path for the
 location of the output.}
 
+\item{outputTag}{(optional). A character string that will be added tagged to
+the beginning of the output gridded files. If \code{X} is a \code{list},
+then the names of the list items will be used or a vector of tags of the
+same length as \code{X} should be supplied.}
+
 \item{driver}{character. Currently supports geotiff ("GTiff").}
+
+\item{verbose}{logical. Should progress messages be printed. 
+Default \code{False}.}
 }
 \value{
 a \code{data.table} with an 'index' column and named columns for each
@@ -102,7 +124,4 @@ Calculate groups of metrics for building footprint datasets
 }
 \details{
 calculate_footstats
-}
-\author{
-Chris Jochem
 }

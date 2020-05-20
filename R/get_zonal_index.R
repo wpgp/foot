@@ -13,7 +13,6 @@
 #'   linked to each zone. Default FALSE.
 #' @return 'sf' object with attributes of X plus the unique zone ID or a
 #'   data.table with the ID to the records in \code{X} and the zone IDs.
-#' @author Chris Jochem
 #' 
 #' @import data.table
 #' @aliases zonalIndex
@@ -122,7 +121,7 @@ get_zonal_index <- function(X, zone, zoneField=NULL, returnObject=TRUE, clip=FAL
   }
   
   if(any(sf::st_geometry_type(zone) == "MULTIPOLYGON")){
-    zone <- sf::st_cast(sf::st_cast(lwgeom::st_make_valid(zone), "MULTIPOLYGON"), "POLYGON")
+    zone <- sf::st_cast(sf::st_cast(sf::st_make_valid(zone), "MULTIPOLYGON"), "POLYGON")
   }
   
   if(is.null(zoneField)){
@@ -142,17 +141,17 @@ get_zonal_index <- function(X, zone, zoneField=NULL, returnObject=TRUE, clip=FAL
   
   if(returnObject){
     if(clip){
-      intList <- suppressWarnings( lapply(seq(hits),  # TO-DO move to parallel
+      intList <- suppressMessages(suppressWarnings( lapply(seq(hits),  # TO-DO move to parallel
                         FUN=function(j){ 
                           ints <- sf::st_intersection(zone[j, c(zoneField, zoneGeo)], 
                                                       X[i[[j]],] )
                           if(any(sf::st_geometry_type(ints)=="MULTIPOLYGON")){
                             ints <- sf::st_cast(
                               sf::st_cast(
-                                lwgeom::st_make_valid(ints), "MULTIPOLYGON"), "POLYGON")
+                                sf::st_make_valid(ints), "MULTIPOLYGON"), "POLYGON")
                           }
                           return(ints)
-                        }) )
+                        }) ))
       DT <- data.table::rbindlist(intList)
       data.table::setkeyv(DT, zoneField)
       data.table::setcolorder(DT, neworder=c(names(X), zoneField))

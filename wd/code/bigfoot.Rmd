@@ -22,7 +22,7 @@ knitr::opts_chunk$set(
 ```
 
 ## TO-DO
-* move to a vignette? How to include/access footprints?
+* move to a vignette? How to include/access large set of footprints?
 * alternative: create a separate building dataset from MS buildings
 * re-write and add parallel looping code for tiles
 * check mdsumner's grout package for GDAL-native tiles
@@ -32,7 +32,7 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(foot)
 library(stars)   # for reading/writing some GDAL files
-library(raster)  # to demonstrate with raster tools
+library(raster)  # to demonstrate interaction with raster tools
 
 # Package to download WorldPop mastergrids
 # devtools::install_github("wgpg/wpgpDownloadR")
@@ -42,7 +42,7 @@ library(wpgpDownloadR)
 This demonstration will use a set of building footprints produced by Ecopia in
 partnership with Maxar (Digitize Africa data © 2020 Maxar Technologies,
 Ecopia.AI). These cover South Sudan and have been reprocessed to merge into a
-single Geopackage file in WGS84 projection (4326).
+single Geopackage file in WGS84 projection (EPSG:4326).
 ```{r}
 # path to building footprint data
 bldgPath <- "//worldpop.files.soton.ac.uk/worldpop/Projects/WP517763_GRID3/Working/SSD/sett/made_2/ssd_buildings_wgs84_merge.gpkg"
@@ -61,7 +61,7 @@ mgrid <- read_stars(mgPath, proxy=TRUE)
   print(mgrid)
 ```
 Note that the proxy setting for `stars` does not bring the file into memory, but 
-provides access to the files's dimensions.
+provides access to the files's dimensions and other information.
 
 ### Create processing tiles
 The large extent of the mastergrid is split into roughly equal sized tiles.
@@ -87,7 +87,7 @@ tilesBuff <- gridTiles(mgrid,
 ```
 
 In an actual process, each row in the table of tiles serves a "job" to be done 
-in parallel. For this demonstration, one tile will be use.
+in parallel. For this demonstration, one tile will be used.
 ```{r}
 i <- 200 # example
 ```
@@ -128,7 +128,8 @@ mgBuffTile <- read_stars(mgPath,
                         )
 ```
 
-The buffered tiles have an extra 3 pixel on each side.
+The buffered tiles have an extra 3 pixels on each side that overlap into other
+tiles but allow for additional footprints to be extracted to avoid edge effects.
 ```{r}
 dim(mgTile)
 dim(mgBuffTile)

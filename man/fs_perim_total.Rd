@@ -20,6 +20,3 @@ Calculate and summarise selected metrics of building
 footprint polygons within zones.
 #' @inheritParams fs_area_mean
 }
-\author{
-Chris Jochem
-}

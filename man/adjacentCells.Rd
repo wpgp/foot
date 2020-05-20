@@ -36,6 +36,3 @@ any cells to ignore should be set to \code{NA}.
 \seealso{
 \code{\link{make_circular_filter}}
 }
-\author{
-Chris Jochem
-}

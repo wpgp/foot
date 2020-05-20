@@ -5,12 +5,15 @@ rm(list=ls()); gc(); cat("\014"); try(dev.off(), silent=T)
 setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 
 usethis::use_package("data.table")
+usethis::use_package("sf")
+usethis::use_package("stars")
+usethis::use_package("lwgeom")
 
 # package documentation
 devtools::document()
 
 # # vignettes
-devtools::build_vignettes()
+# devtools::build_vignettes()
 
 # install package
 # install.packages(getwd(), repo=NULL, type='source')
