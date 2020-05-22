@@ -197,7 +197,7 @@ fs_mbr <- function(X, returnShape=FALSE){
   if(returnShape){
     return(sf::st_as_sfc(resList))
   } else{
-    return(do.call(rbind, resList))
+    return(unlist(resList))
   }
   
   # if(sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON", "POINT", "MULTIPOINT")){
