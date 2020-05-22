@@ -3,24 +3,26 @@
 #' @title gridTiles
 #' @description Split gridded data extents into subsets for parallel processing.
 #' @param X The gridded (\code{raster} or \code{stars}) object to find tiles
-#' @param n number of tiles. Can be a vector length 1 or of length 2 (rows, columns)
-#' @param px number of pixels per side of a tile. Can be a vector of length 2 
-#' (rows, column pixels). Ignored if n provided. Default is 1000.
+#' @param n number of tiles. Can be a vector length 1 or of length 2 (rows,
+#'   columns)
+#' @param px number of pixels per side of a tile. Can be a vector of length 2
+#'   (rows, column pixels). Ignored if n provided. Default is 1000.
 #' @param overlap number of pixels of overlap between internal tiles
-#' 
-#' @details \code{gridTiles} provides a convenient way for splitting a gridded 
-#' dataset into subdatasets for cropping or processing individually. The splitting 
-#' uses the extent of the total grid, potentially including noData cells.
-#' 
+#'
+#' @details \code{gridTiles} provides a convenient way for splitting a gridded
+#'   dataset into subdatasets for cropping or processing individually. The
+#'   splitting uses the extent of the total grid, potentially including noData
+#'   cells.
+#'
 #' @return \code{data.frame} where each row is a set of tile indices and sizes.
-#' \itemize{
-#' \item xl leftmost column index
-#' \item yl lowest row index
-#' \item xu rightmost column index
-#' \item yu topmost row index
-#' \item cropXsize number of columns in the tile
-#' \item cropYsize number of rows in the tile 
-#' }
+#'   \itemize{ 
+#'   \item xl leftmost column index 
+#'   \item yl lowest row index 
+#'   \item xu rightmost column index 
+#'   \item yu topmost row index 
+#'   \item cropXsize number of columns in the tile 
+#'   \item cropYsize number of rows in the tile 
+#'   }
 #' 
 #' @aliases gridTiles
 #' @rdname gridTiles
