@@ -30,12 +30,13 @@ fs_area <- function(X, unit=NULL){
 #' @name fs_perimeter
 #' @export
 fs_perimeter <- function(X, unit=NULL){
-  if(st_is_longlat(X)){
-    perim_calc <- sf::st_length(sf::st_cast(sf::st_geometry(X), "LINESTRING"))
-  } else{
-    perim_calc <- sf::st_length(X)
-  }
+  # if(st_is_longlat(X)){
+  #   perim_calc <- sf::st_length(sf::st_cast(sf::st_geometry(X), "LINESTRING"))
+  # } else{
+  #   perim_calc <- sf::st_length(X)
+  # }
   # perim_calc <- lwgeom::st_perimeter(X)
+  perim_calc <- sf::st_length(X)
   
   if(!is.null(unit)){
     perim_calc <- units::set_units(perim_calc, unit, mode="standard")
@@ -196,7 +197,7 @@ fs_mbr <- function(X, returnShape=FALSE){
   if(returnShape){
     return(sf::st_as_sfc(resList))
   } else{
-    return(do.call(rbind, resList))
+    return(unlist(resList))
   }
   
   # if(sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON", "POINT", "MULTIPOINT")){

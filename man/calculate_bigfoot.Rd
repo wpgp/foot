@@ -3,44 +3,67 @@
 \name{calculate_bigfoot}
 \alias{calculate_bigfoot}
 \alias{calculate_bigfoot.sf}
-\alias{calculate_bigfoot.character}
-\title{calculate_bigfoot}
+\title{calculate_bigfoot: Gridded feature statistics for large sets of
+  building footprint polygons}
 \usage{
 calculate_bigfoot(
   X,
   metrics = "all",
-  gridded = TRUE,
+  focalRadius = 0,
   template = NULL,
   parallel = TRUE,
+  nCores = parallel::detectCores() - 1,
   tileSize = c(1000, 1000),
   overlap = 0,
-  file = NULL
+  outputPath = NULL,
+  outputTag = NULL,
+  verbose = FALSE
 )
 
 \method{calculate_bigfoot}{sf}(
   X,
   metrics = "all",
-  gridded = TRUE,
   template = NULL,
   parallel = TRUE,
   tileSize = c(1000, 1000),
   overlap = 0,
-  file = NULL
-)
-
-\method{calculate_bigfoot}{character}(
-  X,
-  metrics = "all",
-  gridded = TRUE,
-  template = NULL,
-  parallel = TRUE,
-  tileSize = c(1000, 1000),
-  overlap = 0,
-  file = NULL
+  outputPath = NULL,
+  outputTag = NULL,
+  verbose = FALSE
 )
 }
 \arguments{
-\item{txt}{Text to append to "foot"}
+\item{X}{object with building footprint polygons. This argument can take
+multiple spatial types, including \code{sf} and \code{sp}, or a filepath
+string to a file, or a list where each member provides a spatial object or
+a filepath string.}
+
+\item{metrics}{character vector. Names of footprint statistics in the form of
+"fs_area_mean", etc. Other options include \code{ALL} or \code{NODIST} to
+calculate all available metrics and all except nearest neighbour distances,
+respectively.}
+
+\item{template}{(optional). When creating a gridded output, a supplied
+\code{stars} or \code{raster} dataset to align the data.}
+
+\item{parallel}{logical. Should a parallel backend be used to process the
+tiles.}
+
+\item{nCores}{number of CPU cores to use if \code{parallel} is \code{TRUE}.}
+
+\item{tileSize}{number of pixels per side of a tile. Can be a vector of
+length 2 (rows, column pixels). Ignored if n provided. Default is 1000.}
+
+\item{overlap}{number of pixels of overlap between internal tiles}
+
+\item{outputPath}{(optional). When creating a gridded output, a path for the
+location of the output.}
+
+\item{outputTag}{(optional). A character string that will be added tagged to
+the beginning of the output gridded files.}
+
+\item{verbose}{logical. Should progress messages be printed. Default
+\code{False}.}
 }
 \value{
 TBD.
