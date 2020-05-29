@@ -3,9 +3,9 @@
 #' @title calculate_footstats: Feature statistics of building footprints
 #' @description Calculate groups of metrics for building footprint datasets
 #' @param X object with building footprint polygons. This argument can take
-#'   multiple spatial types, including \code{sf} and \code{sp}, or a fileparth
-#'   string to a building footprint files, or a list where each list member
-#'   provides a spatial object or a filepath.
+#'   multiple spatial types, including \code{sf} and \code{sp}, or a filepath
+#'   string to a file, or a list where each member provides a spatial object or
+#'   a filepath string.
 #' @param index A character or numeric value identifying a column within
 #'   \code{X} which provides a zonal index for summarising values. Alternatively
 #'   a vector of indices can be provided. If omitted all observations with
@@ -398,9 +398,10 @@ calc_fs_internal <- function(X, index, metrics,
                           driver=driver,
                           options="compress=LZW")
     }
+    if(verbose){ cat("Finished writing grids\n") }
   }
   
-  if(verbose){ cat("Finished!\n") }
+  # if(verbose){ cat("Finished!\n") }
   return(merged_result)
 }
 
