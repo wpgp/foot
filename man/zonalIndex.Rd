@@ -33,17 +33,18 @@ grid ("raster")}
 \item{zoneField}{(Optional) Unique identifier for each zone}
 
 \item{returnObject}{Logical of whether to return an sf object of X with zonal
-information. Default TRUE.}
+information. Default \code{TRUE}.}
 
 \item{clip}{Logical of whether polygons of X which span multiple zones should
 be clipped to the zone. If not clipped, then whole building footprints are
-linked to each zone. Default FALSE.}
+linked to each zone. Default \code{FALSE}}
 }
 \value{
-'sf' object with attributes of X plus the unique zone ID or a
-  data.table with the ID to the records in \code{X} and the zone IDs.
+'sf' object with attributes of \code{X} plus the unique zone ID or a
+  \code{data.table} with the ID to the records in \code{X} and the zone IDs.
 }
 \description{
 Find the area, grid cells, or other zone that a building polygon
-  overlaps or is located in
+  overlaps or is located in. Implements an efficient spatial join by
+  intersection.
 }

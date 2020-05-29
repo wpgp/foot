@@ -8,6 +8,7 @@ usethis::use_package("data.table")
 usethis::use_package("sf")
 usethis::use_package("stars")
 usethis::use_package("lwgeom")
+usethis::use_package("purrr")
 
 # package documentation
 devtools::document()
@@ -20,4 +21,5 @@ devtools::document()
 devtools::install()
 devtools::reload(devtools::inst('foot'))
 .rs.restartR()
+
 

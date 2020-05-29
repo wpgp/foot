@@ -233,9 +233,10 @@ zID <- zonalIndex(buildings, adminzones, returnObject=F)
 zObj <- zonalIndex(buildings, clusters, zoneField="Id", returnObject=T)
   zObj
 ```
+
 ```{r fig.height=6, fig.width=6}
 # use the new object
-zarea <- fs_area_mean(zObj, index="zoneID")  
+zarea <- fs_area_mean(zObj, index="Id")  
 clusters <- merge(clusters, zarea, by.x="Id", by.y="index")
   plot(clusters["fs_area_ha_mean"])
 ```
