@@ -20,6 +20,7 @@ License: None
 URL: https://github.com/wpgp/foot
 Imports: 
     data.table,
+    purrr,
     sf,
     stars,
     lwgeom

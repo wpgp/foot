@@ -62,7 +62,7 @@ fs_perim_mean_calc <- function(X, index=NULL, unit=NULL){
   if(!"fs_perim" %in% names(X)){
     X[["fs_perim"]] <- fs_perimeter(X, unit)
   } else{
-    unit <- st_crs(buildings)$units
+    unit <- st_crs(X)$units
   }
   
   if(is.null(index)){
