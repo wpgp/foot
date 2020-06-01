@@ -101,6 +101,13 @@ calc_fs_px_internal <- function(X,
   }
   
   # get full list of metrics - expand ALL and get dependencies
+  metrics <- get_fs_metrics(short_names=metrics, group=metrics)
+  
+  if(any(grepl("compact", metrics, fixed=T))){
+    compact <- TRUE
+  } else{
+    compact <- FALSE
+  }
   
   # create empty output grids to match template
   outTemplate <- stars::st_as_stars(matrix(NA, 
@@ -110,7 +117,7 @@ calc_fs_px_internal <- function(X,
   
   allOutPath <- vector("character", length=length(metrics))
   for(i in seq_along(metrics)){
-    m <- metrics[i]
+    m <- metrics[[i]]
     mTag <- sub("fs_", "", m, fixed=T) # drop function label
     if(focalRadius > 0){
       mTag <- paste(mTag, focalRadius, sep="_")
@@ -118,10 +125,11 @@ calc_fs_px_internal <- function(X,
     
     outName <- file.path(outputPath, 
                          paste0(outputTag, mTag, ".tif"))
-    stars::write_stars(outTemplate, 
-                       outName) # default is float32
-    allOutPath[i] <- outName
+    z <- stars::write_stars(outTemplate, 
+                            outName) # default is float32
+    allOutPath[[i]] <- outName
   }
+  rm(z)
   
   # tiles for processing
   tiles <- gridTiles(template, px=tileSize)
@@ -170,6 +178,35 @@ calc_fs_px_internal <- function(X,
                           quiet=!verbose)
       # check for records
       if(nrow(Xsub) > 0){
+        # pre-calcluate unit geometry measures
+        if(any(grepl("area", metrics, fixed=T)) | compact==TRUE){
+          if(!"fs_area" %in% names(Xsub)){
+            if(verbose){ cat("Pre-calculating footprint areas \n") }
+            Xsub[["fs_area"]] <- fs_area(Xsub, unit=get_fs_units("fs_area_mean"))
+          }
+        }
+        
+        if(any(grepl("perim", metrics, fixed=T)) | compact==TRUE){
+          if(!"fs_perim" %in% names(Xsub)){
+            if(verbose){ cat("Pre-calculating footprint perimeters \n")}
+            Xsub[["fs_perim"]] <- fs_perimeter(Xsub, unit=get_fs_units("fs_perim_mean"))
+          }
+        }
+        
+        if(any(grepl("nndist", metrics, fixed=T))){
+          if(!"fs_nndist" %in% names(Xsub)){
+            if(verbose){ cat("Pre-calculating nearest neighbour distances \n") }
+            Xsub[["fs_nndist"]] <- fs_nndist(Xsub, unit=get_fs_units("fs_nndist_mean"))
+          }
+        }
+        
+        if(any(grepl("angle", metrics, fixed=T))){
+          if(!"fs_angle" %in% names(Xsub)){
+            if(verbose){ cat("Pre-calculating angles \n") }
+            Xsub[["fs_angle"]] <- fs_mbr(Xsub)
+          }
+        }
+        
         # read proxy to grid and convert to polygon object
         mgPoly <- sf::st_as_sf(stars::st_as_stars(mgTile))
         # check for valid processing locations
