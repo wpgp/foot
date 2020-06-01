@@ -76,7 +76,7 @@ get_fs_units <- function(metrics=NULL){
     return(list_fs("default_units"))
   } else{
     allunits <- list_fs(c("name","default_units"))
-    return(allunits[metrics %in% allunits$name, "default_units"])
+    return(allunits[which(allunits$name %in% metrics), "default_units"])
   }
 }
 
