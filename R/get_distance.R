@@ -31,9 +31,9 @@ suggestUTMzone <- function(pt){
 #'   nearest neighbour in \code{Y} is returned. Providing a maximum search
 #'   radius is strongly advised to speed up the calcluation.
 #' 
-#' @name fs_NNdist
+#' @name fs_nndist
 #' @export
-fs_NNdist <- function(X, Y, maxSearch=100, unit="m"){
+fs_nndist <- function(X, Y, maxSearch=100, unit="m"){
   # row index
   uid <- 1:nrow(X)
   
@@ -73,7 +73,8 @@ fs_NNdist <- function(X, Y, maxSearch=100, unit="m"){
     
     DT[is.na(dist), 
        # dist := sort(sf::st_distance(X$geometry[uid], searchObj$geometry[unlist(intersects)]))[2], #, tolerance=1
-       dist := sort(sf::st_distance(sf::st_geometry(X)[uid], sf::st_geometry(searchObj)[unlist(intersects)]))[2], #, tolerance=1
+       dist := sort(sf::st_distance(sf::st_geometry(X)[uid], 
+                                    sf::st_geometry(searchObj)[unlist(intersects)]))[2], #, tolerance=1
        by = uid]
 
   } else{  # unrestricted distance search (slower)

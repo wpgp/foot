@@ -7,33 +7,33 @@
 #' 
 #' @import data.table
 #' 
-#' @aliases fs_NNdist_mean
-#' @rdname fs_NNdist_mean
+#' @aliases fs_nndist_mean
+#' @rdname fs_nndist_mean
 #' 
 #' @export 
-fs_NNdist_mean <- function(X, index=NULL, unit=NULL, col=NULL) UseMethod("fs_NNdist_mean")
+fs_nndist_mean <- function(X, index=NULL, unit=NULL, col=NULL) UseMethod("fs_nndist_mean")
 
 
-#' @name fs_NNdist_mean
+#' @name fs_nndist_mean
 #' @export
-fs_NNdist_mean.sp <- function(X, index=NULL, unit=NULL, col=NULL){
+fs_nndist_mean.sp <- function(X, index=NULL, unit=NULL, col=NULL){
   X <- sf::st_as_sf(X)
   
-  result <- fs_NNdist_mean(X, index, unit, col)
+  result <- fs_nndist_mean(X, index, unit, col)
   return(result)
 }
 
 
-#' @name fs_NNdist_mean
+#' @name fs_nndist_mean
 #' @export
-fs_NNdist_mean.sf <- function(X, index=NULL, unit=NULL, col=NULL){
+fs_nndist_mean.sf <- function(X, index=NULL, unit=NULL, col=NULL){
   if(!is.null(col)){
     if(!col %in% names(X)){
       message("Error: column name not found.")
       stop()
     } else{
-        names(X)[which(names(X)==col)] <- "fs_NNdist"
-        result <- fs_NNdist_mean_calc(X, index, unit)
+        names(X)[which(names(X)==col)] <- "fs_nndist"
+        result <- fs_nndist_mean_calc(X, index, unit)
     }
   } else{
       if(is.na(sf::st_crs(X))){
@@ -46,16 +46,16 @@ fs_NNdist_mean.sf <- function(X, index=NULL, unit=NULL, col=NULL){
         }
       }
     
-      X[["fs_NNdist"]] <- fs_NNdist(X, unit=unit) # using default search radius
-      result <- fs_NNdist_mean_calc(X, index, unit)
+      X[["fs_nndist"]] <- fs_nndist(X, unit=unit) # using default search radius
+      result <- fs_nndist_mean_calc(X, index, unit)
   }
   return(result)
 }
 
 
-fs_NNdist_mean_calc <- function(X, index=NULL, unit=NULL){
-  if(!"fs_NNdist" %in% names(X)){
-    X[["fs_NNdist"]] <- fs_NNdist(X, unit=unit) # default search radius
+fs_nndist_mean_calc <- function(X, index=NULL, unit=NULL){
+  if(!"fs_nndist" %in% names(X)){
+    X[["fs_nndist"]] <- fs_nndist(X, unit=unit) # default search radius
   }
   
   if(is.null(index)){
@@ -73,9 +73,9 @@ fs_NNdist_mean_calc <- function(X, index=NULL, unit=NULL){
     }
   } 
   
-  colNam <- paste0("fs_NNdist_", unit, "_mean")
+  colNam <- paste0("fs_nndist_", unit, "_mean")
   DT <- data.table::data.table(index=index, 
-                               area_calc=X[["fs_NNdist"]])
+                               area_calc=X[["fs_nndist"]])
   data.table::setkey(DT, index)
   result <- DT[, setNames(.(mean(area_calc)), colNam), by=index]
   
