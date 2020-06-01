@@ -266,29 +266,32 @@ calc_fs_internal <- function(X, index, metrics,
   
   # pre-calcluate unit geometry measures
   if(any(grepl("area", metrics, fixed=T)) | compact==TRUE){
-    if(verbose){ cat("Pre-calculating footprint areas \n") }
-    unit <- "ha"
-    X[["fs_area"]] <- fs_area(X, unit)
+    if(!"fs_area" %in% names(X)){
+      if(verbose){ cat("Pre-calculating footprint areas \n") }
+      X[["fs_area"]] <- fs_area(X, unit=get_fs_units("fs_area_mean"))
+    }
   }
   
   if(any(grepl("perim", metrics, fixed=T)) | compact==TRUE){
-    if(verbose){ cat("Pre-calculating footprint perimeters \n")}
-    X[["fs_perim"]] <- fs_perimeter(X, 
-                                    unit=fs_footprint_metrics[fs_footprint_metrics$name=="fs_perim_mean",
-                                                              "default_units"])
+    if(!"fs_perim" %in% names(X)){
+      if(verbose){ cat("Pre-calculating footprint perimeters \n")}
+      X[["fs_perim"]] <- fs_perimeter(X, unit=get_fs_units("fs_perim_mean"))
+    }
   }
   
   if(any(grepl("nndist", metrics, fixed=T))){
-    if(verbose){ cat("Pre-calculating nearest neighbour distances \n") }
-    X[["fs_nndist"]] <- fs_nndist(X, 
-                                  unit=fs_footprint_metrics[fs_footprint_metrics$name=="fs_nndist_mean",
-                                                            "default_units"])
+    if(!"fs_nndist" %in% names(X)){
+      if(verbose){ cat("Pre-calculating nearest neighbour distances \n") }
+      X[["fs_nndist"]] <- fs_nndist(X, unit=get_fs_units("fs_nndist_mean"))
+    }
   }
   
   if(any(grepl("angle", metrics, fixed=T))){
-    if(verbose){ cat("Pre-calculating angles \n") }
-    # X[["fs_angle"]] <- sapply(sf::st_geometry(X), fs_mbr)
-    X[["fs_angle"]] <- fs_mbr(X)
+    if(!"fs_angle" %in% names(X)){
+      if(verbose){ cat("Pre-calculating angles \n") }
+      # X[["fs_angle"]] <- sapply(sf::st_geometry(X), fs_mbr)
+      X[["fs_angle"]] <- fs_mbr(X)
+    }
   }
   
   # creating the names of the functions to call
