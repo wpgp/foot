@@ -23,33 +23,33 @@
 #' 
 #' @import data.table
 #' 
-#' @aliases fs_NNindex
-#' @rdname fs_NNindex
+#' @aliases fs_nnindex
+#' @rdname fs_nnindex
 #' 
 #' @export 
-fs_NNindex <- function(X, index=NULL, unit=NULL, col=NULL) UseMethod("fs_NNindex")
+fs_nnindex <- function(X, index=NULL, unit=NULL, col=NULL) UseMethod("fs_nnindex")
 
 
-#' @name fs_NNindex
+#' @name fs_nnindex
 #' @export
-fs_NNindex.sp <- function(X, index=NULL, unit=NULL, col=NULL){
+fs_nnindex.sp <- function(X, index=NULL, unit=NULL, col=NULL){
   X <- sf::st_as_sf(X)
   
-  result <- fs_NNindex(X, index, unit, col)
+  result <- fs_nnindex(X, index, unit, col)
   return(result)
 }
 
 
-#' @name fs_NNindex
+#' @name fs_nnindex
 #' @export
-fs_NNindex.sf <- function(X, index=NULL, unit=NULL, col=NULL){
+fs_nnindex.sf <- function(X, index=NULL, unit=NULL, col=NULL){
   if(!is.null(col)){
     if(!col %in% names(X)){
       message("Error: column name not found.")
       stop()
     } else{
-      names(X)[which(names(X)==col)] <- "fs_NNdist"
-      result <- fs_NNindex_calc(X, index, unit)
+      names(X)[which(names(X)==col)] <- "fs_nndist"
+      result <- fs_nnindex_calc(X, index, unit)
     }
   } else{  # distance column not supplied
     # if(any(!sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON") )){
@@ -65,16 +65,16 @@ fs_NNindex.sf <- function(X, index=NULL, unit=NULL, col=NULL){
       }
     }
     
-    X[["fs_NNdist"]] <- fs_NNdist(X, unit=unit)
-    result <- fs_NNindex_calc(X, index, unit)
+    X[["fs_nndist"]] <- fs_nndist(X, unit=unit)
+    result <- fs_nnindex_calc(X, index, unit)
   }
   return(result)
 }
 
 
-fs_NNindex_calc <- function(X, index, unit=NULL){
-  if(!"fs_NNdist" %in% names(X)){
-    X[["fs_NNdist"]] <- fs_NNdist(X, unit)
+fs_nnindex_calc <- function(X, index, unit=NULL){
+  if(!"fs_nndist" %in% names(X)){
+    X[["fs_nndist"]] <- fs_nndist(X, unit)
   }
   
   if(is.null(index)){
@@ -103,17 +103,17 @@ fs_NNindex_calc <- function(X, index, unit=NULL){
                                         zoneArea=fs_area(index, unit="m^2"))
   }
   
-  meanDT <- fs_NNdist_mean(X, index=X$zoneID, unit=unit, col="fs_NNdist")
+  meanDT <- fs_nndist_mean(X, index=X$zoneID, unit=unit, col="fs_nndist")
   countDT <- fs_count(X, index=X$zoneID,)
   
-  mCol <- paste0("fs_NNdist_", unit, "_mean")
+  mCol <- paste0("fs_nndist_", unit, "_mean")
   cCol <- "fs_count"
   
   DT <- merge(meanDT, countDT, by="index")
   DT <- merge(DT, zonalArea, by="index")
   
-  DT[, fs_NNindex := get(mCol) / (0.5 * sqrt(zoneArea / get(cCol))), by=index]
-  units(nniDT$fs_NNindex) <- NULL
+  DT[, fs_nnindex := get(mCol) / (0.5 * sqrt(zoneArea / get(cCol))), by=index]
+  units(nniDT$fs_nnindex) <- NULL
   
-  return(DT[, list(index, fs_NNindex)])
+  return(DT[, list(index, fs_nnindex)])
 }

@@ -214,8 +214,8 @@ calc_fs_internal <- function(X, index, metrics,
   
   if(toupper(metrics[1]) == "NODIST"){
     # metrics <- foot::fs_footprint_metrics$name
-    metrics <- metrcs[!grepl("NNdist", metrics)]
-    metrics <- foot::fs_footprint_metrics[foot::fs_footprint_metrics$group != "NNdist", 
+    metrics <- metrcs[!grepl("nndist", metrics)]
+    metrics <- foot::fs_footprint_metrics[foot::fs_footprint_metrics$group != "nndist", 
                                           "name"]
   }
   
@@ -241,9 +241,9 @@ calc_fs_internal <- function(X, index, metrics,
     compact <- FALSE
   }
   
-  if(any(grepl("NNindex", metrics, fixed=T))){
-    metrics <- c(metrics, "fs_NNdist_mean", "fs_count")
-    metrics <- metrics[!grepl("NNindex", metrics)]
+  if(any(grepl("nnindex", metrics, fixed=T))){
+    metrics <- c(metrics, "fs_nndist_mean", "fs_count")
+    metrics <- metrics[!grepl("nnindex", metrics)]
     nnIndex <- TRUE
     
     if(exists("indexZones")){
@@ -266,29 +266,32 @@ calc_fs_internal <- function(X, index, metrics,
   
   # pre-calcluate unit geometry measures
   if(any(grepl("area", metrics, fixed=T)) | compact==TRUE){
-    if(verbose){ cat("Pre-calculating footprint areas \n") }
-    unit <- "ha"
-    X[["fs_area"]] <- fs_area(X, unit)
+    if(!"fs_area" %in% names(X)){
+      if(verbose){ cat("Pre-calculating footprint areas \n") }
+      X[["fs_area"]] <- fs_area(X, unit=get_fs_units("fs_area_mean"))
+    }
   }
   
   if(any(grepl("perim", metrics, fixed=T)) | compact==TRUE){
-    if(verbose){ cat("Pre-calculating footprint perimeters \n")}
-    X[["fs_perim"]] <- fs_perimeter(X, 
-                                    unit=fs_footprint_metrics[fs_footprint_metrics$name=="fs_perim_mean",
-                                                              "default_units"])
+    if(!"fs_perim" %in% names(X)){
+      if(verbose){ cat("Pre-calculating footprint perimeters \n")}
+      X[["fs_perim"]] <- fs_perimeter(X, unit=get_fs_units("fs_perim_mean"))
+    }
   }
   
-  if(any(grepl("NNdist", metrics, fixed=T))){
-    if(verbose){ cat("Pre-calculating nearest neighbour distances \n") }
-    X[["fs_NNdist"]] <- fs_NNdist(X, 
-                                  unit=fs_footprint_metrics[fs_footprint_metrics$name=="fs_NNdist_mean",
-                                                            "default_units"])
+  if(any(grepl("nndist", metrics, fixed=T))){
+    if(!"fs_nndist" %in% names(X)){
+      if(verbose){ cat("Pre-calculating nearest neighbour distances \n") }
+      X[["fs_nndist"]] <- fs_nndist(X, unit=get_fs_units("fs_nndist_mean"))
+    }
   }
   
   if(any(grepl("angle", metrics, fixed=T))){
-    if(verbose){ cat("Pre-calculating angles \n") }
-    # X[["fs_angle"]] <- sapply(sf::st_geometry(X), fs_mbr)
-    X[["fs_angle"]] <- fs_mbr(X)
+    if(!"fs_angle" %in% names(X)){
+      if(verbose){ cat("Pre-calculating angles \n") }
+      # X[["fs_angle"]] <- sapply(sf::st_geometry(X), fs_mbr)
+      X[["fs_angle"]] <- fs_mbr(X)
+    }
   }
   
   # creating the names of the functions to call
@@ -326,12 +329,12 @@ calc_fs_internal <- function(X, index, metrics,
   }
   
   if(nnIndex){
-    nniDT <- merged_result[, list(index, fs_NNdist_m_mean, fs_count)]
+    nniDT <- merged_result[, list(index, fs_nndist_m_mean, fs_count)]
     nniDT <- merge(nniDT, zonalArea, by.x="index", by.y="zoneID")
-    nniDT[, fs_NNindex := fs_NNdist_m_mean / (0.5 * sqrt(zoneArea / fs_count)), by=index]
-    units(nniDT$fs_NNindex) <- NULL
+    nniDT[, fs_nnindex := fs_nndist_m_mean / (0.5 * sqrt(zoneArea / fs_count)), by=index]
+    units(nniDT$fs_nnindex) <- NULL
     
-    merged_result <- merge(merged_result, nniDT[, list(index, fs_NNindex)], by=index)
+    merged_result <- merge(merged_result, nniDT[, list(index, fs_nnindex)], by=index)
   }
   if(verbose){ cat("Finished calculating metrics. \n") }
   

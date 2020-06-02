@@ -19,9 +19,6 @@
 #' @import purrr
 #' @aliases zonalIndex
 #' @rdname zonalIndex
-#' 
-
-
 #' @name zonalIndex
 #' @export
 zonalIndex <- function(X, 

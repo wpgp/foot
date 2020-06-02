@@ -79,7 +79,7 @@ created for demonstration purposes only.
 
 For more information, see `?kampala`.
 
-```{r echo=FALSE, fig.cap="Sample buildings and zones in Kampala", fig.width=6, fig.height=6, message=FALSE, warning=FALSE}
+```{r echo=FALSE, fig.cap="Sample buildings and zones in Kampala", fig.height=6, fig.width=6, message=FALSE, warning=FALSE}
 plot(sf::st_geometry(buildings), 
      col=sf::sf.colors(12, categorical=TRUE),
      border=NA, axes=TRUE)
@@ -158,10 +158,10 @@ footprints and other objects, and within a maximum search distance.
 ```{r}
 # nearest distance for the first 10 buildings
 # measured between polygon edges
-fs_NNdist(buildings[1:10,], buildings, maxSearch=200, unit="m")
+fs_nndist(buildings[1:10,], buildings, maxSearch=200, unit="m")
 
 # omitting 'Y' measures distance among the footprints
-fs_NNdist(buildings[1:10,], maxSearch=NULL)  # unrestricted distance
+fs_nndist(buildings[1:10,], maxSearch=NULL)  # unrestricted distance
 ```
 
 Note that distance calculations are slower for polygons and for unprojected

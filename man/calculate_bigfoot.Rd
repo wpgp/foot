@@ -11,10 +11,9 @@ calculate_bigfoot(
   metrics = "all",
   focalRadius = 0,
   template = NULL,
+  tileSize = c(500, 500),
   parallel = TRUE,
-  nCores = parallel::detectCores() - 1,
-  tileSize = c(1000, 1000),
-  overlap = 0,
+  nCores = max(1, parallel::detectCores() - 1),
   outputPath = NULL,
   outputTag = NULL,
   verbose = FALSE
@@ -23,10 +22,11 @@ calculate_bigfoot(
 \method{calculate_bigfoot}{sf}(
   X,
   metrics = "all",
+  focalRadius = 0,
   template = NULL,
+  tileSize = c(500, 500),
   parallel = TRUE,
-  tileSize = c(1000, 1000),
-  overlap = 0,
+  nCores = max(1, parallel::detectCores() - 1),
   outputPath = NULL,
   outputTag = NULL,
   verbose = FALSE
@@ -43,18 +43,19 @@ a filepath string.}
 calculate all available metrics and all except nearest neighbour distances,
 respectively.}
 
+\item{focalRadius}{numeric. Distance in meters for a buffer around each
+template pixel. Creates a focal processing window for metrics.}
+
 \item{template}{(optional). When creating a gridded output, a supplied
 \code{stars} or \code{raster} dataset to align the data.}
+
+\item{tileSize}{number of pixels per side of a tile. Can be a vector of
+length 2 (rows, column pixels). Ignored if n provided. Default is 1000.}
 
 \item{parallel}{logical. Should a parallel backend be used to process the
 tiles.}
 
 \item{nCores}{number of CPU cores to use if \code{parallel} is \code{TRUE}.}
-
-\item{tileSize}{number of pixels per side of a tile. Can be a vector of
-length 2 (rows, column pixels). Ignored if n provided. Default is 1000.}
-
-\item{overlap}{number of pixels of overlap between internal tiles}
 
 \item{outputPath}{(optional). When creating a gridded output, a path for the
 location of the output.}

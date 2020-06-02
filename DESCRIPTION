@@ -23,7 +23,10 @@ Imports:
     purrr,
     sf,
     stars,
-    lwgeom
+    lwgeom,
+    doParallel,
+    parallel,
+    foreach
 LazyData: true
 Description: Support for morphometric calculations and zonal summaries of measures derived from building footprint polygons.
 Encoding: UTF-8

@@ -46,10 +46,10 @@ result
 ## -----------------------------------------------------------------------------
 # nearest distance for the first 10 buildings
 # measured between polygon edges
-fs_NNdist(buildings[1:10,], buildings, maxSearch=200, unit="m")
+fs_nndist(buildings[1:10,], buildings, maxSearch=200, unit="m")
 
 # omitting 'Y' measures distance among the footprints
-fs_NNdist(buildings[1:10,], maxSearch=NULL)  # unrestricted distance
+fs_nndist(buildings[1:10,], maxSearch=NULL)  # unrestricted distance
 
 ## -----------------------------------------------------------------------------
 # To obtain the rotated rectangle as a spatial object
@@ -77,7 +77,7 @@ fs_count(buildings, index=3)
 # pass a separate vector object
 print(fs_angle_entropy(buildings, index=id, normalize=T))
 
-## -----------------------------------------------------------------------------
+## ----message=FALSE, warning=FALSE---------------------------------------------
 # Return a table of index values
 zID <- zonalIndex(buildings, adminzones, returnObject=F)
   zID # the xID column are row numbers
@@ -89,7 +89,7 @@ zObj <- zonalIndex(buildings, clusters, zoneField="Id", returnObject=T)
 
 ## ----fig.height=6, fig.width=6------------------------------------------------
 # use the new object
-zarea <- fs_area_mean(zObj, index="zoneID")  
+zarea <- fs_area_mean(zObj, index="Id")  
 clusters <- merge(clusters, zarea, by.x="Id", by.y="index")
   plot(clusters["fs_area_ha_mean"])
 
@@ -99,14 +99,14 @@ plot(sf::st_geometry(clusters)[[6]])
 plot(sf::st_geometry(buildings), add=T)
 plot(sf::st_geometry(zObj[zObj$zoneID==6,]), col="red", add=T)
 
-## ----warning=FALSE------------------------------------------------------------
+## ----message=FALSE, warning=FALSE---------------------------------------------
 zClip <- zonalIndex(buildings, clusters, zoneField="Id", clip=T)
 
 plot(sf::st_geometry(clusters)[[6]])
 plot(sf::st_geometry(buildings), add=T)
 plot(sf::st_geometry(zClip[zClip$Id==6,]), col="red", add=T)
 
-## ----warning=FALSE------------------------------------------------------------
+## ----message=FALSE, warning=FALSE---------------------------------------------
 # create a temporary shape by shifting one cluster
 newClusters <- st_sfc(sf::st_geometry(clusters)[[1]], 
                       sf::st_cast(sf::st_geometry(clusters)[[1]] + c(.001,.0001), "POLYGON"),
@@ -152,6 +152,7 @@ gridRes <- na.omit(gridRes)
 # create a blank raster and fill with summary measures
 outSettled <- mgrid
 outSettled[] <- NA
+# `$index` are the cell numbers from the raster 
 outSettled[gridRes$index] <- gridRes$fs_area_ha_total
 
 outCount <- mgrid
@@ -161,8 +162,8 @@ outCount[gridRes$index] <- gridRes$fs_count
 raster::plot(outCount)
 plot(sf::st_geometry(buildings), add=T)
 
-## ----warning=FALSE, tidy=F----------------------------------------------------
-# convert the grid to a stars object and then sf to get polygons
+## ----message=FALSE, warning=FALSE, tidy=F-------------------------------------
+# convert the grid to a `stars` object and then `sf` to get polygons
 sgrid <- stars::st_as_stars(mgrid)
 sgrid <- sf::st_as_sf(sgrid)
 
