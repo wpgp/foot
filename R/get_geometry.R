@@ -30,13 +30,13 @@ fs_area <- function(X, unit=NULL){
 #' @name fs_perimeter
 #' @export
 fs_perimeter <- function(X, unit=NULL){
-  # if(st_is_longlat(X)){
-  #   perim_calc <- sf::st_length(sf::st_cast(sf::st_geometry(X), "LINESTRING"))
-  # } else{
-  #   perim_calc <- sf::st_length(X)
-  # }
+  if(st_is_longlat(X)){
+    perim_calc <- sf::st_length(sf::st_cast(sf::st_geometry(X), "LINESTRING"))
+  } else{
+    perim_calc <- sf::st_length(X)
+  }
   # perim_calc <- lwgeom::st_perimeter(X)
-  perim_calc <- sf::st_length(X)
+  # perim_calc <- sf::st_length(X) # this work for GCS proj?
   
   if(!is.null(unit)){
     perim_calc <- units::set_units(perim_calc, unit, mode="standard")
