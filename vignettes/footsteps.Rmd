@@ -79,7 +79,7 @@ created for demonstration purposes only.
 
 For more information, see `?kampala`.
 
-```{r echo=FALSE, fig.cap="Sample buildings and zones in Kampala", fig.width=6, fig.height=6, message=FALSE, warning=FALSE}
+```{r echo=FALSE, fig.cap="Sample buildings and zones in Kampala", fig.height=6, fig.width=6, message=FALSE, warning=FALSE}
 plot(sf::st_geometry(buildings), 
      col=sf::sf.colors(12, categorical=TRUE),
      border=NA, axes=TRUE)

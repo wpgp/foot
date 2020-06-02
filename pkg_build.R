@@ -8,6 +8,9 @@ usethis::use_package("data.table")
 usethis::use_package("sf")
 usethis::use_package("stars")
 usethis::use_package("lwgeom")
+usethis::use_package("doParallel")
+usethis::use_package("parallel")
+usethis::use_package("foreach")
 usethis::use_package("purrr")
 
 # package documentation

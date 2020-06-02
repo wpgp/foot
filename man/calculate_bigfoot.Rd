@@ -13,7 +13,7 @@ calculate_bigfoot(
   template = NULL,
   tileSize = c(500, 500),
   parallel = TRUE,
-  nCores = parallel::detectCores() - 1,
+  nCores = max(1, parallel::detectCores() - 1),
   outputPath = NULL,
   outputTag = NULL,
   verbose = FALSE
@@ -26,7 +26,7 @@ calculate_bigfoot(
   template = NULL,
   tileSize = c(500, 500),
   parallel = TRUE,
-  nCores = parallel::detectCores() - 1,
+  nCores = max(1, parallel::detectCores() - 1),
   outputPath = NULL,
   outputTag = NULL,
   verbose = FALSE
