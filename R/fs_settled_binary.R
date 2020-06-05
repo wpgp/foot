@@ -63,7 +63,7 @@ fs_settled_calc <- function(X, index){
     }
   } 
   
-  colNam <- "fs_settled_binary"
+  colNam <- "fs_settled"  # changed name from _binary
   DT <- data.table::data.table(index=index, 
                                settled=X[["fs_settled"]])
   data.table::setkey(DT, index)
