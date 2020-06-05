@@ -234,6 +234,9 @@ process_tile <- function(mgTile, mgBuffTile,
   Xsub <- sf::st_read(X,
                       wkt_filter=wkt, 
                       quiet=!verbose)
+  # remove empty geometries
+  Xsub <- Xsub[!sf::st_is_empty(Xsub), , drop=F]
+  
   # check for records
   if(nrow(Xsub) > 0){
     # pre-calcluate unit geometry measures
