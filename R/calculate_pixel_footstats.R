@@ -199,6 +199,9 @@ calc_fs_px_internal <- function(X,
     for(i in 1:nrow(tiles)){
       job <- tiles[i,]
       jobBuff <- tilesBuff[i,]
+      if(verbose){
+        cat(paste0("\nTile: ", i, " of ", nrow(tiles), "\n"))
+      }
       # create sub-datasets from template mastergrid
       mgTile <- stars::st_as_stars(template[,job$xl:job$xu, job$yl:job$yu])
       mgBuffTile <- stars::st_as_stars(template[,jobBuff$xl:jobBuff$xu, 
@@ -236,6 +239,10 @@ process_tile <- function(mgTile, mgBuffTile,
                       quiet=!verbose)
   # remove empty geometries
   Xsub <- Xsub[!sf::st_is_empty(Xsub), , drop=F]
+  # simplify
+  if(any(sf::st_geometry_type(Xsub) %in% c("MULTIPOLYGON"))){
+    Xsub <- sf::st_cast(Xsub, "POLYGON")
+  }
   
   # check for records
   if(nrow(Xsub) > 0){
