@@ -53,7 +53,7 @@ calculate_footstats.sf <- function(X, index=NULL, metrics='all',
                                    driver="GTiff",
                                    verbose=FALSE){
   
-  if(any(!st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON") )){
+  if(any(!sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON") )){
     message("Footprint statistics require polygon shapes.")
     stop()
   }
