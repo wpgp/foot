@@ -246,7 +246,7 @@ process_tile <- function(mgTile, mgBuffTile,
   
   # check for records
   if(nrow(Xsub) > 0){
-    # pre-calcluate unit geometry measures
+    # pre-calculate unit geometry measures
     if(any(grepl("area", metrics, fixed=T)) | compact==TRUE){
       if(!"fs_area" %in% names(Xsub)){
         if(verbose){ cat("Pre-calculating footprint areas \n") }
@@ -344,13 +344,7 @@ process_tile <- function(mgTile, mgBuffTile,
         if(length(path)==1){
           write_tile(outGrid=resArea, outName=allOutPath[[path]], update=TRUE)
         }
-        # outName <- file.path(outputPath, 
-        #                      paste0(outputTag, n, ".tif"))
-        # if(outName %in% allOutPath){
-        #   write_tile(grid=resArea, name=outName, update=TRUE)
-        #   # stars::write_stars(resArea, outName, update=TRUE)
-        # } 
-      }
+      } # end output loop
     } # end found mastergrid tiles
   } # end if buildings found in tile
 }
