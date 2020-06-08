@@ -23,12 +23,24 @@
 #'   length 2 (rows, column pixels). Ignored if n provided. Default is 1000.
 #' @param outputPath (optional). When creating a gridded output, a path for the
 #'   location of the output.
-#' @param outputTag (optional). A character string that will be added tagged to
-#'   the beginning of the output gridded files.
+#' @param outputTag (optional). A character string that will be added to the
+#'   beginning of the output name for the gridded files.
 #' @param verbose logical. Should progress messages be printed. Default
 #'   \code{False}.
 #' 
-#' @return TBD.
+#' @details \code{calculate_bigfoot} provides a wrapper for a workflow to
+#'   process vector polygons of structures to create a gridded output summary of
+#'   morphology measures. The function wraps \code{calculate_footstats} along
+#'   with other geometry functions of \code{foot} and read/writing functions
+#'   from \code{stars} and \code{sf}.
+#'   
+#'   The preferred way of using this function is to supply character strings for
+#'   \code{X} and \code{template} rather than objects. Using strings is more
+#'   memory-efficient. This function processes based on 'tiles' or sub-regions
+#'   of the template grid and will only read in the portion of the object needed
+#'   for the calculation.
+#' 
+#' @return None. Gridded geoTiff files are created.
 #' 
 #' @import doParallel
 #' @import parallel
@@ -351,6 +363,7 @@ process_tile <- function(mgTile, mgBuffTile,
 
 
 # helper function for writing tiles
+# based on {spatial.tools}
 write_tile <- function(outGrid, outName, update=FALSE){
   writeSuccess <- FALSE
   tryCount <- 1
