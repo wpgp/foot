@@ -34,17 +34,19 @@
 #'   with other geometry functions of \code{foot} and read/writing functions
 #'   from \code{stars} and \code{sf}.
 #'   
-#'   The preferred way of using this function is to supply character strings for
+#'   The suggested way of using this function is to supply character strings for
 #'   \code{X} and \code{template} rather than objects. Using strings is more
 #'   memory-efficient. This function processes based on 'tiles' or sub-regions
 #'   of the template grid and will only read in the portion of the object needed
-#'   for the calculation.
+#'   for the calculations.
 #' 
 #' @return None. Gridded geoTiff files are created.
 #' 
 #' @import doParallel
 #' @import parallel
 #' @import foreach
+#' @import sf
+#' @import stars
 #' 
 #' @aliases calculate_bigfoot
 #' @rdname calculate_bigfoot
@@ -75,7 +77,7 @@ calculate_bigfoot.sf <- function(X,
                                  outputTag=NULL,
                                  verbose=FALSE){
 
-  if(any(!st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON") )){
+  if(any(!sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON") )){
     message("Footprint statistics require polygon shapes.")
     stop()
   }
@@ -88,6 +90,57 @@ calculate_bigfoot.sf <- function(X,
 }
 
 
+#' @name calculate_bigfoot
+#' @export
+calculate_bigfoot.sp <- function(X, 
+                                 metrics='all',
+                                 focalRadius=0,
+                                 template=NULL,
+                                 tileSize=c(500, 500),
+                                 parallel=TRUE,
+                                 nCores=max(1, parallel::detectCores()-1),
+                                 outputPath=NULL,
+                                 outputTag=NULL,
+                                 verbose=FALSE){
+  
+  # convert to sf
+  X <- sf::st_as_sf(X)
+  
+  if(any(!sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON") )){
+    message("Footprint statistics require polygon shapes.")
+    stop()
+  }
+  
+  result <- calc_fs_px_internal(X, metrics, focalRadius, 
+                                template, tileSize, parallel, nCores,
+                                outputPath, outputTag, verbose)
+  
+  return(result)
+}
+
+
+#' @name calculate_bigfoot
+#' @export
+calculate_bigfoot.character <- function(X, 
+                                        metrics='all',
+                                        focalRadius=0,
+                                        template=NULL,
+                                        tileSize=c(500, 500),
+                                        parallel=TRUE,
+                                        nCores=max(1, parallel::detectCores()-1),
+                                        outputPath=NULL,
+                                        outputTag=NULL,
+                                        verbose=FALSE){
+        
+  result <- calc_fs_px_internal(X, metrics, focalRadius, 
+                                template, tileSize, parallel, nCores,
+                                outputPath, outputTag, verbose)
+  
+  return(result)
+}
+
+
+# internal function for managing processes
 calc_fs_px_internal <- function(X, 
                                 metrics,
                                 focalRadius,
@@ -244,11 +297,16 @@ process_tile <- function(mgTile, mgBuffTile,
   bbox <- sf::st_as_sfc(sf::st_bbox(mgBuffTile))
   # TO-DO: add crs transform to match building footprints
   
-  wkt <- sf::st_as_text(bbox)
-  # read in the footprints
-  Xsub <- sf::st_read(X,
-                      wkt_filter=wkt, 
-                      quiet=!verbose)
+  if(inherits(X, "sf")){
+    Xsub <- X[bbox,]
+  } else{
+    wkt <- sf::st_as_text(bbox)
+    # read in the footprints
+    Xsub <- sf::st_read(X,
+                        wkt_filter=wkt, 
+                        quiet=!verbose)
+  }
+
   # remove empty geometries
   Xsub <- Xsub[!sf::st_is_empty(Xsub), , drop=F]
   # simplify
