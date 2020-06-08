@@ -3,6 +3,8 @@
 \name{calculate_bigfoot}
 \alias{calculate_bigfoot}
 \alias{calculate_bigfoot.sf}
+\alias{calculate_bigfoot.sp}
+\alias{calculate_bigfoot.character}
 \title{calculate_bigfoot: Gridded feature statistics for large sets of
   building footprint polygons}
 \usage{
@@ -20,6 +22,32 @@ calculate_bigfoot(
 )
 
 \method{calculate_bigfoot}{sf}(
+  X,
+  metrics = "all",
+  focalRadius = 0,
+  template = NULL,
+  tileSize = c(500, 500),
+  parallel = TRUE,
+  nCores = max(1, parallel::detectCores() - 1),
+  outputPath = NULL,
+  outputTag = NULL,
+  verbose = FALSE
+)
+
+\method{calculate_bigfoot}{sp}(
+  X,
+  metrics = "all",
+  focalRadius = 0,
+  template = NULL,
+  tileSize = c(500, 500),
+  parallel = TRUE,
+  nCores = max(1, parallel::detectCores() - 1),
+  outputPath = NULL,
+  outputTag = NULL,
+  verbose = FALSE
+)
+
+\method{calculate_bigfoot}{character}(
   X,
   metrics = "all",
   focalRadius = 0,
@@ -60,14 +88,14 @@ tiles.}
 \item{outputPath}{(optional). When creating a gridded output, a path for the
 location of the output.}
 
-\item{outputTag}{(optional). A character string that will be added tagged to
-the beginning of the output gridded files.}
+\item{outputTag}{(optional). A character string that will be added to the
+beginning of the output name for the gridded files.}
 
 \item{verbose}{logical. Should progress messages be printed. Default
 \code{False}.}
 }
 \value{
-TBD.
+None. Gridded geoTiff files are created.
 }
 \description{
 Calculate selected metrics of building footprints for
@@ -75,4 +103,16 @@ Calculate selected metrics of building footprints for
 }
 \details{
 calculate_bigfoot
+
+\code{calculate_bigfoot} provides a wrapper for a workflow to
+  process vector polygons of structures to create a gridded output summary of
+  morphology measures. The function wraps \code{calculate_footstats} along
+  with other geometry functions of \code{foot} and read/writing functions
+  from \code{stars} and \code{sf}.
+  
+  The suggested way of using this function is to supply character strings for
+  \code{X} and \code{template} rather than objects. Using strings is more
+  memory-efficient. This function processes based on 'tiles' or sub-regions
+  of the template grid and will only read in the portion of the object needed
+  for the calculations.
 }
