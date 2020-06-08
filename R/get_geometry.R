@@ -34,7 +34,7 @@ fs_perimeter <- function(X, unit=NULL){
     # perim_calc <- sf::st_length(sf::st_cast(sf::st_geometry(X), "LINESTRING"))
     perim_calc <- lwgeom::st_geod_length(X)
   } else{
-    perim_calc <- sf::st_perimeter(X)
+    perim_calc <- lwgeom::st_perimeter(X)
   }
 
   if(!is.null(unit)){
