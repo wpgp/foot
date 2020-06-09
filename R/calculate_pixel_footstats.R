@@ -14,6 +14,8 @@
 #'   respectively.
 #' @param focalRadius numeric. Distance in meters for a buffer around each
 #'   template pixel. Creates a focal processing window for metrics.
+#' @param minArea numeric. Minimum footprint area to filter \code{X}.
+#' @param maxArea numeric. Maximum footprint area to filter \code{X}.
 #' @param template (optional). When creating a gridded output, a supplied
 #'   \code{stars} or \code{raster} dataset to align the data.
 #' @param parallel logical. Should a parallel backend be used to process the
@@ -55,6 +57,8 @@
 calculate_bigfoot <- function(X, 
                               metrics='all',
                               focalRadius=0,
+                              minArea=NULL,
+                              maxArea=NULL,
                               template=NULL,
                               tileSize=c(500, 500),
                               parallel=TRUE,
@@ -69,6 +73,8 @@ calculate_bigfoot <- function(X,
 calculate_bigfoot.sf <- function(X, 
                                  metrics='all',
                                  focalRadius=0,
+                                 minArea=NULL,
+                                 maxArea=NULL,
                                  template=NULL,
                                  tileSize=c(500, 500),
                                  parallel=TRUE,
@@ -83,6 +89,7 @@ calculate_bigfoot.sf <- function(X,
   }
   
   result <- calc_fs_px_internal(X, metrics, focalRadius, 
+                                minArea, maxArea, controlUnits,
                                 template, tileSize, parallel, nCores,
                                 outputPath, outputTag, verbose)
   
@@ -95,6 +102,8 @@ calculate_bigfoot.sf <- function(X,
 calculate_bigfoot.sp <- function(X, 
                                  metrics='all',
                                  focalRadius=0,
+                                 minArea=NULL,
+                                 maxArea=NULL,
                                  template=NULL,
                                  tileSize=c(500, 500),
                                  parallel=TRUE,
@@ -112,6 +121,7 @@ calculate_bigfoot.sp <- function(X,
   }
   
   result <- calc_fs_px_internal(X, metrics, focalRadius, 
+                                minArea, maxArea, controlUnits,
                                 template, tileSize, parallel, nCores,
                                 outputPath, outputTag, verbose)
   
@@ -124,6 +134,8 @@ calculate_bigfoot.sp <- function(X,
 calculate_bigfoot.character <- function(X, 
                                         metrics='all',
                                         focalRadius=0,
+                                        minArea=NULL,
+                                        maxArea=NULL,
                                         template=NULL,
                                         tileSize=c(500, 500),
                                         parallel=TRUE,
@@ -133,6 +145,7 @@ calculate_bigfoot.character <- function(X,
                                         verbose=FALSE){
         
   result <- calc_fs_px_internal(X, metrics, focalRadius, 
+                                minArea, maxArea, controlUnits,
                                 template, tileSize, parallel, nCores,
                                 outputPath, outputTag, verbose)
   
@@ -144,6 +157,8 @@ calculate_bigfoot.character <- function(X,
 calc_fs_px_internal <- function(X, 
                                 metrics,
                                 focalRadius,
+                                minArea,
+                                maxArea,
                                 template,
                                 tileSize,
                                 parallel,
@@ -192,7 +207,7 @@ calc_fs_px_internal <- function(X,
   # print(allOutPath)
   rm(z)
   
-  # expand metrics for dependecies - note: not creating output grids
+  # expand metrics for dependencies - note: not creating output grids
   if(any(grepl("area_cv", metrics, fixed=T))){
     metrics <- c(metrics, "fs_area_mean", "fs_area_sd")
   }
@@ -240,6 +255,8 @@ calc_fs_px_internal <- function(X,
                                         "metrics",
                                         "compact",
                                         "focalRadius",
+                                        "minArea",
+                                        "maxArea",
                                         "allOutPath"),
                               envir=environment())
     }
@@ -255,7 +272,7 @@ calc_fs_px_internal <- function(X,
       mgBuffTile <- stars::st_as_stars(template[,jobBuff$xl:jobBuff$xu, 
                                                 jobBuff$yl:jobBuff$yu])
       process_tile(mgTile, mgBuffTile, 
-                   X, metrics, compact, focalRadius, 
+                   X, metrics, compact, focalRadius, minArea, maxArea,
                    allOutPath, FALSE) 
     }
     parallel::stopCluster(cl)
@@ -274,6 +291,8 @@ calc_fs_px_internal <- function(X,
       
       process_tile(mgTile, mgBuffTile, 
                    X, metrics, compact, focalRadius, 
+                   minArea, maxArea,
+                   areaUnit, perimUnit, distUnit,
                    allOutPath, verbose)
     } # end for loop on tiles
   }
@@ -284,6 +303,7 @@ calc_fs_px_internal <- function(X,
 # helper function for processing tiles
 process_tile <- function(mgTile, mgBuffTile, 
                          X, metrics, compact, focalRadius, 
+                         minArea, maxArea, areaUnit, perimUnit, distUnit,
                          allOutPath, 
                          verbose=FALSE){
   
@@ -317,7 +337,8 @@ process_tile <- function(mgTile, mgBuffTile,
   # check for records
   if(nrow(Xsub) > 0){
     # pre-calculate unit geometry measures
-    if(any(grepl("area", metrics, fixed=T)) | compact==TRUE){
+    if(any(grepl("area", metrics, fixed=T)) | compact==TRUE | 
+       !is.null(minArea) | !is.null(maxArea)){
       if(!"fs_area" %in% names(Xsub)){
         if(verbose){ cat("Pre-calculating footprint areas \n") }
         Xsub[["fs_area"]] <- fs_area(Xsub, unit=get_fs_units("fs_area_mean"))
@@ -343,6 +364,17 @@ process_tile <- function(mgTile, mgBuffTile,
         if(verbose){ cat("Pre-calculating angles \n") }
         Xsub[["fs_angle"]] <- fs_mbr(Xsub)
       }
+    }
+    
+    # filter records
+    if(!is.null(minArea)){
+      Xsub <- subset(Xsub, fs_area > units::as_units(minArea, 
+                                                     get_fs_units("fs_area_mean")))
+    }
+    
+    if(!is.null(maxArea)){
+      Xsub <- subset(Xsub, fs_area < units::as_units(maxArea, 
+                                                     get_fs_units("fs_area_mean")))
     }
     
     # read proxy to grid and convert to polygon object

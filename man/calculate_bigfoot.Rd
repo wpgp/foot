@@ -12,6 +12,8 @@ calculate_bigfoot(
   X,
   metrics = "all",
   focalRadius = 0,
+  minArea = NULL,
+  maxArea = NULL,
   template = NULL,
   tileSize = c(500, 500),
   parallel = TRUE,
@@ -25,6 +27,8 @@ calculate_bigfoot(
   X,
   metrics = "all",
   focalRadius = 0,
+  minArea = NULL,
+  maxArea = NULL,
   template = NULL,
   tileSize = c(500, 500),
   parallel = TRUE,
@@ -38,6 +42,8 @@ calculate_bigfoot(
   X,
   metrics = "all",
   focalRadius = 0,
+  minArea = NULL,
+  maxArea = NULL,
   template = NULL,
   tileSize = c(500, 500),
   parallel = TRUE,
@@ -51,6 +57,8 @@ calculate_bigfoot(
   X,
   metrics = "all",
   focalRadius = 0,
+  minArea = NULL,
+  maxArea = NULL,
   template = NULL,
   tileSize = c(500, 500),
   parallel = TRUE,
@@ -73,6 +81,10 @@ respectively.}
 
 \item{focalRadius}{numeric. Distance in meters for a buffer around each
 template pixel. Creates a focal processing window for metrics.}
+
+\item{minArea}{numeric. Minimum footprint area to filter \code{X}.}
+
+\item{maxArea}{numeric. Maximum footprint area to filter \code{X}.}
 
 \item{template}{(optional). When creating a gridded output, a supplied
 \code{stars} or \code{raster} dataset to align the data.}
