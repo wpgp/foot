@@ -5,6 +5,8 @@
 #' @param unit string indicating unit of measure. Passed to
 #'   \code{units::set_units}.
 #' @return numeric vector of area measured for each item in \code{X}.
+#' 
+#' @import units
 #'
 #' @name fs_area
 #' @export

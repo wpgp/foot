@@ -16,6 +16,10 @@
 #'   template pixel. Creates a focal processing window for metrics.
 #' @param minArea numeric. Minimum footprint area to filter \code{X}.
 #' @param maxArea numeric. Maximum footprint area to filter \code{X}.
+#' @param controlUnits (optional) named list. Elements can include
+#'   \code{areaUnit}, \code{perimUnit}, and \code{distUnit}. The values for
+#'   these items should be strings that can be coerced into a \code{units}
+#'   object.
 #' @param template (optional). When creating a gridded output, a supplied
 #'   \code{stars} or \code{raster} dataset to align the data.
 #' @param parallel logical. Should a parallel backend be used to process the
@@ -59,6 +63,7 @@ calculate_bigfoot <- function(X,
                               focalRadius=0,
                               minArea=NULL,
                               maxArea=NULL,
+                              controlUnits=NULL,
                               template=NULL,
                               tileSize=c(500, 500),
                               parallel=TRUE,
@@ -75,6 +80,7 @@ calculate_bigfoot.sf <- function(X,
                                  focalRadius=0,
                                  minArea=NULL,
                                  maxArea=NULL,
+                                 controlUnits=NULL,
                                  template=NULL,
                                  tileSize=c(500, 500),
                                  parallel=TRUE,
@@ -104,6 +110,7 @@ calculate_bigfoot.sp <- function(X,
                                  focalRadius=0,
                                  minArea=NULL,
                                  maxArea=NULL,
+                                 controlUnits=NULL,
                                  template=NULL,
                                  tileSize=c(500, 500),
                                  parallel=TRUE,
@@ -136,6 +143,7 @@ calculate_bigfoot.character <- function(X,
                                         focalRadius=0,
                                         minArea=NULL,
                                         maxArea=NULL,
+                                        controlUnits=NULL,
                                         template=NULL,
                                         tileSize=c(500, 500),
                                         parallel=TRUE,
@@ -159,6 +167,7 @@ calc_fs_px_internal <- function(X,
                                 focalRadius,
                                 minArea,
                                 maxArea,
+                                controlUnits,
                                 template,
                                 tileSize,
                                 parallel,
@@ -184,6 +193,17 @@ calc_fs_px_internal <- function(X,
   # get full list of metrics
   metrics <- get_fs_metrics(short_names=metrics, group=metrics)
   
+  # get full set of units
+  providedUnits <- controlUnits
+  controlUnits <- list(areaUnit=get_fs_units("fs_area_mean"),
+                       perimUnit=get_fs_units("fs_perim_mean"),
+                       distUnit=get_fs_units("fs_nndist_mean"))
+  # update with provide values
+  if(!is.null(providedUnits)){
+    controlUnits[names(controlUnits) %in% names(providedUnits)] <- 
+      providedUnits[names(providedUnits) %in% names(controlUnits)]
+  }
+  
   # create empty output grids to match template
   outTemplate <- stars::st_as_stars(matrix(NA, 
                                            nrow=nrow(template), 
@@ -207,21 +227,21 @@ calc_fs_px_internal <- function(X,
   # print(allOutPath)
   rm(z)
   
-  # expand metrics for dependencies - note: not creating output grids
-  if(any(grepl("area_cv", metrics, fixed=T))){
-    metrics <- c(metrics, "fs_area_mean", "fs_area_sd")
-  }
-  
-  if(any(grepl("perim_cv", metrics, fixed=T))){
-    metrics <- c(metrics, "fs_perim_mean", "fs_perim_sd")
-  }
-  metrics <- unique(metrics)
-  
-  if(any(grepl("compact", metrics, fixed=T))){
-    compact <- TRUE
-  } else{
-    compact <- FALSE
-  }
+  # # expand metrics for dependencies - note: not creating output grids
+  # if(any(grepl("area_cv", metrics, fixed=T))){
+  #   metrics <- c(metrics, "fs_area_mean", "fs_area_sd")
+  # }
+  # 
+  # if(any(grepl("perim_cv", metrics, fixed=T))){
+  #   metrics <- c(metrics, "fs_perim_mean", "fs_perim_sd")
+  # }
+  # metrics <- unique(metrics)
+  # 
+  # if(any(grepl("compact", metrics, fixed=T))){
+  #   compact <- TRUE
+  # } else{
+  #   compact <- FALSE
+  # }
   
   # tiles for processing
   tiles <- gridTiles(template, px=tileSize)
@@ -253,7 +273,8 @@ calc_fs_px_internal <- function(X,
                                         "tiles",
                                         "tilesBuff",
                                         "metrics",
-                                        "compact",
+                                        # "compact",
+                                        "controlUnits",
                                         "focalRadius",
                                         "minArea",
                                         "maxArea",
@@ -272,7 +293,10 @@ calc_fs_px_internal <- function(X,
       mgBuffTile <- stars::st_as_stars(template[,jobBuff$xl:jobBuff$xu, 
                                                 jobBuff$yl:jobBuff$yu])
       process_tile(mgTile, mgBuffTile, 
-                   X, metrics, compact, focalRadius, minArea, maxArea,
+                   X, metrics, 
+                   # compact, 
+                   focalRadius, minArea, maxArea,
+                   controlUnits,
                    allOutPath, FALSE) 
     }
     parallel::stopCluster(cl)
@@ -290,9 +314,11 @@ calc_fs_px_internal <- function(X,
                                                 jobBuff$yl:jobBuff$yu])
       
       process_tile(mgTile, mgBuffTile, 
-                   X, metrics, compact, focalRadius, 
+                   X, metrics, 
+                   # compact, 
+                   focalRadius, 
                    minArea, maxArea,
-                   areaUnit, perimUnit, distUnit,
+                   controlUnits,
                    allOutPath, verbose)
     } # end for loop on tiles
   }
@@ -302,8 +328,10 @@ calc_fs_px_internal <- function(X,
 
 # helper function for processing tiles
 process_tile <- function(mgTile, mgBuffTile, 
-                         X, metrics, compact, focalRadius, 
-                         minArea, maxArea, areaUnit, perimUnit, distUnit,
+                         X, metrics, 
+                         compact, 
+                         focalRadius, 
+                         minArea, maxArea, controlUnits,
                          allOutPath, 
                          verbose=FALSE){
   
@@ -337,25 +365,27 @@ process_tile <- function(mgTile, mgBuffTile,
   # check for records
   if(nrow(Xsub) > 0){
     # pre-calculate unit geometry measures
-    if(any(grepl("area", metrics, fixed=T)) | compact==TRUE | 
+    if(any(grepl("area", metrics, fixed=T)) | 
+       any(grepl("compact", metrics, fixed=T)) | 
        !is.null(minArea) | !is.null(maxArea)){
       if(!"fs_area" %in% names(Xsub)){
         if(verbose){ cat("Pre-calculating footprint areas \n") }
-        Xsub[["fs_area"]] <- fs_area(Xsub, unit=get_fs_units("fs_area_mean"))
+        Xsub[["fs_area"]] <- fs_area(Xsub, unit=controlUnits$areaUnit)
       }
     }
     
-    if(any(grepl("perim", metrics, fixed=T)) | compact==TRUE){
+    if(any(grepl("perim", metrics, fixed=T)) | 
+       any(grepl("compact", metrics, fixed=T))){
       if(!"fs_perim" %in% names(Xsub)){
         if(verbose){ cat("Pre-calculating footprint perimeters \n")}
-        Xsub[["fs_perim"]] <- fs_perimeter(Xsub, unit=get_fs_units("fs_perim_mean"))
+        Xsub[["fs_perim"]] <- fs_perimeter(Xsub, unit=controlUnits$perimUnit)
       }
     }
     
     if(any(grepl("nndist", metrics, fixed=T))){
       if(!"fs_nndist" %in% names(Xsub)){
         if(verbose){ cat("Pre-calculating nearest neighbour distances \n") }
-        Xsub[["fs_nndist"]] <- fs_nndist(Xsub, unit=get_fs_units("fs_nndist_mean"))
+        Xsub[["fs_nndist"]] <- fs_nndist(Xsub, unit=controlUnits$distUnit)
       }
     }
     
@@ -368,13 +398,15 @@ process_tile <- function(mgTile, mgBuffTile,
     
     # filter records
     if(!is.null(minArea)){
+      if(verbose) { cat(paste0("Filtering features larger than ", minArea," \n")) }
       Xsub <- subset(Xsub, fs_area > units::as_units(minArea, 
-                                                     get_fs_units("fs_area_mean")))
+                                                     controlUnits$areaUnit))
     }
     
     if(!is.null(maxArea)){
+      if(verbose) { cat(paste0("Filtering features smaller than ", maxArea," \n")) }
       Xsub <- subset(Xsub, fs_area < units::as_units(maxArea, 
-                                                     get_fs_units("fs_area_mean")))
+                                                     controlUnits$areaUnit))
     }
     
     # read proxy to grid and convert to polygon object
@@ -405,6 +437,7 @@ process_tile <- function(mgTile, mgBuffTile,
       tileResults <- calculate_footstats(Xsub,
                                          index="zoneID",
                                          metrics=metrics,
+                                         controlUnits=controlUnits,
                                          gridded=FALSE,
                                          verbose=verbose)
       # clean-up

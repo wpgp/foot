@@ -14,6 +14,10 @@
 #'   "fs_area_mean", etc. Other options include \code{ALL} or \code{NODIST} to
 #'   calculate all available metrics and all except nearest neighbour distances,
 #'   respectively.
+#' @param controlUnits (optional) named list. Elements can include
+#'   \code{areaUnit}, \code{perimUnit}, and \code{distUnit}. The values for
+#'   these items should be strings that can be coerced into a \code{units}
+#'   object.
 #' @param gridded Should a gridded output be created? Default \code{TRUE}.
 #' @param template (optional). When creating a gridded output, a supplied
 #'   \code{stars} or \code{raster} dataset to align the data.
@@ -37,6 +41,7 @@
 calculate_footstats <- function(X, 
                                 index=NULL, 
                                 metrics='all',
+                                controlUnits=NULL,
                                 gridded=TRUE, 
                                 template=NULL,
                                 outputPath=NULL,
@@ -47,6 +52,7 @@ calculate_footstats <- function(X,
 #' @name calculate_footstats
 #' @export
 calculate_footstats.sf <- function(X, index=NULL, metrics='all', 
+                                   controlUnits=NULL,
                                    gridded=TRUE, template=NULL, 
                                    outputPath=NULL, 
                                    outputTag=NULL,
@@ -58,7 +64,7 @@ calculate_footstats.sf <- function(X, index=NULL, metrics='all',
     stop()
   }
   
-  result <- calc_fs_internal(X, index, metrics, gridded, 
+  result <- calc_fs_internal(X, index, metrics, controlUnits, gridded, 
                              template, outputPath, outputTag, driver, verbose)
   
   return(result)
@@ -68,6 +74,7 @@ calculate_footstats.sf <- function(X, index=NULL, metrics='all',
 #' @name calculate_footstats
 #' @export
 calculate_footstats.sfc <- function(X, index=NULL, metrics='all', 
+                                    controlUnits=NULL,
                                     gridded=TRUE, template=NULL, 
                                     outputPath=NULL, 
                                     outputTag=NULL,
@@ -77,6 +84,7 @@ calculate_footstats.sfc <- function(X, index=NULL, metrics='all',
   X <- sf::st_as_sf(X)
   
   result <- calculate_footstats(X, index=index, metrics=metrics, 
+                                controlUnits=controlUnits,
                                 gridded=gridded, template=template, 
                                 outputPath=outputPath, 
                                 outputTag=outputTag,
@@ -89,6 +97,7 @@ calculate_footstats.sfc <- function(X, index=NULL, metrics='all',
 #' @name calculate_footstats
 #' @export
 calculate_footstats.sp <- function(X, index=NULL, metrics='all', 
+                                   controlUnits=NULL,
                                    gridded=TRUE, template=NULL, 
                                    outputPath=NULL, 
                                    outputTag=NULL,
@@ -98,6 +107,7 @@ calculate_footstats.sp <- function(X, index=NULL, metrics='all',
   X <- sf::st_as_sf(X)
   
   result <- calculate_footstats(X, index=index, metrics=metrics, 
+                                controlUnits=controlUnits,
                                 gridded=gridded, template=template, 
                                 outputPath=outputPath, 
                                 outputTag=outputTag,
@@ -109,7 +119,8 @@ calculate_footstats.sp <- function(X, index=NULL, metrics='all',
 
 #' @name calculate_footstats
 #' @export
-calculate_footstats.character <- function(X, index=NULL, metrics='all', 
+calculate_footstats.character <- function(X, index=NULL, metrics='all',
+                                          controlUnits=NULL,
                                           gridded=TRUE, template=NULL, 
                                           outputPath=NULL, 
                                           outputTag=NULL,
@@ -119,6 +130,7 @@ calculate_footstats.character <- function(X, index=NULL, metrics='all',
   X <- sf::st_read(X)
   
   result <- calculate_footstats(X, index=index, metrics=metrics, 
+                                controlUnits=controlUnits,
                                 gridded=gridded, template=template, 
                                 outputPath=outputPath, 
                                 outputTag=outputTag,
@@ -131,6 +143,7 @@ calculate_footstats.character <- function(X, index=NULL, metrics='all',
 #' @name calculate_footstats
 #' @export
 calculate_footstats.list <- function(X, index=NULL, metrics='all', 
+                                     controlUnits=NULL,
                                      gridded=TRUE, template=NULL, 
                                      outputPath=NULL, 
                                      outputTag=NULL,
@@ -150,8 +163,9 @@ calculate_footstats.list <- function(X, index=NULL, metrics='all',
   }
   
   # expand other arguments - recycling values
-  args <- list(index=index, metrics=metrics, gridded=gridded, 
-               template=template, outputPath=outputPath, driver=driver, 
+  args <- list(index=index, metrics=metrics, controlUnits=controlUnits, 
+               gridded=gridded, template=template, 
+               outputPath=outputPath, driver=driver, 
                verbose=verbose)
   maxL <- max(lengths(args), length(X))
   args <- lapply(args, rep, length.out=maxL)
@@ -160,6 +174,7 @@ calculate_footstats.list <- function(X, index=NULL, metrics='all',
     calculate_footstats(X[[i]], 
                         index=args$index[i], 
                         metrics=args$metrics[i],
+                        controlUnits=args$controlUnits[i],
                         gridded=args$gridded[i], 
                         template=args$template[i],
                         outputPath=args$outputPath[i], 
@@ -172,7 +187,7 @@ calculate_footstats.list <- function(X, index=NULL, metrics='all',
 }
 
 
-calc_fs_internal <- function(X, index, metrics, 
+calc_fs_internal <- function(X, index, metrics, controlUnits,
                              gridded, template, 
                              outputPath, outputTag, driver, verbose){
   
@@ -204,6 +219,17 @@ calc_fs_internal <- function(X, index, metrics,
       warning("Index must be a polygon or a column name. Ignoring input.")
       index <- NULL
     }
+  }
+  
+  # get full set of units
+  providedUnits <- controlUnits
+  controlUnits <- list(areaUnit=get_fs_units("fs_area_mean"),
+                       perimUnit=get_fs_units("fs_perim_mean"),
+                       distUnit=get_fs_units("fs_nndist_mean"))
+  # update with provide values
+  if(!is.null(providedUnits)){
+    controlUnits[names(controlUnits) %in% names(providedUnits)] <- 
+      providedUnits[names(providedUnits) %in% names(controlUnits)]
   }
   
   if(verbose){ cat("Selectinig metrics \n") }
@@ -264,7 +290,7 @@ calc_fs_internal <- function(X, index, metrics,
     normalize <- TRUE
   }
   
-  # pre-calcluate unit geometry measures
+  # pre-calculate unit geometry measures
   if(any(grepl("area", metrics, fixed=T)) | compact==TRUE){
     if(!"fs_area" %in% names(X)){
       if(verbose){ cat("Pre-calculating footprint areas \n") }
