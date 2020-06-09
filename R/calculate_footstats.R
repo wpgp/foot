@@ -233,16 +233,12 @@ calc_fs_internal <- function(X, index, metrics, controlUnits,
   }
   
   if(verbose){ cat("Selectinig metrics \n") }
-
   if(toupper(metrics[1]) == 'ALL'){
-    metrics <- foot::fs_footprint_metrics$name
+    metrics <- get_fs_metrics("ALL")
   }
   
   if(toupper(metrics[1]) == "NODIST"){
-    # metrics <- foot::fs_footprint_metrics$name
-    metrics <- metrcs[!grepl("nndist", metrics)]
-    metrics <- foot::fs_footprint_metrics[foot::fs_footprint_metrics$group != "nndist", 
-                                          "name"]
+    metrics <- get_fs_metrics("NODIST")
   }
   
   # if(any(grepl("area_cv", metrics, fixed=T))){
@@ -294,28 +290,27 @@ calc_fs_internal <- function(X, index, metrics, controlUnits,
   if(any(grepl("area", metrics, fixed=T)) | compact==TRUE){
     if(!"fs_area" %in% names(X)){
       if(verbose){ cat("Pre-calculating footprint areas \n") }
-      X[["fs_area"]] <- fs_area(X, unit=get_fs_units("fs_area_mean"))
+      X[["fs_area"]] <- fs_area(X, unit=controlUnits$areaUnit)
     }
   }
   
   if(any(grepl("perim", metrics, fixed=T)) | compact==TRUE){
     if(!"fs_perim" %in% names(X)){
       if(verbose){ cat("Pre-calculating footprint perimeters \n")}
-      X[["fs_perim"]] <- fs_perimeter(X, unit=get_fs_units("fs_perim_mean"))
+      X[["fs_perim"]] <- fs_perimeter(X, unit=controlUnits$perimUnit)
     }
   }
   
   if(any(grepl("nndist", metrics, fixed=T))){
     if(!"fs_nndist" %in% names(X)){
       if(verbose){ cat("Pre-calculating nearest neighbour distances \n") }
-      X[["fs_nndist"]] <- fs_nndist(X, unit=get_fs_units("fs_nndist_mean"))
+      X[["fs_nndist"]] <- fs_nndist(X, unit=controlUnits$distUnit)
     }
   }
   
   if(any(grepl("angle", metrics, fixed=T))){
     if(!"fs_angle" %in% names(X)){
       if(verbose){ cat("Pre-calculating angles \n") }
-      # X[["fs_angle"]] <- sapply(sf::st_geometry(X), fs_mbr)
       X[["fs_angle"]] <- fs_mbr(X)
     }
   }
@@ -329,7 +324,12 @@ calc_fs_internal <- function(X, index, metrics, controlUnits,
     if(verbose){ cat("  ", metrics[[current_metric]], " \n") }
     func <- get(metrics_calc[[current_metric]], mode="function")
     
-    getUnit <- fs_footprint_metrics$default_units[match(metrics[[current_metric]], fs_footprint_metrics$name)]
+    # getUnit <- fs_footprint_metrics$default_units[match(metrics[[current_metric]], fs_footprint_metrics$name)]
+    getUnit <- switch(get_fs_group(metrics[[current_metric]]), 
+                      area = controlUnits$areaUnit,
+                      perim = controlUnits$perimUnit,
+                      dist = controlUnits$distUnit)
+    
     assign("unit", value=getUnit, envir=parent.env(environment()))
     arguments <- names(formals(func))
 
