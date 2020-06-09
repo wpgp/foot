@@ -245,21 +245,21 @@ calc_fs_internal <- function(X, index, metrics, controlUnits,
                                           "name"]
   }
   
-  if(any(grepl("area_cv", metrics, fixed=T))){
-    metrics <- c(metrics, "fs_area_mean", "fs_area_sd")
-    metrics <- metrics[!grepl("area_cv", metrics)]
-    area_cv <- TRUE
-  } else{
-    area_cv <- FALSE
-  }
-  
-  if(any(grepl("perim_cv", metrics, fixed=T))){
-    metrics <- c(metrics, "fs_perim_mean", "fs_perim_sd")
-    metrics <- metrics[!grepl("perim_cv", metrics)]
-    perim_cv <- TRUE
-  } else{
-    perim_cv <- FALSE
-  }
+  # if(any(grepl("area_cv", metrics, fixed=T))){
+  #   metrics <- c(metrics, "fs_area_mean", "fs_area_sd")
+  #   metrics <- metrics[!grepl("area_cv", metrics)]
+  #   area_cv <- TRUE
+  # } else{
+  #   area_cv <- FALSE
+  # }
+  # 
+  # if(any(grepl("perim_cv", metrics, fixed=T))){
+  #   metrics <- c(metrics, "fs_perim_mean", "fs_perim_sd")
+  #   metrics <- metrics[!grepl("perim_cv", metrics)]
+  #   perim_cv <- TRUE
+  # } else{
+  #   perim_cv <- FALSE
+  # }
   
   if(any(grepl("compact", metrics, fixed=T))){
     compact <- TRUE
@@ -346,13 +346,13 @@ calc_fs_internal <- function(X, index, metrics, controlUnits,
   # merge all
   merged_result <- Reduce(function(...) merge(...), result)
   
-  if(area_cv){
-    merged_result[, fs_area_cv:=fs_area_ha_sd / fs_area_ha_mean]
-  }
-  
-  if(perim_cv){
-    merged_result[, fs_perim_cv:=fs_perim_m_sd / fs_perim_m_mean]
-  }
+  # if(area_cv){
+  #   merged_result[, fs_area_cv:=fs_area_ha_sd / fs_area_ha_mean]
+  # }
+  # 
+  # if(perim_cv){
+  #   merged_result[, fs_perim_cv:=fs_perim_m_sd / fs_perim_m_mean]
+  # }
   
   if(nnIndex){
     nniDT <- merged_result[, list(index, fs_nndist_m_mean, fs_count)]
