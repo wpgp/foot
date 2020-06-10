@@ -4,6 +4,7 @@
 \alias{get_fs_metrics}
 \alias{list_fs}
 \alias{get_fs_units}
+\alias{get_fs_group}
 \title{List footprint summary metrics}
 \usage{
 get_fs_metrics(short_names, group = NULL)
@@ -11,6 +12,8 @@ get_fs_metrics(short_names, group = NULL)
 list_fs(col_names = NULL)
 
 get_fs_units(metrics = NULL)
+
+get_fs_group(metrics = NULL)
 }
 \arguments{
 \item{short_names}{Character vector of short names to lookup \code{fs_}

@@ -13,6 +13,9 @@ calculate_footstats(
   X,
   index = NULL,
   metrics = "all",
+  minArea = NULL,
+  maxArea = NULL,
+  controlUnits = NULL,
   gridded = TRUE,
   template = NULL,
   outputPath = NULL,
@@ -25,6 +28,9 @@ calculate_footstats(
   X,
   index = NULL,
   metrics = "all",
+  minArea = NULL,
+  maxArea = NULL,
+  controlUnits = NULL,
   gridded = TRUE,
   template = NULL,
   outputPath = NULL,
@@ -37,6 +43,9 @@ calculate_footstats(
   X,
   index = NULL,
   metrics = "all",
+  minArea = NULL,
+  maxArea = NULL,
+  controlUnits = NULL,
   gridded = TRUE,
   template = NULL,
   outputPath = NULL,
@@ -49,6 +58,9 @@ calculate_footstats(
   X,
   index = NULL,
   metrics = "all",
+  minArea = NULL,
+  maxArea = NULL,
+  controlUnits = NULL,
   gridded = TRUE,
   template = NULL,
   outputPath = NULL,
@@ -61,6 +73,9 @@ calculate_footstats(
   X,
   index = NULL,
   metrics = "all",
+  minArea = NULL,
+  maxArea = NULL,
+  controlUnits = NULL,
   gridded = TRUE,
   template = NULL,
   outputPath = NULL,
@@ -73,6 +88,9 @@ calculate_footstats(
   X,
   index = NULL,
   metrics = "all",
+  minArea = NULL,
+  maxArea = NULL,
+  controlUnits = NULL,
   gridded = TRUE,
   template = NULL,
   outputPath = NULL,
@@ -96,6 +114,15 @@ a vector of indices can be provided. If omitted all observations with
 "fs_area_mean", etc. Other options include \code{ALL} or \code{NODIST} to
 calculate all available metrics and all except nearest neighbour distances,
 respectively.}
+
+\item{minArea}{numeric. Minimum footprint area to filter \code{X}.}
+
+\item{maxArea}{numeric. Maximum footprint area to filter \code{X}.}
+
+\item{controlUnits}{(optional) named list. Elements can include
+\code{areaUnit}, \code{perimUnit}, and \code{distUnit}. The values for
+these items should be strings that can be coerced into a \code{units}
+object.}
 
 \item{gridded}{Should a gridded output be created? Default \code{TRUE}.}
 

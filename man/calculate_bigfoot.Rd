@@ -14,6 +14,7 @@ calculate_bigfoot(
   focalRadius = 0,
   minArea = NULL,
   maxArea = NULL,
+  controlUnits = NULL,
   template = NULL,
   tileSize = c(500, 500),
   parallel = TRUE,
@@ -29,6 +30,7 @@ calculate_bigfoot(
   focalRadius = 0,
   minArea = NULL,
   maxArea = NULL,
+  controlUnits = NULL,
   template = NULL,
   tileSize = c(500, 500),
   parallel = TRUE,
@@ -44,6 +46,7 @@ calculate_bigfoot(
   focalRadius = 0,
   minArea = NULL,
   maxArea = NULL,
+  controlUnits = NULL,
   template = NULL,
   tileSize = c(500, 500),
   parallel = TRUE,
@@ -59,6 +62,7 @@ calculate_bigfoot(
   focalRadius = 0,
   minArea = NULL,
   maxArea = NULL,
+  controlUnits = NULL,
   template = NULL,
   tileSize = c(500, 500),
   parallel = TRUE,
@@ -85,6 +89,11 @@ template pixel. Creates a focal processing window for metrics.}
 \item{minArea}{numeric. Minimum footprint area to filter \code{X}.}
 
 \item{maxArea}{numeric. Maximum footprint area to filter \code{X}.}
+
+\item{controlUnits}{(optional) named list. Elements can include
+\code{areaUnit}, \code{perimUnit}, and \code{distUnit}. The values for
+these items should be strings that can be coerced into a \code{units}
+object.}
 
 \item{template}{(optional). When creating a gridded output, a supplied
 \code{stars} or \code{raster} dataset to align the data.}
