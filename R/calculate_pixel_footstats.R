@@ -322,6 +322,7 @@ calc_fs_px_internal <- function(X,
                    allOutPath, verbose)
     } # end for loop on tiles
   }
+  if(verbose){ cat(paste0("\nFinished processing all tiles: ", Sys.time())) }
   # return(result)
 }
 
@@ -417,6 +418,7 @@ process_tile <- function(mgTile, mgBuffTile,
         mgPoly$id <- 1:nrow(mgPoly)
         # buffer for focal statistics
         if(focalRadius > 0){
+          if(verbose){ cat("Buffering processing sites \n") }
           if(sf::st_is_longlat(mgPoly)){
             # find UTM zone of the tile's centroid
             aoi <- sf::st_as_sfc(sf::st_bbox(mgPoly))
@@ -433,6 +435,7 @@ process_tile <- function(mgTile, mgBuffTile,
         }
         
         # get index to pixels
+        if(verbose){ cat("Generating zonal index \n") }
         Xsub <- zonalIndex(Xsub, mgPolyArea)
         # footprint statistics within the tile
         tileResults <- calculate_footstats(Xsub,
@@ -449,6 +452,7 @@ process_tile <- function(mgTile, mgBuffTile,
                         tileResults, 
                         by.x="id", by.y="index")
         # output loop
+        if(verbose){ cat("Writing output tiles \n") }
         for(n in names(tileResults)[!names(tileResults) %in% "index"]){
           units(mgPoly[[n]]) <- NULL
           
@@ -481,6 +485,7 @@ process_tile <- function(mgTile, mgBuffTile,
             write_tile(outGrid=resArea, outName=allOutPath[[path]], update=TRUE)
           }
         } # end output loop
+        if(verbose){ cat("Finished writing grids\n") }
       } # end found mastergrid tiles
     } # end if buildings found after filter
   } # end if buildings found in tile
