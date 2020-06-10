@@ -28,7 +28,7 @@
 #' @param tileSize number of pixels per side of a tile. Can be a vector of
 #'   length 2 (rows, column pixels). Ignored if n provided. Default is 1000.
 #' @param outputPath (optional). When creating a gridded output, a path for the
-#'   location of the output.
+#'   location of the output. Default is the temp directory.
 #' @param outputTag (optional). A character string that will be added to the
 #'   beginning of the output name for the gridded files.
 #' @param verbose logical. Should progress messages be printed. Default
@@ -68,7 +68,7 @@ calculate_bigfoot <- function(X,
                               tileSize=c(500, 500),
                               parallel=TRUE,
                               nCores=max(1, parallel::detectCores()-1),
-                              outputPath=NULL,
+                              outputPath=tempdir(),
                               outputTag=NULL,
                               verbose=FALSE) UseMethod("calculate_bigfoot")
 
@@ -85,7 +85,7 @@ calculate_bigfoot.sf <- function(X,
                                  tileSize=c(500, 500),
                                  parallel=TRUE,
                                  nCores=max(1, parallel::detectCores()-1),
-                                 outputPath=NULL,
+                                 outputPath=tempdir(),
                                  outputTag=NULL,
                                  verbose=FALSE){
 
@@ -115,7 +115,7 @@ calculate_bigfoot.sp <- function(X,
                                  tileSize=c(500, 500),
                                  parallel=TRUE,
                                  nCores=max(1, parallel::detectCores()-1),
-                                 outputPath=NULL,
+                                 outputPath=tempdir(),
                                  outputTag=NULL,
                                  verbose=FALSE){
   
@@ -148,7 +148,7 @@ calculate_bigfoot.character <- function(X,
                                         tileSize=c(500, 500),
                                         parallel=TRUE,
                                         nCores=max(1, parallel::detectCores()-1),
-                                        outputPath=NULL,
+                                        outputPath=tempdir(),
                                         outputTag=NULL,
                                         verbose=FALSE){
         
