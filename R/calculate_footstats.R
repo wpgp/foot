@@ -14,6 +14,8 @@
 #'   "fs_area_mean", etc. Other options include \code{ALL} or \code{NODIST} to
 #'   calculate all available metrics and all except nearest neighbour distances,
 #'   respectively.
+#' @param minArea numeric. Minimum footprint area to filter \code{X}.
+#' @param maxArea numeric. Maximum footprint area to filter \code{X}.
 #' @param controlUnits (optional) named list. Elements can include
 #'   \code{areaUnit}, \code{perimUnit}, and \code{distUnit}. The values for
 #'   these items should be strings that can be coerced into a \code{units}
@@ -41,6 +43,8 @@
 calculate_footstats <- function(X, 
                                 index=NULL, 
                                 metrics='all',
+                                minArea=NULL,
+                                maxArea=NULL,
                                 controlUnits=NULL,
                                 gridded=TRUE, 
                                 template=NULL,
@@ -52,6 +56,8 @@ calculate_footstats <- function(X,
 #' @name calculate_footstats
 #' @export
 calculate_footstats.sf <- function(X, index=NULL, metrics='all', 
+                                   minArea=NULL,
+                                   maxArea=NULL,
                                    controlUnits=NULL,
                                    gridded=TRUE, template=NULL, 
                                    outputPath=NULL, 
@@ -64,7 +70,8 @@ calculate_footstats.sf <- function(X, index=NULL, metrics='all',
     stop()
   }
   
-  result <- calc_fs_internal(X, index, metrics, controlUnits, gridded, 
+  result <- calc_fs_internal(X, index, metrics, minArea, maxArea,
+                             controlUnits, gridded, 
                              template, outputPath, outputTag, driver, verbose)
   
   return(result)
@@ -74,6 +81,8 @@ calculate_footstats.sf <- function(X, index=NULL, metrics='all',
 #' @name calculate_footstats
 #' @export
 calculate_footstats.sfc <- function(X, index=NULL, metrics='all', 
+                                    minArea=NULL,
+                                    maxArea=NULL,
                                     controlUnits=NULL,
                                     gridded=TRUE, template=NULL, 
                                     outputPath=NULL, 
@@ -84,6 +93,7 @@ calculate_footstats.sfc <- function(X, index=NULL, metrics='all',
   X <- sf::st_as_sf(X)
   
   result <- calculate_footstats(X, index=index, metrics=metrics, 
+                                minArea=minArea, maxArea=maxArea,
                                 controlUnits=controlUnits,
                                 gridded=gridded, template=template, 
                                 outputPath=outputPath, 
@@ -97,6 +107,8 @@ calculate_footstats.sfc <- function(X, index=NULL, metrics='all',
 #' @name calculate_footstats
 #' @export
 calculate_footstats.sp <- function(X, index=NULL, metrics='all', 
+                                   minArea=NULL,
+                                   maxArea=NULL,
                                    controlUnits=NULL,
                                    gridded=TRUE, template=NULL, 
                                    outputPath=NULL, 
@@ -107,6 +119,7 @@ calculate_footstats.sp <- function(X, index=NULL, metrics='all',
   X <- sf::st_as_sf(X)
   
   result <- calculate_footstats(X, index=index, metrics=metrics, 
+                                minArea=minArea, maxArea=maxArea,
                                 controlUnits=controlUnits,
                                 gridded=gridded, template=template, 
                                 outputPath=outputPath, 
@@ -120,6 +133,8 @@ calculate_footstats.sp <- function(X, index=NULL, metrics='all',
 #' @name calculate_footstats
 #' @export
 calculate_footstats.character <- function(X, index=NULL, metrics='all',
+                                          minArea=NULL,
+                                          maxArea=NULL,
                                           controlUnits=NULL,
                                           gridded=TRUE, template=NULL, 
                                           outputPath=NULL, 
@@ -130,6 +145,7 @@ calculate_footstats.character <- function(X, index=NULL, metrics='all',
   X <- sf::st_read(X)
   
   result <- calculate_footstats(X, index=index, metrics=metrics, 
+                                minArea, maxArea,
                                 controlUnits=controlUnits,
                                 gridded=gridded, template=template, 
                                 outputPath=outputPath, 
@@ -143,6 +159,8 @@ calculate_footstats.character <- function(X, index=NULL, metrics='all',
 #' @name calculate_footstats
 #' @export
 calculate_footstats.list <- function(X, index=NULL, metrics='all', 
+                                     minArea=NULL,
+                                     maxArea=NULL,
                                      controlUnits=NULL,
                                      gridded=TRUE, template=NULL, 
                                      outputPath=NULL, 
@@ -163,7 +181,9 @@ calculate_footstats.list <- function(X, index=NULL, metrics='all',
   }
   
   # expand other arguments - recycling values
-  args <- list(index=index, metrics=metrics, controlUnits=controlUnits, 
+  args <- list(index=index, metrics=metrics, 
+               minArea=minArea, maxArea=maxArea,
+               controlUnits=controlUnits, 
                gridded=gridded, template=template, 
                outputPath=outputPath, driver=driver, 
                verbose=verbose)
@@ -174,6 +194,8 @@ calculate_footstats.list <- function(X, index=NULL, metrics='all',
     calculate_footstats(X[[i]], 
                         index=args$index[i], 
                         metrics=args$metrics[i],
+                        minArea=args$minArea[i],
+                        maxArea=args$maxArea[i],
                         controlUnits=args$controlUnits[i],
                         gridded=args$gridded[i], 
                         template=args$template[i],
@@ -187,7 +209,9 @@ calculate_footstats.list <- function(X, index=NULL, metrics='all',
 }
 
 
-calc_fs_internal <- function(X, index, metrics, controlUnits,
+calc_fs_internal <- function(X, index, metrics, 
+                             minArea, maxArea,
+                             controlUnits,
                              gridded, template, 
                              outputPath, outputTag, driver, verbose){
   
@@ -196,7 +220,6 @@ calc_fs_internal <- function(X, index, metrics, controlUnits,
   }
   
   if(verbose){ cat("Creating index \n") }
-  
   if(!is.null(index)){
     if(inherits(index, "sf")){
       if(any(sf::st_geometry_type(index) %in% c("POLYGON","MULTIPOLYGON"))){
@@ -230,6 +253,23 @@ calc_fs_internal <- function(X, index, metrics, controlUnits,
   if(!is.null(providedUnits)){
     controlUnits[names(controlUnits) %in% names(providedUnits)] <- 
       providedUnits[names(providedUnits) %in% names(controlUnits)]
+  }
+  
+  # filter records
+  if(!is.null(minArea)){
+    if(verbose) { cat(paste0("Filtering features larger than ", minArea," \n")) }
+    X <- subset(X, fs_area > units::as_units(minArea, 
+                                             controlUnits$areaUnit))
+  }
+  
+  if(!is.null(maxArea)){
+    if(verbose) { cat(paste0("Filtering features smaller than ", maxArea," \n")) }
+    X <- subset(X, fs_area < units::as_units(maxArea, 
+                                             controlUnits$areaUnit))
+  }
+  
+  if(nrow(X) == 0){ # filter removed all?
+    return(NULL)
   }
   
   if(verbose){ cat("Selectinig metrics \n") }
