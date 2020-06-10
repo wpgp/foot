@@ -329,7 +329,7 @@ calc_fs_px_internal <- function(X,
 # helper function for processing tiles
 process_tile <- function(mgTile, mgBuffTile, 
                          X, metrics, 
-                         compact, 
+                         # compact, 
                          focalRadius, 
                          minArea, maxArea, controlUnits,
                          allOutPath, 
@@ -409,78 +409,80 @@ process_tile <- function(mgTile, mgBuffTile,
                                                      controlUnits$areaUnit))
     }
     
-    # read proxy to grid and convert to polygon object
-    mgPoly <- sf::st_as_sf(stars::st_as_stars(mgTile))
-    # check for valid processing locations
-    if(nrow(mgPoly) > 0){ # NA pixels not converted
-      mgPoly$id <- 1:nrow(mgPoly)
-      # buffer for focal statistics
-      if(focalRadius > 0){
-        if(sf::st_is_longlat(mgPoly)){
-          # find UTM zone of the tile's centroid
-          aoi <- sf::st_as_sfc(sf::st_bbox(mgPoly))
-          zn <- suggestUTMzone(sf::st_coordinates(sf::st_centroid(aoi)))
-          mgPolyArea <- sf::st_transform(mgPoly, crs=zn)
-          mgPolyArea <- sf::st_buffer(sf::st_centroid(mgPolyArea), 
-                                      dist=focalRadius)
-          mgPolyArea <- sf::st_transform(mgPolyArea, crs=sf::st_crs(mgPoly))
-        } else{
-          mgPolyArea <- sf::st_buffer(mgPoly, dist=focalRadius)
-        }
-      } else{ # pixel resolution
-        mgPolyArea <- mgPoly
-      }
-      
-      # get index to pixels
-      Xsub <- zonalIndex(Xsub, mgPolyArea)
-      # footprint statistics within the tile
-      tileResults <- calculate_footstats(Xsub,
-                                         index="zoneID",
-                                         metrics=metrics,
-                                         controlUnits=controlUnits,
-                                         gridded=FALSE,
-                                         verbose=verbose)
-      # clean-up
-      rm(Xsub)
-      
-      # store results tile calculations
-      mgPoly <- merge(mgPoly, 
-                      tileResults, 
-                      by.x="id", by.y="index")
-      # output loop
-      for(n in names(tileResults)[!names(tileResults) %in% "index"]){
-        units(mgPoly[[n]]) <- NULL
-        
-        resArea <- stars::st_rasterize(mgPoly[n], 
-                                       template=naTile,
-                                       file=file.path(tempdir(), "tempRas.tif"))
-        # update tile offset to nest in template
-        d <- stars::st_dimensions(resArea)
-        tD <- stars::st_dimensions(mgTile)
-        d[["x"]]$from <- tD[["x"]]$from  # job$xl
-        d[["x"]]$to <- tD[["x"]]$to  # job$xu
-        d[["y"]]$from <- tD[["y"]]$from  # job$yl
-        d[["y"]]$to <- tD[["y"]]$to  # job$yu
-        
-        resArea <- structure(resArea, dimensions=d)
-        
-        # get file name
-        n <- sub("fs_", "", n, fixed=T)
-        nsplit <- strsplit(n, "_", fixed=T)[[1]]
-        n <- ifelse(length(nsplit)==3, 
-                    paste(nsplit[1], nsplit[3], sep="_"), 
-                    paste(nsplit, collapse="_"))
+    if(nrow(Xsub) > 0){
+      # read proxy to grid and convert to polygon object
+      mgPoly <- sf::st_as_sf(stars::st_as_stars(mgTile))
+      # check for valid processing locations
+      if(nrow(mgPoly) > 0){ # NA pixels not converted
+        mgPoly$id <- 1:nrow(mgPoly)
+        # buffer for focal statistics
         if(focalRadius > 0){
-          n <- paste(n, focalRadius, sep="_")
+          if(sf::st_is_longlat(mgPoly)){
+            # find UTM zone of the tile's centroid
+            aoi <- sf::st_as_sfc(sf::st_bbox(mgPoly))
+            zn <- suggestUTMzone(sf::st_coordinates(sf::st_centroid(aoi)))
+            mgPolyArea <- sf::st_transform(mgPoly, crs=zn)
+            mgPolyArea <- sf::st_buffer(sf::st_centroid(mgPolyArea), 
+                                        dist=focalRadius)
+            mgPolyArea <- sf::st_transform(mgPolyArea, crs=sf::st_crs(mgPoly))
+          } else{
+            mgPolyArea <- sf::st_buffer(mgPoly, dist=focalRadius)
+          }
+        } else{ # pixel resolution
+          mgPolyArea <- mgPoly
         }
         
-        path <- which(grepl(n, allOutPath, fixed=T))
-        # print(allOutPath[[path]])
-        if(length(path)==1){
-          write_tile(outGrid=resArea, outName=allOutPath[[path]], update=TRUE)
-        }
-      } # end output loop
-    } # end found mastergrid tiles
+        # get index to pixels
+        Xsub <- zonalIndex(Xsub, mgPolyArea)
+        # footprint statistics within the tile
+        tileResults <- calculate_footstats(Xsub,
+                                           index="zoneID",
+                                           metrics=metrics,
+                                           controlUnits=controlUnits,
+                                           gridded=FALSE,
+                                           verbose=verbose)
+        # clean-up
+        rm(Xsub)
+        
+        # store results tile calculations
+        mgPoly <- merge(mgPoly, 
+                        tileResults, 
+                        by.x="id", by.y="index")
+        # output loop
+        for(n in names(tileResults)[!names(tileResults) %in% "index"]){
+          units(mgPoly[[n]]) <- NULL
+          
+          resArea <- stars::st_rasterize(mgPoly[n], 
+                                         template=naTile,
+                                         file=file.path(tempdir(), "tempRas.tif"))
+          # update tile offset to nest in template
+          d <- stars::st_dimensions(resArea)
+          tD <- stars::st_dimensions(mgTile)
+          d[["x"]]$from <- tD[["x"]]$from  # job$xl
+          d[["x"]]$to <- tD[["x"]]$to  # job$xu
+          d[["y"]]$from <- tD[["y"]]$from  # job$yl
+          d[["y"]]$to <- tD[["y"]]$to  # job$yu
+          
+          resArea <- structure(resArea, dimensions=d)
+          
+          # get file name
+          n <- sub("fs_", "", n, fixed=T)
+          nsplit <- strsplit(n, "_", fixed=T)[[1]]
+          n <- ifelse(length(nsplit)==3, 
+                      paste(nsplit[1], nsplit[3], sep="_"), 
+                      paste(nsplit, collapse="_"))
+          if(focalRadius > 0){
+            n <- paste(n, focalRadius, sep="_")
+          }
+          
+          path <- which(grepl(n, allOutPath, fixed=T))
+          # print(allOutPath[[path]])
+          if(length(path)==1){
+            write_tile(outGrid=resArea, outName=allOutPath[[path]], update=TRUE)
+          }
+        } # end output loop
+      } # end found mastergrid tiles
+    } # end if buildings found after filter
   } # end if buildings found in tile
 }
 
