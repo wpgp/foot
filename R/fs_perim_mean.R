@@ -11,7 +11,10 @@
 #' @rdname fs_perim_mean
 #' 
 #' @export 
-fs_perim_mean <- function(X, index=NULL, unit=NULL, col=NULL) UseMethod("fs_perim_mean")
+fs_perim_mean <- function(X, 
+                          index=NULL, 
+                          unit=NULL, 
+                          col=NULL) UseMethod("fs_perim_mean")
 
 
 #' @name fs_perim_mean
