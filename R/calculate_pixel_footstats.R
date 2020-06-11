@@ -46,7 +46,7 @@
 #'   of the template grid and will only read in the portion of the object needed
 #'   for the calculations.
 #' 
-#' @return None. Gridded geoTiff files are created.
+#' @return Invisible. Returns a vector of paths to the output files.
 #' 
 #' @import doParallel
 #' @import parallel
@@ -99,7 +99,7 @@ calculate_bigfoot.sf <- function(X,
                                 template, tileSize, parallel, nCores,
                                 outputPath, outputTag, verbose)
   
-  return(result)
+  invisible(result)
 }
 
 
@@ -132,7 +132,7 @@ calculate_bigfoot.sp <- function(X,
                                 template, tileSize, parallel, nCores,
                                 outputPath, outputTag, verbose)
   
-  return(result)
+  invisible(result)
 }
 
 
@@ -157,7 +157,7 @@ calculate_bigfoot.character <- function(X,
                                 template, tileSize, parallel, nCores,
                                 outputPath, outputTag, verbose)
   
-  return(result)
+  invisible(result)
 }
 
 
@@ -263,7 +263,7 @@ calc_fs_px_internal <- function(X,
   # processing loop
   if(parallel){
     # create cluster
-    if(verbose){ cat("Setting up cluster.\n")}
+    if(verbose){ cat("Setting up cluster\n")}
     if(.Platform$OS.type == "unix"){
       cl <- parallel::makeCluster(spec=nCores, type="FORK")
     } else{
@@ -284,6 +284,7 @@ calc_fs_px_internal <- function(X,
     doParallel::registerDoParallel(cl)
     parallel::clusterEvalQ(cl, {library(foot); library(stars); library(sf)})
     
+    if(verbose){ cat("Begin parallel tile processing \n")}
     foreach::foreach(i = seq_along(rownames(tiles)),
                      .export="process_tile"
                      ) %dopar% {
@@ -322,8 +323,10 @@ calc_fs_px_internal <- function(X,
                    allOutPath, verbose)
     } # end for loop on tiles
   }
-  if(verbose){ cat(paste0("\nFinished processing all tiles: ", Sys.time())) }
+  if(verbose){ cat(paste0("\nFinished processing all tiles: ", 
+                          Sys.time(), "\n")) }
   # return(result)
+  return(allOutPath)
 }
 
 

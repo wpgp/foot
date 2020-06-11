@@ -116,7 +116,7 @@ beginning of the output name for the gridded files.}
 \code{False}.}
 }
 \value{
-None. Gridded geoTiff files are created.
+Invisible. Returns a vector of paths to the output files.
 }
 \description{
 Calculate selected metrics of building footprints for
