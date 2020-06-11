@@ -16,7 +16,7 @@
 #'   \code{data.table} with the ID to the records in \code{X} and the zone IDs.
 #' 
 #' @import data.table
-#' @import purrr
+#' @importFrom purrr map2
 #' @aliases zonalIndex
 #' @rdname zonalIndex
 #' @name zonalIndex

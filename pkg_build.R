@@ -11,7 +11,8 @@ usethis::use_package("lwgeom")
 usethis::use_package("doParallel")
 usethis::use_package("parallel")
 usethis::use_package("foreach")
-usethis::use_package("purrr")
+# usethis::use_package("purrr")
+usethis::use_package("units")
 
 # package documentation
 devtools::document()
@@ -20,6 +21,7 @@ devtools::document()
 # devtools::build_vignettes()
 
 # install package
+devtools::build()
 # install.packages(getwd(), repo=NULL, type='source')
 devtools::install()
 devtools::reload(devtools::inst('foot'))

@@ -5,6 +5,8 @@
 #' @param unit string indicating unit of measure. Passed to
 #'   \code{units::set_units}.
 #' @return numeric vector of area measured for each item in \code{X}.
+#' 
+#' @import units
 #'
 #' @name fs_area
 #' @export
@@ -30,14 +32,13 @@ fs_area <- function(X, unit=NULL){
 #' @name fs_perimeter
 #' @export
 fs_perimeter <- function(X, unit=NULL){
-  # if(st_is_longlat(X)){
-  #   perim_calc <- sf::st_length(sf::st_cast(sf::st_geometry(X), "LINESTRING"))
-  # } else{
-  #   perim_calc <- sf::st_length(X)
-  # }
-  # perim_calc <- lwgeom::st_perimeter(X)
-  perim_calc <- sf::st_length(X)
-  
+  if(st_is_longlat(X)){
+    # perim_calc <- sf::st_length(sf::st_cast(sf::st_geometry(X), "LINESTRING"))
+    perim_calc <- lwgeom::st_geod_length(X)
+  } else{
+    perim_calc <- lwgeom::st_perimeter(X)
+  }
+
   if(!is.null(unit)){
     perim_calc <- units::set_units(perim_calc, unit, mode="standard")
   }

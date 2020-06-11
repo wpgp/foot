@@ -16,7 +16,7 @@ buildings <- kampala$buildings
 adminzones <- kampala$adminZones
 clusters <- kampala$clusters
 
-## ----echo=FALSE, fig.cap="Sample buildings and zones in Kampala", fig.width=6, fig.height=6, message=FALSE, warning=FALSE----
+## ----echo=FALSE, fig.cap="Sample buildings and zones in Kampala", fig.height=6, fig.width=6, message=FALSE, warning=FALSE----
 plot(sf::st_geometry(buildings), 
      col=sf::sf.colors(12, categorical=TRUE),
      border=NA, axes=TRUE)
@@ -24,7 +24,7 @@ plot(sf::st_geometry(buildings),
 plot(sf::st_geometry(adminzones), border="red", add=T)
 
 ## -----------------------------------------------------------------------------
-# mean of footprint areas
+# mean of all footprint areas
 built_area <- fs_area_mean(buildings)
 
 built_area
@@ -33,6 +33,10 @@ built_area
 perim_sd <- fs_perim_sd(buildings)
 
 perim_sd
+
+# median of areas
+area_med <- fs_area_median(buildings, unit="m^2")
+area_med
 
 ## ---- tidy=F------------------------------------------------------------------
 # random sample of buildings
@@ -44,11 +48,11 @@ result <- buildings %>%
 result
 
 ## -----------------------------------------------------------------------------
-# nearest distance for the first 10 buildings
+# nearest distance for the first 10 buildings to any other building
 # measured between polygon edges
 fs_nndist(buildings[1:10,], buildings, maxSearch=200, unit="m")
 
-# omitting 'Y' measures distance among the footprints
+# omitting 'Y' measures distance among the footprints supplied
 fs_nndist(buildings[1:10,], maxSearch=NULL)  # unrestricted distance
 
 ## -----------------------------------------------------------------------------
@@ -71,19 +75,19 @@ buildings$id <- id   # add it to the buildings object
 # pass the index by name
 fs_area_total(buildings, index="id")  # note default units
 
-# pass the index by number
+# pass the index by column number
 fs_count(buildings, index=3)
 
 # pass a separate vector object
 print(fs_angle_entropy(buildings, index=id, normalize=T))
 
 ## ----message=FALSE, warning=FALSE---------------------------------------------
-# Return a table of index values
+# Return a table of index values based on administrative zone polygons
 zID <- zonalIndex(buildings, adminzones, returnObject=F)
   zID # the xID column are row numbers
   
-# Alternatively, join the zones to create a new spatial object
-# A column with a custom zone can be added
+# Alternatively, join the zones to create and return a new spatial object
+# A custom zone name can be added but must be supplied to the summary functions
 zObj <- zonalIndex(buildings, clusters, zoneField="Id", returnObject=T)
   zObj
 
@@ -97,7 +101,7 @@ clusters <- merge(clusters, zarea, by.x="Id", by.y="index")
 # Note the selected structures extend beyond the cluster boundary
 plot(sf::st_geometry(clusters)[[6]])
 plot(sf::st_geometry(buildings), add=T)
-plot(sf::st_geometry(zObj[zObj$zoneID==6,]), col="red", add=T)
+plot(sf::st_geometry(zObj[zObj$Id==6,]), col="red", add=T)
 
 ## ----message=FALSE, warning=FALSE---------------------------------------------
 zClip <- zonalIndex(buildings, clusters, zoneField="Id", clip=T)
@@ -167,7 +171,7 @@ plot(sf::st_geometry(buildings), add=T)
 sgrid <- stars::st_as_stars(mgrid)
 sgrid <- sf::st_as_sf(sgrid)
 
-# add a cell number ID
+# add a cell number ID to the grid polygons
 sgrid$cellIDs <- raster::cellFromXY(mgrid, sf::st_coordinates(sf::st_centroid(sgrid)))
 
 # create a zonal index on the building objects

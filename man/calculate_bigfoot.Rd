@@ -3,6 +3,8 @@
 \name{calculate_bigfoot}
 \alias{calculate_bigfoot}
 \alias{calculate_bigfoot.sf}
+\alias{calculate_bigfoot.sp}
+\alias{calculate_bigfoot.character}
 \title{calculate_bigfoot: Gridded feature statistics for large sets of
   building footprint polygons}
 \usage{
@@ -10,11 +12,14 @@ calculate_bigfoot(
   X,
   metrics = "all",
   focalRadius = 0,
+  minArea = NULL,
+  maxArea = NULL,
+  controlUnits = NULL,
   template = NULL,
   tileSize = c(500, 500),
   parallel = TRUE,
   nCores = max(1, parallel::detectCores() - 1),
-  outputPath = NULL,
+  outputPath = tempdir(),
   outputTag = NULL,
   verbose = FALSE
 )
@@ -23,11 +28,46 @@ calculate_bigfoot(
   X,
   metrics = "all",
   focalRadius = 0,
+  minArea = NULL,
+  maxArea = NULL,
+  controlUnits = NULL,
   template = NULL,
   tileSize = c(500, 500),
   parallel = TRUE,
   nCores = max(1, parallel::detectCores() - 1),
-  outputPath = NULL,
+  outputPath = tempdir(),
+  outputTag = NULL,
+  verbose = FALSE
+)
+
+\method{calculate_bigfoot}{sp}(
+  X,
+  metrics = "all",
+  focalRadius = 0,
+  minArea = NULL,
+  maxArea = NULL,
+  controlUnits = NULL,
+  template = NULL,
+  tileSize = c(500, 500),
+  parallel = TRUE,
+  nCores = max(1, parallel::detectCores() - 1),
+  outputPath = tempdir(),
+  outputTag = NULL,
+  verbose = FALSE
+)
+
+\method{calculate_bigfoot}{character}(
+  X,
+  metrics = "all",
+  focalRadius = 0,
+  minArea = NULL,
+  maxArea = NULL,
+  controlUnits = NULL,
+  template = NULL,
+  tileSize = c(500, 500),
+  parallel = TRUE,
+  nCores = max(1, parallel::detectCores() - 1),
+  outputPath = tempdir(),
   outputTag = NULL,
   verbose = FALSE
 )
@@ -46,6 +86,15 @@ respectively.}
 \item{focalRadius}{numeric. Distance in meters for a buffer around each
 template pixel. Creates a focal processing window for metrics.}
 
+\item{minArea}{numeric. Minimum footprint area to filter \code{X}.}
+
+\item{maxArea}{numeric. Maximum footprint area to filter \code{X}.}
+
+\item{controlUnits}{(optional) named list. Elements can include
+\code{areaUnit}, \code{perimUnit}, and \code{distUnit}. The values for
+these items should be strings that can be coerced into a \code{units}
+object.}
+
 \item{template}{(optional). When creating a gridded output, a supplied
 \code{stars} or \code{raster} dataset to align the data.}
 
@@ -58,16 +107,16 @@ tiles.}
 \item{nCores}{number of CPU cores to use if \code{parallel} is \code{TRUE}.}
 
 \item{outputPath}{(optional). When creating a gridded output, a path for the
-location of the output.}
+location of the output. Default is the temp directory.}
 
-\item{outputTag}{(optional). A character string that will be added tagged to
-the beginning of the output gridded files.}
+\item{outputTag}{(optional). A character string that will be added to the
+beginning of the output name for the gridded files.}
 
 \item{verbose}{logical. Should progress messages be printed. Default
 \code{False}.}
 }
 \value{
-TBD.
+Invisible. Returns a vector of paths to the output files.
 }
 \description{
 Calculate selected metrics of building footprints for
@@ -75,4 +124,16 @@ Calculate selected metrics of building footprints for
 }
 \details{
 calculate_bigfoot
+
+\code{calculate_bigfoot} provides a wrapper for a workflow to
+  process vector polygons of structures to create a gridded output summary of
+  morphology measures. The function wraps \code{calculate_footstats} along
+  with other geometry functions of \code{foot} and read/writing functions
+  from \code{stars} and \code{sf}.
+  
+  The suggested way of using this function is to supply character strings for
+  \code{X} and \code{template} rather than objects. Using strings is more
+  memory-efficient. This function processes based on 'tiles' or sub-regions
+  of the template grid and will only read in the portion of the object needed
+  for the calculations.
 }

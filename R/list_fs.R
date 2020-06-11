@@ -81,3 +81,16 @@ get_fs_units <- function(metrics=NULL){
 }
 
 
+#' @rdname get_fs_metrics
+#' @export
+get_fs_group <- function(metrics=NULL){
+  if(is.null(metrics)){
+    return(list_fs("group"))
+  } else{
+    allunits <- list_fs(c("name","group"))
+    return(allunits[which(allunits$name %in% metrics), "group"])
+  }
+}
+
+
+

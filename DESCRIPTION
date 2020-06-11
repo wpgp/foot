@@ -1,6 +1,6 @@
 Package: foot
 Title: A package for processing building footprints
-Version: 0.2.0
+Version: 0.3.0
 Date: 2020-05-15
 Authors@R: 
 	c(person(given="WorldPop Research Group, University of Southampton", 
@@ -26,7 +26,8 @@ Imports:
     lwgeom,
     doParallel,
     parallel,
-    foreach
+    foreach,
+    units
 LazyData: true
 Description: Support for morphometric calculations and zonal summaries of measures derived from building footprint polygons.
 Encoding: UTF-8
