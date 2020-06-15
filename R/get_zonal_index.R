@@ -145,42 +145,47 @@ get_zonal_index <- function(X, zone,
   ints <- sf::st_intersects(zone, X)
   hits <- which(lengths(ints)>0)
   
-  geomDT <- data.table::data.table(xID=ints[hits])
-  geomDT[, (zoneField) := hits]
-  
-  # expand list of intersected features
-  intDT <- geomDT[, setNames(c(xID), "xID"), by=zoneField]
-  data.table::setcolorder(intDT, c("xID", zoneField))
-  
-  if(returnObject){
-    # join
-    Xdt <- data.table::data.table(X)
-    Xdt[, xID := 1:.N]
-    intDT[Xdt, on='xID', colnames(X) := mget(colnames(X))]
-    # drop xID col
-    intDT[, xID := NULL]
-    data.table::setcolorder(intDT, neworder=colnames(X))
+  if(length(hits) > 0){
+    geomDT <- data.table::data.table(xID=ints[hits])
+    geomDT[, (zoneField) := hits]
     
-    if(clip){
-      xGeo <- attr(X, "sf_column") # get variable name
-      # match up geometries
-      intDT[, zGeom := sf::st_geometry(zone)[get(zoneField)]]
-      # loop over
-      clipGeom <- purrr::map2(intDT[[xGeo]],
-                              intDT[["zGeom"]],
-                              sf::st_intersection)
-      # update geometry field
-      intDT[, (xGeo) := sf::st_sfc(clipGeom, crs=sf::st_crs(X))]
+    # expand list of intersected features
+    intDT <- geomDT[, setNames(c(xID), "xID"), by=zoneField]
+    data.table::setcolorder(intDT, c("xID", zoneField))
+    
+    if(returnObject){
+      # join
+      Xdt <- data.table::data.table(X)
+      Xdt[, xID := 1:.N]
+      intDT[Xdt, on='xID', colnames(X) := mget(colnames(X))]
+      # drop xID col
+      intDT[, xID := NULL]
+      data.table::setcolorder(intDT, neworder=colnames(X))
       
-      # build sf object
-      result <- sf::st_as_sf(intDT[, c(colnames(X), zoneField), with=F])
+      if(clip){
+        xGeo <- attr(X, "sf_column") # get variable name
+        # match up geometries
+        intDT[, zGeom := sf::st_geometry(zone)[get(zoneField)]]
+        # loop over
+        clipGeom <- purrr::map2(intDT[[xGeo]],
+                                intDT[["zGeom"]],
+                                sf::st_intersection)
+        # update geometry field
+        intDT[, (xGeo) := sf::st_sfc(clipGeom, crs=sf::st_crs(X))]
+        
+        # build sf object
+        result <- sf::st_as_sf(intDT[, c(colnames(X), zoneField), with=F])
+      } else{
+        result <- sf::st_as_sf(intDT)
+      }
+      
     } else{
-      result <- sf::st_as_sf(intDT)
+      result <- intDT
     }
-    
-  } else{
-    result <- intDT
-  }
+  } else{ # no intersections
+    result <- NULL
+  } 
+  return(result)
 }
 
 
