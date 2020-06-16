@@ -440,6 +440,9 @@ process_tile <- function(mgTile, mgBuffTile,
         # get index to pixels
         if(verbose){ cat("Generating zonal index \n") }
         Xsub <- zonalIndex(Xsub, mgPolyArea)
+        if(is.null(Xsub)){
+          return(NULL)
+        }
         # footprint statistics within the tile
         tileResults <- calculate_footstats(Xsub,
                                            index="zoneID",
