@@ -226,23 +226,7 @@ calc_fs_px_internal <- function(X,
   }
   # print(allOutPath)
   rm(z)
-  
-  # # expand metrics for dependencies - note: not creating output grids
-  # if(any(grepl("area_cv", metrics, fixed=T))){
-  #   metrics <- c(metrics, "fs_area_mean", "fs_area_sd")
-  # }
-  # 
-  # if(any(grepl("perim_cv", metrics, fixed=T))){
-  #   metrics <- c(metrics, "fs_perim_mean", "fs_perim_sd")
-  # }
-  # metrics <- unique(metrics)
-  # 
-  # if(any(grepl("compact", metrics, fixed=T))){
-  #   compact <- TRUE
-  # } else{
-  #   compact <- FALSE
-  # }
-  
+
   # tiles for processing
   tiles <- gridTiles(template, px=tileSize)
   
@@ -273,7 +257,6 @@ calc_fs_px_internal <- function(X,
                                         "tiles",
                                         "tilesBuff",
                                         "metrics",
-                                        # "compact",
                                         "controlUnits",
                                         "focalRadius",
                                         "minArea",
@@ -295,7 +278,6 @@ calc_fs_px_internal <- function(X,
                                                 jobBuff$yl:jobBuff$yu])
       process_tile(mgTile, mgBuffTile, 
                    X, metrics, 
-                   # compact, 
                    focalRadius, minArea, maxArea,
                    controlUnits,
                    allOutPath, FALSE) 
@@ -316,7 +298,6 @@ calc_fs_px_internal <- function(X,
       
       process_tile(mgTile, mgBuffTile, 
                    X, metrics, 
-                   # compact, 
                    focalRadius, 
                    minArea, maxArea,
                    controlUnits,
@@ -333,7 +314,6 @@ calc_fs_px_internal <- function(X,
 # helper function for processing tiles
 process_tile <- function(mgTile, mgBuffTile, 
                          X, metrics, 
-                         # compact, 
                          focalRadius, 
                          minArea, maxArea, controlUnits,
                          allOutPath, 
