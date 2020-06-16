@@ -442,9 +442,11 @@ process_tile <- function(mgTile, mgBuffTile,
         for(n in names(tileResults)[!names(tileResults) %in% "index"]){
           units(mgPoly[[n]]) <- NULL
           
+          tmpName <- paste0("tempRas_", Sys.getpid(),".tif")
           resArea <- stars::st_rasterize(mgPoly[n], 
                                          template=naTile,
-                                         file=file.path(tempdir(), "tempRas.tif"))
+                                         file=file.path(tempdir(), 
+                                                        tmpName)
           # update tile offset to nest in template
           d <- stars::st_dimensions(resArea)
           tD <- stars::st_dimensions(mgTile)
