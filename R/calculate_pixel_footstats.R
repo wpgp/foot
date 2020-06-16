@@ -448,7 +448,7 @@ process_tile <- function(mgTile, mgBuffTile,
           resArea <- stars::st_rasterize(mgPoly[n], 
                                          template=naTile,
                                          file=file.path(tempdir(), 
-                                                        tmpName)
+                                                        tmpName))
           # update tile offset to nest in template
           d <- stars::st_dimensions(resArea)
           tD <- stars::st_dimensions(mgTile)
