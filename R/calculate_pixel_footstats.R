@@ -193,15 +193,17 @@ calc_fs_px_internal <- function(X,
   # get full list of metrics
   metrics <- get_fs_metrics(short_names=metrics, group=metrics)
   
-  # get full set of units
+  # get full set of units - sort alphabetically to make matches
   providedUnits <- controlUnits
+  
   controlUnits <- list(areaUnit=get_fs_units("fs_area_mean"),
                        perimUnit=get_fs_units("fs_perim_mean"),
                        distUnit=get_fs_units("fs_nndist_mean"))
+  controlUnits <- controlUnits[order(names(controlUnits))]
   # update with provide values
   if(!is.null(providedUnits)){
-    controlUnits[names(controlUnits) %in% names(providedUnits)] <- 
-      providedUnits[names(providedUnits) %in% names(controlUnits)]
+    providedUnits <- providedUnits[order(names(providedUnits))]
+    controlUnits[names(controlUnits) %in% names(providedUnits)] <- providedUnits
   }
   
   # create empty output grids to match template
@@ -226,23 +228,7 @@ calc_fs_px_internal <- function(X,
   }
   # print(allOutPath)
   rm(z)
-  
-  # # expand metrics for dependencies - note: not creating output grids
-  # if(any(grepl("area_cv", metrics, fixed=T))){
-  #   metrics <- c(metrics, "fs_area_mean", "fs_area_sd")
-  # }
-  # 
-  # if(any(grepl("perim_cv", metrics, fixed=T))){
-  #   metrics <- c(metrics, "fs_perim_mean", "fs_perim_sd")
-  # }
-  # metrics <- unique(metrics)
-  # 
-  # if(any(grepl("compact", metrics, fixed=T))){
-  #   compact <- TRUE
-  # } else{
-  #   compact <- FALSE
-  # }
-  
+
   # tiles for processing
   tiles <- gridTiles(template, px=tileSize)
   
@@ -273,7 +259,6 @@ calc_fs_px_internal <- function(X,
                                         "tiles",
                                         "tilesBuff",
                                         "metrics",
-                                        # "compact",
                                         "controlUnits",
                                         "focalRadius",
                                         "minArea",
@@ -284,7 +269,8 @@ calc_fs_px_internal <- function(X,
     doParallel::registerDoParallel(cl)
     parallel::clusterEvalQ(cl, {library(foot); library(stars); library(sf)})
     
-    if(verbose){ cat("Begin parallel tile processing \n")}
+    if(verbose){ cat(paste0("Begin parallel tile processing: ", 
+                            Sys.time(), "\n"))}
     foreach::foreach(i = seq_along(rownames(tiles)),
                      .export="process_tile"
                      ) %dopar% {
@@ -295,7 +281,6 @@ calc_fs_px_internal <- function(X,
                                                 jobBuff$yl:jobBuff$yu])
       process_tile(mgTile, mgBuffTile, 
                    X, metrics, 
-                   # compact, 
                    focalRadius, minArea, maxArea,
                    controlUnits,
                    allOutPath, FALSE) 
@@ -316,7 +301,6 @@ calc_fs_px_internal <- function(X,
       
       process_tile(mgTile, mgBuffTile, 
                    X, metrics, 
-                   # compact, 
                    focalRadius, 
                    minArea, maxArea,
                    controlUnits,
@@ -333,7 +317,6 @@ calc_fs_px_internal <- function(X,
 # helper function for processing tiles
 process_tile <- function(mgTile, mgBuffTile, 
                          X, metrics, 
-                         # compact, 
                          focalRadius, 
                          minArea, maxArea, controlUnits,
                          allOutPath, 
@@ -349,6 +332,7 @@ process_tile <- function(mgTile, mgBuffTile,
   bbox <- sf::st_as_sfc(sf::st_bbox(mgBuffTile))
   # TO-DO: add crs transform to match building footprints
   
+  if(verbose){ cat("Reading footprints \n") }
   if(inherits(X, "sf")){
     Xsub <- X[bbox,]
   } else{
@@ -415,6 +399,7 @@ process_tile <- function(mgTile, mgBuffTile,
     
     if(nrow(Xsub) > 0){
       # read proxy to grid and convert to polygon object
+      if(verbose){ cat("Reading template grid \n") }
       mgPoly <- sf::st_as_sf(stars::st_as_stars(mgTile))
       # check for valid processing locations
       if(nrow(mgPoly) > 0){ # NA pixels not converted
@@ -440,6 +425,9 @@ process_tile <- function(mgTile, mgBuffTile,
         # get index to pixels
         if(verbose){ cat("Generating zonal index \n") }
         Xsub <- zonalIndex(Xsub, mgPolyArea)
+        if(is.null(Xsub)){
+          return(NULL)
+        }
         # footprint statistics within the tile
         tileResults <- calculate_footstats(Xsub,
                                            index="zoneID",
@@ -459,9 +447,11 @@ process_tile <- function(mgTile, mgBuffTile,
         for(n in names(tileResults)[!names(tileResults) %in% "index"]){
           units(mgPoly[[n]]) <- NULL
           
+          tmpName <- paste0("tempRas_", Sys.getpid(),".tif")
           resArea <- stars::st_rasterize(mgPoly[n], 
                                          template=naTile,
-                                         file=file.path(tempdir(), "tempRas.tif"))
+                                         file=file.path(tempdir(), 
+                                                        tmpName))
           # update tile offset to nest in template
           d <- stars::st_dimensions(resArea)
           tD <- stars::st_dimensions(mgTile)

@@ -1,6 +1,8 @@
 # foot: An R package for processing building footprints
 WorldPop Research Group, University of Southampton
 
+The `foot` package is designed to provide a set of consistent and flexible tools for processing 2D vector representations of buildings. The functionality includes basic geometry and morphology measures, distance and clustering metrics. These calculations are supported with helper functions for spatial intersections and tiled reading/writing of data. Two main wrapper functions provide standardised workflows for process building polygons to summarise metrics within polygons or on a gridded surface.
+
 ### Quick Start  
 
 1. Clone the repository to your computer (easiest with GitHub Desktop)
@@ -9,6 +11,8 @@ WorldPop Research Group, University of Southampton
 
 3. Run the `vignette("footsteps")` to explore basic usage.
 
+4. Check out the vignette `bigfoot` for creating gridded summary layers.
+
 ### Installation
 Instead of cloning the repo, the *foot* package can be installed directly from Github.
 ```
@@ -16,7 +20,7 @@ devtools::install_github("wgpg/foot", auth_token="tkn", build_vignettes=TRUE)
 ```
 where, "tkn" is an authentication token. This is required because *foot* is still in a private repo. You can obtain a token from <https://github.com/settings/tokens> and generating a personal token with 'repo' level access. This will be a long character string.
 
-Note that building and running the code may require additional packages: `stars`, `raster`, `sf`, `data.table`, `lwgeom`.
+Note that building and running the code may require additional packages: `stars`, `raster`, `sf`, `data.table`, `lwgeom`, `purrr`.
 
 ### Contributions
 Contributions are welcome. Raise or respond to an issue, or create a new branch to develop a feature/modification and submit a pull request.
@@ -32,21 +36,15 @@ Sample dataset provided:
 ### Outputs
 Rasters (or tables):  
 
-1. Settlement (binary)
-2. Building count
-3. Total building area
-4. Average building area
-5. Standard deviation of building area
-6. Coefficient of variation of building area
-7. Average building perimeter length
-8. Standard deviation of building perimeter length
-9. Coefficient of variation of building perimeter length
-10. Average nearest neighbour distance
-11. Standard deviation of nearest neighbour distance
-12. Nearest neighbour index
-13. Entropy of structure orientation
-14. Average compactness measure (Polsby-Popper)
-15. Average roundness measure
+1. Binary settlement indicators
+2. Counts of structures
+3. Building area (total, mean, median, standard dev., coeff. var.)
+4. Building perimeter (total, mean, median, standard dev., coeff. var.)
+5. Nearest neighbour distance (mean, median, standard dev.)
+6. Nearest neighbour index
+7. Structure orientation angle (normalised entropy)
+8. Compactness (Polsby-Popper) (mean, median)
+9. Roundess (mean, median)
 
 ### Repository Structure
 The repository is structured as an R package with an additional folder "wd" that is a working directory for storing scripts, input data, and output data.
@@ -73,7 +71,7 @@ A folder created as part of building vignettes.
 A folder containing functions for the R package. Each file contains a function with Roxygen documentation for the function at the top of the script. 
 
 **./wd/code/**  
-A folder containing scripts. See the example script `./wd/code/example_script.R` for a template.
+A folder containing scripts. See the example script `./wd/code/example_script.R` for a template. Note that the vignette scripts and .html source have been copied here for easy access for users who don't want to install/build the package.
 
 **./wd/in/**  
 A folder containing input data. This folder is included in the .gitignore for the repository, so files you save here will not be uploaded to github or shared with collaborators on the repository.
