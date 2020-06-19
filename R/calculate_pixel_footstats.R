@@ -20,6 +20,8 @@
 #'   \code{areaUnit}, \code{perimUnit}, and \code{distUnit}. The values for
 #'   these items should be strings that can be coerced into a \code{units}
 #'   object.
+#' @param clip (optional). Logical. Should polygons which span pixel zones be
+#'   clipped?
 #' @param template (optional). When creating a gridded output, a supplied
 #'   \code{stars} or \code{raster} dataset to align the data.
 #' @param parallel logical. Should a parallel backend be used to process the
@@ -64,6 +66,7 @@ calculate_bigfoot <- function(X,
                               minArea=NULL,
                               maxArea=NULL,
                               controlUnits=NULL,
+                              clip=FALSE,
                               template=NULL,
                               tileSize=c(500, 500),
                               parallel=TRUE,
@@ -81,6 +84,7 @@ calculate_bigfoot.sf <- function(X,
                                  minArea=NULL,
                                  maxArea=NULL,
                                  controlUnits=NULL,
+                                 clip=FALSE,
                                  template=NULL,
                                  tileSize=c(500, 500),
                                  parallel=TRUE,
@@ -95,7 +99,7 @@ calculate_bigfoot.sf <- function(X,
   }
   
   result <- calc_fs_px_internal(X, metrics, focalRadius, 
-                                minArea, maxArea, controlUnits,
+                                minArea, maxArea, controlUnits, clip,
                                 template, tileSize, parallel, nCores,
                                 outputPath, outputTag, verbose)
   
@@ -111,6 +115,7 @@ calculate_bigfoot.sp <- function(X,
                                  minArea=NULL,
                                  maxArea=NULL,
                                  controlUnits=NULL,
+                                 clip=FALSE,
                                  template=NULL,
                                  tileSize=c(500, 500),
                                  parallel=TRUE,
@@ -128,7 +133,7 @@ calculate_bigfoot.sp <- function(X,
   }
   
   result <- calc_fs_px_internal(X, metrics, focalRadius, 
-                                minArea, maxArea, controlUnits,
+                                minArea, maxArea, controlUnits, clip,
                                 template, tileSize, parallel, nCores,
                                 outputPath, outputTag, verbose)
   
@@ -144,6 +149,7 @@ calculate_bigfoot.character <- function(X,
                                         minArea=NULL,
                                         maxArea=NULL,
                                         controlUnits=NULL,
+                                        clip=FALSE,
                                         template=NULL,
                                         tileSize=c(500, 500),
                                         parallel=TRUE,
@@ -153,7 +159,7 @@ calculate_bigfoot.character <- function(X,
                                         verbose=FALSE){
         
   result <- calc_fs_px_internal(X, metrics, focalRadius, 
-                                minArea, maxArea, controlUnits,
+                                minArea, maxArea, controlUnits, clip,
                                 template, tileSize, parallel, nCores,
                                 outputPath, outputTag, verbose)
   
@@ -168,6 +174,7 @@ calc_fs_px_internal <- function(X,
                                 minArea,
                                 maxArea,
                                 controlUnits,
+                                clip,
                                 template,
                                 tileSize,
                                 parallel,
@@ -263,6 +270,7 @@ calc_fs_px_internal <- function(X,
                                         "focalRadius",
                                         "minArea",
                                         "maxArea",
+                                        "clip",
                                         "allOutPath"),
                               envir=environment())
     }
@@ -283,7 +291,9 @@ calc_fs_px_internal <- function(X,
                    X, metrics, 
                    focalRadius, minArea, maxArea,
                    controlUnits,
-                   allOutPath, FALSE) 
+                   clip,
+                   allOutPath, 
+                   verbose=FALSE) 
     }
     parallel::stopCluster(cl)
     
@@ -304,7 +314,9 @@ calc_fs_px_internal <- function(X,
                    focalRadius, 
                    minArea, maxArea,
                    controlUnits,
-                   allOutPath, verbose)
+                   clip,
+                   allOutPath, 
+                   verbose)
     } # end for loop on tiles
   }
   if(verbose){ cat(paste0("\nFinished processing all tiles: ", 
@@ -318,7 +330,7 @@ calc_fs_px_internal <- function(X,
 process_tile <- function(mgTile, mgBuffTile, 
                          X, metrics, 
                          focalRadius, 
-                         minArea, maxArea, controlUnits,
+                         minArea, maxArea, controlUnits, clip,
                          allOutPath, 
                          verbose=FALSE){
   
@@ -424,7 +436,7 @@ process_tile <- function(mgTile, mgBuffTile,
         
         # get index to pixels
         if(verbose){ cat("Generating zonal index \n") }
-        Xsub <- zonalIndex(Xsub, mgPolyArea)
+        Xsub <- zonalIndex(Xsub, zone=mgPolyArea, clip=clip)
         if(is.null(Xsub)){
           return(NULL)
         }
@@ -432,6 +444,8 @@ process_tile <- function(mgTile, mgBuffTile,
         tileResults <- calculate_footstats(Xsub,
                                            index="zoneID",
                                            metrics=metrics,
+                                           minArea=minArea,
+                                           maxArea=maxArea,
                                            controlUnits=controlUnits,
                                            gridded=FALSE,
                                            verbose=verbose)
