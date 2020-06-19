@@ -195,7 +195,6 @@ calc_fs_px_internal <- function(X,
   
   # get full set of units - sort alphabetically to make matches
   providedUnits <- controlUnits
-  providedUnits <- providedUnits[order(names(providedUnits))]
   
   controlUnits <- list(areaUnit=get_fs_units("fs_area_mean"),
                        perimUnit=get_fs_units("fs_perim_mean"),
@@ -203,6 +202,7 @@ calc_fs_px_internal <- function(X,
   controlUnits <- controlUnits[order(names(controlUnits))]
   # update with provide values
   if(!is.null(providedUnits)){
+    providedUnits <- providedUnits[order(names(providedUnits))]
     controlUnits[names(controlUnits) %in% names(providedUnits)] <- providedUnits
   }
   
@@ -269,7 +269,8 @@ calc_fs_px_internal <- function(X,
     doParallel::registerDoParallel(cl)
     parallel::clusterEvalQ(cl, {library(foot); library(stars); library(sf)})
     
-    if(verbose){ cat("Begin parallel tile processing \n")}
+    if(verbose){ cat(paste0("Begin parallel tile processing: ", 
+                            Sys.time(), "\n"))}
     foreach::foreach(i = seq_along(rownames(tiles)),
                      .export="process_tile"
                      ) %dopar% {
@@ -331,6 +332,7 @@ process_tile <- function(mgTile, mgBuffTile,
   bbox <- sf::st_as_sfc(sf::st_bbox(mgBuffTile))
   # TO-DO: add crs transform to match building footprints
   
+  if(verbose){ cat("Reading footprints \n") }
   if(inherits(X, "sf")){
     Xsub <- X[bbox,]
   } else{
@@ -397,6 +399,7 @@ process_tile <- function(mgTile, mgBuffTile,
     
     if(nrow(Xsub) > 0){
       # read proxy to grid and convert to polygon object
+      if(verbose){ cat("Reading template grid \n") }
       mgPoly <- sf::st_as_sf(stars::st_as_stars(mgTile))
       # check for valid processing locations
       if(nrow(mgPoly) > 0){ # NA pixels not converted

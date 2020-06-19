@@ -246,7 +246,6 @@ calc_fs_internal <- function(X, index, metrics,
   
   # get full set of units - sort alphabetically to make matches
   providedUnits <- controlUnits
-  providedUnits <- providedUnits[order(names(providedUnits))]
   
   controlUnits <- list(areaUnit=get_fs_units("fs_area_mean"),
                        perimUnit=get_fs_units("fs_perim_mean"),
@@ -254,6 +253,7 @@ calc_fs_internal <- function(X, index, metrics,
   controlUnits <- controlUnits[order(names(controlUnits))]
   # update with provide values
   if(!is.null(providedUnits)){
+    providedUnits <- providedUnits[order(names(providedUnits))]
     controlUnits[names(controlUnits) %in% names(providedUnits)] <- providedUnits
   }
   
