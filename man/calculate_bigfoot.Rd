@@ -15,6 +15,7 @@ calculate_bigfoot(
   minArea = NULL,
   maxArea = NULL,
   controlUnits = NULL,
+  clip = FALSE,
   template = NULL,
   tileSize = c(500, 500),
   parallel = TRUE,
@@ -31,6 +32,7 @@ calculate_bigfoot(
   minArea = NULL,
   maxArea = NULL,
   controlUnits = NULL,
+  clip = FALSE,
   template = NULL,
   tileSize = c(500, 500),
   parallel = TRUE,
@@ -47,6 +49,7 @@ calculate_bigfoot(
   minArea = NULL,
   maxArea = NULL,
   controlUnits = NULL,
+  clip = FALSE,
   template = NULL,
   tileSize = c(500, 500),
   parallel = TRUE,
@@ -63,6 +66,7 @@ calculate_bigfoot(
   minArea = NULL,
   maxArea = NULL,
   controlUnits = NULL,
+  clip = FALSE,
   template = NULL,
   tileSize = c(500, 500),
   parallel = TRUE,
@@ -94,6 +98,9 @@ template pixel. Creates a focal processing window for metrics.}
 \code{areaUnit}, \code{perimUnit}, and \code{distUnit}. The values for
 these items should be strings that can be coerced into a \code{units}
 object.}
+
+\item{clip}{(optional). Logical. Should polygons which span pixel zones be
+clipped?}
 
 \item{template}{(optional). When creating a gridded output, a supplied
 \code{stars} or \code{raster} dataset to align the data.}
