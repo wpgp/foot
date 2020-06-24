@@ -229,12 +229,11 @@ calc_fs_px_internal <- function(X,
     
     outName <- file.path(outputPath, 
                          paste0(outputTag, mTag, ".tif"))
-    z <- stars::write_stars(outTemplate, 
-                            outName) # default is float32
+    stars::write_stars(outTemplate, 
+                       outName) # default is float32
     allOutPath[[i]] <- outName
   }
   # print(allOutPath)
-  rm(z)
 
   # tiles for processing
   tiles <- gridTiles(template, px=tileSize)
