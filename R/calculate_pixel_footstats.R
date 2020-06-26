@@ -55,6 +55,7 @@
 #' @import foreach
 #' @import sf
 #' @import stars
+#' @import iterators
 #' 
 #' @aliases calculate_bigfoot
 #' @rdname calculate_bigfoot
@@ -262,8 +263,9 @@ calc_fs_px_internal <- function(X,
       cl <- parallel::makeCluster(spec=nCores, type="PSOCK")
       parallel::clusterExport(cl, 
                               varlist=c("X",
-                                        "tiles",
-                                        "tilesBuff",
+                                        # "tiles",
+                                        # "tilesBuff",
+                                        "template",
                                         "metrics",
                                         "controlUnits",
                                         "focalRadius",
@@ -278,11 +280,10 @@ calc_fs_px_internal <- function(X,
     
     if(verbose){ cat(paste0("Begin parallel tile processing: ", 
                             Sys.time(), "\n"))}
-    foreach::foreach(i = seq_along(rownames(tiles)),
+    foreach::foreach(job=iterators::iter(tiles, by="row"),
+                     jobBuff=iterators::iter(tilesBuff, by="row"),
                      .export="process_tile"
                      ) %dopar% {
-      job <- tiles[i,]
-      jobBuff <- tilesBuff[i,]
       mgTile <- stars::st_as_stars(template[,job$xl:job$xu, job$yl:job$yu])
       mgBuffTile <- stars::st_as_stars(template[,jobBuff$xl:jobBuff$xu, 
                                                 jobBuff$yl:jobBuff$yu])
