@@ -20,6 +20,8 @@
 #'   \code{areaUnit}, \code{perimUnit}, and \code{distUnit}. The values for
 #'   these items should be strings that can be coerced into a \code{units}
 #'   object.
+#' @param clip (optional). Logical. Should polygons which span pixel zones be
+#'   clipped?
 #' @param template (optional). When creating a gridded output, a supplied
 #'   \code{stars} or \code{raster} dataset to align the data.
 #' @param parallel logical. Should a parallel backend be used to process the
@@ -53,6 +55,7 @@
 #' @import foreach
 #' @import sf
 #' @import stars
+#' @import iterators
 #' 
 #' @aliases calculate_bigfoot
 #' @rdname calculate_bigfoot
@@ -64,6 +67,7 @@ calculate_bigfoot <- function(X,
                               minArea=NULL,
                               maxArea=NULL,
                               controlUnits=NULL,
+                              clip=FALSE,
                               template=NULL,
                               tileSize=c(500, 500),
                               parallel=TRUE,
@@ -81,6 +85,7 @@ calculate_bigfoot.sf <- function(X,
                                  minArea=NULL,
                                  maxArea=NULL,
                                  controlUnits=NULL,
+                                 clip=FALSE,
                                  template=NULL,
                                  tileSize=c(500, 500),
                                  parallel=TRUE,
@@ -95,7 +100,7 @@ calculate_bigfoot.sf <- function(X,
   }
   
   result <- calc_fs_px_internal(X, metrics, focalRadius, 
-                                minArea, maxArea, controlUnits,
+                                minArea, maxArea, controlUnits, clip,
                                 template, tileSize, parallel, nCores,
                                 outputPath, outputTag, verbose)
   
@@ -111,6 +116,7 @@ calculate_bigfoot.sp <- function(X,
                                  minArea=NULL,
                                  maxArea=NULL,
                                  controlUnits=NULL,
+                                 clip=FALSE,
                                  template=NULL,
                                  tileSize=c(500, 500),
                                  parallel=TRUE,
@@ -128,7 +134,7 @@ calculate_bigfoot.sp <- function(X,
   }
   
   result <- calc_fs_px_internal(X, metrics, focalRadius, 
-                                minArea, maxArea, controlUnits,
+                                minArea, maxArea, controlUnits, clip,
                                 template, tileSize, parallel, nCores,
                                 outputPath, outputTag, verbose)
   
@@ -144,6 +150,7 @@ calculate_bigfoot.character <- function(X,
                                         minArea=NULL,
                                         maxArea=NULL,
                                         controlUnits=NULL,
+                                        clip=FALSE,
                                         template=NULL,
                                         tileSize=c(500, 500),
                                         parallel=TRUE,
@@ -153,7 +160,7 @@ calculate_bigfoot.character <- function(X,
                                         verbose=FALSE){
         
   result <- calc_fs_px_internal(X, metrics, focalRadius, 
-                                minArea, maxArea, controlUnits,
+                                minArea, maxArea, controlUnits, clip,
                                 template, tileSize, parallel, nCores,
                                 outputPath, outputTag, verbose)
   
@@ -168,6 +175,7 @@ calc_fs_px_internal <- function(X,
                                 minArea,
                                 maxArea,
                                 controlUnits,
+                                clip,
                                 template,
                                 tileSize,
                                 parallel,
@@ -222,12 +230,11 @@ calc_fs_px_internal <- function(X,
     
     outName <- file.path(outputPath, 
                          paste0(outputTag, mTag, ".tif"))
-    z <- stars::write_stars(outTemplate, 
-                            outName) # default is float32
+    stars::write_stars(outTemplate, 
+                       outName) # default is float32
     allOutPath[[i]] <- outName
   }
   # print(allOutPath)
-  rm(z)
 
   # tiles for processing
   tiles <- gridTiles(template, px=tileSize)
@@ -256,13 +263,15 @@ calc_fs_px_internal <- function(X,
       cl <- parallel::makeCluster(spec=nCores, type="PSOCK")
       parallel::clusterExport(cl, 
                               varlist=c("X",
-                                        "tiles",
-                                        "tilesBuff",
+                                        # "tiles",
+                                        # "tilesBuff",
+                                        "template",
                                         "metrics",
                                         "controlUnits",
                                         "focalRadius",
                                         "minArea",
                                         "maxArea",
+                                        "clip",
                                         "allOutPath"),
                               envir=environment())
     }
@@ -271,11 +280,10 @@ calc_fs_px_internal <- function(X,
     
     if(verbose){ cat(paste0("Begin parallel tile processing: ", 
                             Sys.time(), "\n"))}
-    foreach::foreach(i = seq_along(rownames(tiles)),
+    foreach::foreach(job=iterators::iter(tiles, by="row"),
+                     jobBuff=iterators::iter(tilesBuff, by="row"),
                      .export="process_tile"
                      ) %dopar% {
-      job <- tiles[i,]
-      jobBuff <- tilesBuff[i,]
       mgTile <- stars::st_as_stars(template[,job$xl:job$xu, job$yl:job$yu])
       mgBuffTile <- stars::st_as_stars(template[,jobBuff$xl:jobBuff$xu, 
                                                 jobBuff$yl:jobBuff$yu])
@@ -283,7 +291,9 @@ calc_fs_px_internal <- function(X,
                    X, metrics, 
                    focalRadius, minArea, maxArea,
                    controlUnits,
-                   allOutPath, FALSE) 
+                   clip,
+                   allOutPath, 
+                   verbose=FALSE) 
     }
     parallel::stopCluster(cl)
     
@@ -304,7 +314,9 @@ calc_fs_px_internal <- function(X,
                    focalRadius, 
                    minArea, maxArea,
                    controlUnits,
-                   allOutPath, verbose)
+                   clip,
+                   allOutPath, 
+                   verbose)
     } # end for loop on tiles
   }
   if(verbose){ cat(paste0("\nFinished processing all tiles: ", 
@@ -318,7 +330,7 @@ calc_fs_px_internal <- function(X,
 process_tile <- function(mgTile, mgBuffTile, 
                          X, metrics, 
                          focalRadius, 
-                         minArea, maxArea, controlUnits,
+                         minArea, maxArea, controlUnits, clip,
                          allOutPath, 
                          verbose=FALSE){
   
@@ -424,7 +436,7 @@ process_tile <- function(mgTile, mgBuffTile,
         
         # get index to pixels
         if(verbose){ cat("Generating zonal index \n") }
-        Xsub <- zonalIndex(Xsub, mgPolyArea)
+        Xsub <- zonalIndex(Xsub, zone=mgPolyArea, clip=clip)
         if(is.null(Xsub)){
           return(NULL)
         }
@@ -432,6 +444,8 @@ process_tile <- function(mgTile, mgBuffTile,
         tileResults <- calculate_footstats(Xsub,
                                            index="zoneID",
                                            metrics=metrics,
+                                           minArea=minArea,
+                                           maxArea=maxArea,
                                            controlUnits=controlUnits,
                                            gridded=FALSE,
                                            verbose=verbose)
