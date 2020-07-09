@@ -1,7 +1,9 @@
 ---
-  output:
+output:
   github_document:
-  html_preview: false
+    html_preview: false
+    fig_width: 5
+    fig_height: 4
 ---
   
 
@@ -9,7 +11,7 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 # foot: An R package for processing building footprints
-WorldPop Research Group, University of Southampton
+*[WorldPop Research Group, University of Southampton](https://www.worldpop.org/)*
 
 The `foot` package is designed to provide a set of consistent and flexible tools
 for processing 2D vector representations of buildings. The functionality
@@ -20,11 +22,11 @@ provide standardised workflows for process building polygons to summarise
 metrics within polygons or on a gridded surface.
 
 ## Installation
-The *foot* package can be installed directly from Github.
+The `foot` package can be installed directly from Github.
 ```r
 devtools::install_github("wgpg/foot", auth_token="tkn", build_vignettes=TRUE)
 ```
-where, "tkn" is an authentication token. This is required because *foot* is
+where, "tkn" is an authentication token. This is required because `foot` is
 still in a private repo. You can obtain a token from
 [https://github.com/settings/tokens](https://github.com/settings/tokens) and
 generating a personal token with 'repo' level access. This will be a long
@@ -84,13 +86,14 @@ buildings$built_area <- fs_area(buildings,
 
 
 ```r
+# Area-level summary metrics
 # index the buildings to zones
 building_zone <- zonalIndex(buildings, 
                             zones, 
                             zoneField = "Id", 
                             returnObject = TRUE)
 
-# summarised within small areal units
+# summarise within small areal units
 admin_area <- fs_area_mean(building_zone, 
                            index="Id", 
                            unit="m^2")
@@ -116,7 +119,7 @@ gridded <- calculate_bigfoot(buildings,
   plot(sf::st_geometry(buildings), add=TRUE)
 ```
 
-<img src="man/figures/REAsDME-unnamed-chunk-26-1.png" title="plot of chunk unnamed-chunk-26" alt="plot of chunk unnamed-chunk-26" width="100%" />
+<img src="man/figures/REAsDME-unnamed-chunk-4-1.png" title="plot of chunk unnamed-chunk-4" alt="plot of chunk unnamed-chunk-4" width="100%" />
 
 
 ### Outputs
