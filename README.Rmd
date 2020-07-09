@@ -4,7 +4,14 @@
   html_preview: false
 ---
   
-
+```{r setup, include = FALSE}
+  knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/REAsDME-",
+  out.width = "100%"
+)
+```
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
@@ -50,8 +57,7 @@ Read the vignette on basic usage `vignette(footsteps)`. For more advanced uses
 and creating gridded data layers, see `vignette(bigfoot)`.
 
 ### Basic Usage
-
-```r
+```{r, message=FALSE, warning=FALSE}
 library(foot)
 # load sample data
 data("kampala")
@@ -62,28 +68,14 @@ grid <- kampala$mastergrid
 
 The `foot` package provides tools to calculate and summarise building morphology
 measures at multiple scales. These include
-
-```r
+```{r message=FALSE, warning=FALSE, tidy=FALSE}
 # building-level metrics
 buildings$built_area <- fs_area(buildings, 
                                 unit="m^2")
   head(buildings)
-#> Simple feature collection with 6 features and 2 fields
-#> geometry type:  POLYGON
-#> dimension:      XY
-#> bbox:           xmin: 32.60765 ymin: 0.341117 xmax: 32.61288 ymax: 0.345773
-#> geographic CRS: WGS 84
-#>   FID_1                       geometry      built_area
-#> 1   130 POLYGON ((32.61282 0.341132...  22.00824 [m^2]
-#> 2   132 POLYGON ((32.61229 0.341693... 220.39011 [m^2]
-#> 3   133 POLYGON ((32.60817 0.342753...  38.95750 [m^2]
-#> 4   135 POLYGON ((32.60808 0.343578... 386.74429 [m^2]
-#> 5   137 POLYGON ((32.60786 0.344552... 349.57765 [m^2]
-#> 6   138 POLYGON ((32.60765 0.345604... 164.00931 [m^2]
 ```
 
-
-```r
+```{r, message=FALSE, warning=FALSE, tidy=FALSE}
 # index the buildings to zones
 building_zone <- zonalIndex(buildings, 
                             zones, 
@@ -95,17 +87,9 @@ admin_area <- fs_area_mean(building_zone,
                            index="Id", 
                            unit="m^2")
   head(admin_area)
-#>    index fs_area_m^2_mean
-#> 1:     1   402.5984 [m^2]
-#> 2:     2   211.0534 [m^2]
-#> 3:     3   525.0747 [m^2]
-#> 4:     4   555.0931 [m^2]
-#> 5:     5   568.7154 [m^2]
-#> 6:     6  1021.9529 [m^2]
 ```
 
-
-```r
+```{r, message=FALSE, warning=FALSE, tidy=FALSE}
 # calculated along a raster within a focal window
 gridded <- calculate_bigfoot(buildings, 
                              metrics="area_mean", 
@@ -115,8 +99,6 @@ gridded <- calculate_bigfoot(buildings,
   raster::plot(raster::raster(gridded))
   plot(sf::st_geometry(buildings), add=TRUE)
 ```
-
-<img src="man/figures/REAsDME-unnamed-chunk-26-1.png" title="plot of chunk unnamed-chunk-26" alt="plot of chunk unnamed-chunk-26" width="100%" />
 
 
 ### Outputs
