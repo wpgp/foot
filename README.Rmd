@@ -1,6 +1,7 @@
 ---
 output:
   github_document:
+    toc: true
     html_preview: false
 ---
   
@@ -90,7 +91,7 @@ admin_area <- fs_area_mean(building_zone,
   head(admin_area)
 ```
 
-```{r fig.height=3, fig.width=4, message=FALSE, warning=FALSE, tidy=FALSE}
+```{r message=FALSE, warning=FALSE, tidy=FALSE}
 # calculated along a raster within a focal window
 gridded <- calculate_bigfoot(buildings, 
                              metrics="area_mean", 

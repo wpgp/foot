@@ -1,4 +1,13 @@
 
+  - [foot: An R package for processing building
+    footprints](#foot-an-r-package-for-processing-building-footprints)
+      - [Installation](#installation)
+      - [Quick Start](#quick-start)
+          - [Basic Usage](#basic-usage)
+          - [Outputs](#outputs)
+      - [Contributions](#contributions)
+      - [Repository Structure](#repository-structure)
+
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 # foot: An R package for processing building footprints
@@ -113,7 +122,7 @@ gridded <- calculate_bigfoot(buildings,
   plot(sf::st_geometry(buildings), add=TRUE)
 ```
 
-<img src="man/figures/REAsDME-unnamed-chunk-5-1.png" width="100%" />
+<img src="man/figures/REAsDME-unnamed-chunk-4-1.png" width="100%" />
 
 ### Outputs
 
