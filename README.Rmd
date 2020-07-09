@@ -2,8 +2,6 @@
 output:
   github_document:
     html_preview: false
-    fig_width: 5
-    fig_height: 4
 ---
   
 ```{r setup, include = FALSE}
@@ -92,7 +90,7 @@ admin_area <- fs_area_mean(building_zone,
   head(admin_area)
 ```
 
-```{r, message=FALSE, warning=FALSE, tidy=FALSE}
+```{r fig.height=3, fig.width=4, message=FALSE, warning=FALSE, tidy=FALSE}
 # calculated along a raster within a focal window
 gridded <- calculate_bigfoot(buildings, 
                              metrics="area_mean", 
