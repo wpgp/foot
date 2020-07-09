@@ -3,8 +3,6 @@
     footprints](#foot-an-r-package-for-processing-building-footprints)
       - [Installation](#installation)
       - [Quick Start](#quick-start)
-          - [Basic Usage](#basic-usage)
-          - [Outputs](#outputs)
       - [Contributions](#contributions)
       - [Repository Structure](#repository-structure)
 
