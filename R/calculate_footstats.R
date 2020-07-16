@@ -311,8 +311,9 @@ calc_fs_internal <- function(X, index, metrics,
   #   compact <- FALSE
   # }
   
+  nnIndex <- FALSE
   if(any(grepl("nnindex", metrics, fixed=T))){
-    metrics <- c(metrics, "fs_nndist_mean", "fs_count")
+    # metrics <- c(metrics, "fs_nndist_mean", "fs_count")
     metrics <- metrics[!grepl("nnindex", metrics)]
     nnIndex <- TRUE
     
@@ -323,13 +324,8 @@ calc_fs_internal <- function(X, index, metrics,
     } else{
       warnings("Nearest neighbour index requires zonal areas.")
       nnIndex <- FALSE
-      # zoneAreas <- fs_area(sf::st_as_sfc(sf::st_bbox(X), crs=sf::st_crs(X)))
-      # zonalArea <- data.table(zoneID=1:length(zoneAreas), zoneArea=zoneAreas)
     }
-    
-  } else{
-    nnIndex <- FALSE
-  }
+  } 
   
   if(any(grepl("angle", metrics, fixed=T))){
     normalize <- TRUE
