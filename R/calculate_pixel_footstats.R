@@ -366,7 +366,7 @@ process_tile <- function(mgTile, mgBuffTile,
   if(nrow(Xsub) > 0){
     # if no clipping, speed up processing to avoid duplicated calculations after
     # zone index which can duplicate features.
-    if(clip==FAlSE){ 
+    if(clip==FALSE){ 
       # pre-calculate unit geometry measures
       if(any(grepl("area", metrics, fixed=T)) |
          any(grepl("compact", metrics, fixed=T)) |
