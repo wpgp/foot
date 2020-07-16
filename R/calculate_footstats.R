@@ -410,7 +410,7 @@ calc_fs_internal <- function(X, index, metrics,
   
   # merge all
   merged_result <- Reduce(function(...) merge(...), result)
-  
+
   # if(area_cv){
   #   merged_result[, fs_area_cv:=fs_area_ha_sd / fs_area_ha_mean]
   # }
@@ -420,14 +420,16 @@ calc_fs_internal <- function(X, index, metrics,
   # }
   
   if(nnIndex){
+    if(verbose){ cat("  Calculating nearest neighbour index... \n")}
     nniDT <- fs_nnindex(X, index=indexZones, unit=controlUnits$distUnit)
-    
     # nniDT <- merged_result[, list(index, fs_nndist_m_mean, fs_count)]
     # nniDT <- merge(nniDT, zonalArea, by.x="index", by.y="zoneID")
     # nniDT[, fs_nnindex := fs_nndist_m_mean / (0.5 * sqrt(zoneArea / fs_count)), by=index]
     # units(nniDT$fs_nnindex) <- NULL
     
-    merged_result <- merge(merged_result, nniDT[, list(index, fs_nnindex)], by=index)
+    merged_result <- merge(merged_result, 
+                           nniDT[, list(index, fs_nnindex)], 
+                           by="index")
   }
   if(verbose){ cat("Finished calculating metrics. \n") }
   

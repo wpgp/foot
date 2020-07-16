@@ -353,6 +353,7 @@ process_tile <- function(mgTile, mgBuffTile,
     Xsub <- sf::st_read(X,
                         wkt_filter=wkt, 
                         quiet=!verbose)
+    if(verbose){ cat("\n") }
   }
 
   # remove empty geometries
