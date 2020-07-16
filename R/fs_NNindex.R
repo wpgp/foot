@@ -5,7 +5,8 @@
 #' @param X Spatial object with building footprints or their centroid locations.
 #' @param index A spatial polygon object of \code{sf} or \code{sp} type. If
 #'   omitted all observations in \code{X} are assumed to be within one zone and
-#'   the area of the bounding box is used for the nearest neighbour index.
+#'   the area of the minimum bounding circle is used for the nearest neighbour
+#'   index.
 #' @param unit character or \code{units} object to define distance. Default is
 #'   NULL
 #' @param col column name or index within \code{X} with pre-calculated distance
@@ -65,7 +66,7 @@ fs_nnindex.sf <- function(X, index=NULL, unit=NULL, col=NULL){
       }
     }
     
-    X[["fs_nndist"]] <- fs_nndist(X, unit=unit)
+    # X[["fs_nndist"]] <- fs_nndist(X, unit=unit)
     result <- fs_nnindex_calc(X, index, unit)
   }
   return(result)
@@ -73,19 +74,22 @@ fs_nnindex.sf <- function(X, index=NULL, unit=NULL, col=NULL){
 
 
 fs_nnindex_calc <- function(X, index, unit=NULL){
-  if(!"fs_nndist" %in% names(X)){
-    X[["fs_nndist"]] <- fs_nndist(X, unit)
-  }
-  
+  # if(!"fs_nndist" %in% names(X)){
+  #   X[["fs_nndist"]] <- fs_nndist(X, unit)
+  # }
+  # 
+  # need spatial zones
   if(is.null(index)){
     warning("No index found, treating as one group.")
     index <- rep(1, nrow(X))
     indexZones <- sf::st_sf(index=1, 
-                            geometry=sf::st_as_sfc(sf::st_bbox(X)), 
+                            #geometry=sf::st_as_sfc(sf::st_bbox(X)), 
+                            geometry=sf::st_as_sfc(lwgeom::st_minimum_bounding_circle(X)),
                             crs=sf::st_crs(X))
     X[['index']] <- 1
     zonalArea <- data.table::data.table(index=indexZones$index, 
-                                        zoneArea=fs_area(indexZones, unit="ha"))
+                                        zoneArea=fs_area(indexZones, 
+                                                         unit=paste0(unit, "^2"))
   } else{
     if(!inherits(index, "sf")){
       if(inherits(index, "Spatial")){
@@ -100,13 +104,24 @@ fs_nnindex_calc <- function(X, index, unit=NULL){
     X <- zonalIndex(X, index, returnObject=TRUE)
     
     zonalArea <- data.table::data.table(index=index$index, 
-                                        zoneArea=fs_area(index, unit="m^2"))
+                                        zoneArea=fs_area(index, 
+                                                         unit=paste0(unit, "^2")))
   }
   
-  meanDT <- fs_nndist_mean(X, index=X$zoneID, unit=unit, col="fs_nndist")
-  countDT <- fs_count(X, index=X$zoneID,)
-  
+  # get NN distance only within each zone
+  # use centroid points rather than polygon edge distances
+  X <- sf::st_set_geometry(X, sf::st_geometry(sf::st_centroid(X)))
+  xDT <- data.table::data.table(X)
+  meanDT <- xDT[, list(dist=mean(fs_nndist(sf::st_as_sf(.SD), 
+                                           maxSearch=NULL, 
+                                           unit=unit)) ), 
+                by="zoneID"]
+
   mCol <- paste0("fs_nndist_", unit, "_mean")
+  data.table::setnames(meanDT, c("index", mCol))
+  # meanDT <- fs_nndist_mean(X, index=X$zoneID, unit=unit, col="fs_nndist")
+  
+  countDT <- fs_count(X, index=X$zoneID)
   cCol <- "fs_count"
   
   DT <- merge(meanDT, countDT, by="index")
