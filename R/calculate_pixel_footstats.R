@@ -364,51 +364,51 @@ process_tile <- function(mgTile, mgBuffTile,
   
   # check for records
   if(nrow(Xsub) > 0){
-    # pre-calculate unit geometry measures
-    if(any(grepl("area", metrics, fixed=T)) | 
-       any(grepl("compact", metrics, fixed=T)) | 
-       !is.null(minArea) | !is.null(maxArea)){
-      if(!"fs_area" %in% names(Xsub)){
-        if(verbose){ cat("Pre-calculating footprint areas \n") }
-        Xsub[["fs_area"]] <- fs_area(Xsub, unit=controlUnits$areaUnit)
-      }
-    }
-    
-    if(any(grepl("perim", metrics, fixed=T)) | 
-       any(grepl("compact", metrics, fixed=T))){
-      if(!"fs_perim" %in% names(Xsub)){
-        if(verbose){ cat("Pre-calculating footprint perimeters \n")}
-        Xsub[["fs_perim"]] <- fs_perimeter(Xsub, unit=controlUnits$perimUnit)
-      }
-    }
-    
-    if(any(grepl("nndist", metrics, fixed=T))){
-      if(!"fs_nndist" %in% names(Xsub)){
-        if(verbose){ cat("Pre-calculating nearest neighbour distances \n") }
-        Xsub[["fs_nndist"]] <- fs_nndist(Xsub, unit=controlUnits$distUnit)
-      }
-    }
-    
-    if(any(grepl("angle", metrics, fixed=T))){
-      if(!"fs_angle" %in% names(Xsub)){
-        if(verbose){ cat("Pre-calculating angles \n") }
-        Xsub[["fs_angle"]] <- fs_mbr(Xsub)
-      }
-    }
-    
-    # filter records
-    if(!is.null(minArea)){
-      if(verbose) { cat(paste0("Filtering features larger than ", minArea," \n")) }
-      Xsub <- subset(Xsub, fs_area > units::as_units(minArea, 
-                                                     controlUnits$areaUnit))
-    }
-    
-    if(!is.null(maxArea)){
-      if(verbose) { cat(paste0("Filtering features smaller than ", maxArea," \n")) }
-      Xsub <- subset(Xsub, fs_area < units::as_units(maxArea, 
-                                                     controlUnits$areaUnit))
-    }
-    
+    # # pre-calculate unit geometry measures
+    # if(any(grepl("area", metrics, fixed=T)) |
+    #    any(grepl("compact", metrics, fixed=T)) |
+    #    !is.null(minArea) | !is.null(maxArea)){
+    #   if(!"fs_area" %in% names(Xsub)){
+    #     if(verbose){ cat("Pre-calculating footprint areas \n") }
+    #     Xsub[["fs_area"]] <- fs_area(Xsub, unit=controlUnits$areaUnit)
+    #   }
+    # }
+    # 
+    # if(any(grepl("perim", metrics, fixed=T)) |
+    #    any(grepl("compact", metrics, fixed=T))){
+    #   if(!"fs_perim" %in% names(Xsub)){
+    #     if(verbose){ cat("Pre-calculating footprint perimeters \n")}
+    #     Xsub[["fs_perim"]] <- fs_perimeter(Xsub, unit=controlUnits$perimUnit)
+    #   }
+    # }
+    # 
+    # if(any(grepl("nndist", metrics, fixed=T))){
+    #   if(!"fs_nndist" %in% names(Xsub)){
+    #     if(verbose){ cat("Pre-calculating nearest neighbour distances \n") }
+    #     Xsub[["fs_nndist"]] <- fs_nndist(Xsub, unit=controlUnits$distUnit)
+    #   }
+    # }
+    # 
+    # if(any(grepl("angle", metrics, fixed=T))){
+    #   if(!"fs_angle" %in% names(Xsub)){
+    #     if(verbose){ cat("Pre-calculating angles \n") }
+    #     Xsub[["fs_angle"]] <- fs_mbr(Xsub)
+    #   }
+    # }
+    # 
+    # # filter records
+    # if(!is.null(minArea)){
+    #   if(verbose) { cat(paste0("Filtering features larger than ", minArea," \n")) }
+    #   Xsub <- subset(Xsub, fs_area > units::as_units(minArea, 
+    #                                                  controlUnits$areaUnit))
+    # }
+    # 
+    # if(!is.null(maxArea)){
+    #   if(verbose) { cat(paste0("Filtering features smaller than ", maxArea," \n")) }
+    #   Xsub <- subset(Xsub, fs_area < units::as_units(maxArea, 
+    #                                                  controlUnits$areaUnit))
+    # }
+    # 
     if(nrow(Xsub) > 0){
       # read proxy to grid and convert to polygon object
       if(verbose){ cat("Reading template grid \n") }
