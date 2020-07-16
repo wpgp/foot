@@ -435,21 +435,23 @@ process_tile <- function(mgTile, mgBuffTile,
           mgPolyArea <- mgPoly
         }
         
-        # get index to pixels
-        if(verbose){ cat("Generating zonal index \n") }
-        Xsub <- zonalIndex(Xsub, zone=mgPolyArea, clip=clip, returnObject=TRUE)
-        # drop non-intersecting buildings
-        Xsub <- subset(Xsub, !is.na(zoneID))
-        if(is.null(Xsub) | nrow(Xsub) == 0){
-          return(NULL)
-        }
+        # # get index to pixels
+        # if(verbose){ cat("Generating zonal index \n") }
+        # Xsub <- zonalIndex(Xsub, zone=mgPolyArea, clip=clip, returnObject=TRUE)
+        # # drop non-intersecting buildings
+        # Xsub <- subset(Xsub, !is.na(zoneID))
+        # if(is.null(Xsub) | nrow(Xsub) == 0){
+        #   return(NULL)
+        # }
         # footprint statistics within the tile
         tileResults <- calculate_footstats(Xsub,
-                                           index="zoneID",
+                                           # index="zoneID",
+                                           index=mgPolyArea,
                                            metrics=metrics,
                                            minArea=minArea,
                                            maxArea=maxArea,
                                            controlUnits=controlUnits,
+                                           clip=clip,
                                            gridded=FALSE,
                                            verbose=verbose)
         # clean-up

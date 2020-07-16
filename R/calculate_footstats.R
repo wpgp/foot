@@ -230,7 +230,7 @@ calc_fs_internal <- function(X, index, metrics,
     stop("Polygons must have a spatial reference.")
   }
   
-  if(verbose){ cat("Creating index \n") }
+  if(verbose){ cat("Creating zonal index \n") }
   if(!is.null(index)){
     if(inherits(index, "sf")){
       if(any(sf::st_geometry_type(index) %in% c("POLYGON","MULTIPOLYGON"))){
