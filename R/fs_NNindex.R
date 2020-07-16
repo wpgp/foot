@@ -128,7 +128,7 @@ fs_nnindex_calc <- function(X, index, unit=NULL){
   DT <- merge(DT, zonalArea, by="index")
   
   DT[, fs_nnindex := get(mCol) / (0.5 * sqrt(zoneArea / get(cCol))), by=index]
-  units(nniDT$fs_nnindex) <- NULL
+  units(DT$fs_nnindex) <- NULL
   
   return(DT[, list(index, fs_nnindex)])
 }
