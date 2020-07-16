@@ -274,31 +274,16 @@ calc_fs_internal <- function(X, index, metrics,
     controlUnits[names(controlUnits) %in% names(providedUnits)] <- providedUnits
   }
   
-  # filter records
-  if(!is.null(minArea)){
-    if(verbose) { cat(paste0("Filtering features larger than ", minArea," \n")) }
-    X <- subset(X, fs_area > units::as_units(minArea, 
-                                             controlUnits$areaUnit))
-  }
-  
-  if(!is.null(maxArea)){
-    if(verbose) { cat(paste0("Filtering features smaller than ", maxArea," \n")) }
-    X <- subset(X, fs_area < units::as_units(maxArea, 
-                                             controlUnits$areaUnit))
-  }
-  
-  if(nrow(X) == 0){ # filter removed all?
-    return(NULL)
-  }
-  
-  if(verbose){ cat("Selectinig metrics \n") }
-  if(toupper(metrics[1]) == 'ALL'){
-    metrics <- get_fs_metrics("ALL")
-  }
-  
-  if(toupper(metrics[1]) == "NODIST"){
-    metrics <- get_fs_metrics("NODIST")
-  }
+  # select and expand list of metrics
+  if(verbose){ cat("Selecting metrics \n") }
+  metrics <- get_fs_metrics(short_names=metrics, group=metrics)
+  # if(toupper(metrics[1]) == 'ALL'){
+  #   metrics <- get_fs_metrics("ALL")
+  # }
+  # 
+  # if(toupper(metrics[1]) == "NODIST"){
+  #   metrics <- get_fs_metrics("NODIST")
+  # }
   
   # if(any(grepl("area_cv", metrics, fixed=T))){
   #   metrics <- c(metrics, "fs_area_mean", "fs_area_sd")
@@ -316,11 +301,11 @@ calc_fs_internal <- function(X, index, metrics,
   #   perim_cv <- FALSE
   # }
   
-  if(any(grepl("compact", metrics, fixed=T))){
-    compact <- TRUE
-  } else{
-    compact <- FALSE
-  }
+  # if(any(grepl("compact", metrics, fixed=T))){
+  #   compact <- TRUE
+  # } else{
+  #   compact <- FALSE
+  # }
   
   if(any(grepl("nnindex", metrics, fixed=T))){
     metrics <- c(metrics, "fs_nndist_mean", "fs_count")
@@ -346,14 +331,17 @@ calc_fs_internal <- function(X, index, metrics,
   }
   
   # pre-calculate unit geometry measures
-  if(any(grepl("area", metrics, fixed=T)) | compact==TRUE){
+  if(any(grepl("area", metrics, fixed=T)) |
+     any(grepl("compact", metrics, fixed=T)) |
+     !is.null(minArea) | !is.null(maxArea)){
     if(!"fs_area" %in% names(X)){
       if(verbose){ cat("Pre-calculating footprint areas \n") }
       X[["fs_area"]] <- fs_area(X, unit=controlUnits$areaUnit)
     }
   }
   
-  if(any(grepl("perim", metrics, fixed=T)) | compact==TRUE){
+  if(any(grepl("perim", metrics, fixed=T)) |
+     any(grepl("compact", metrics, fixed=T))){
     if(!"fs_perim" %in% names(X)){
       if(verbose){ cat("Pre-calculating footprint perimeters \n")}
       X[["fs_perim"]] <- fs_perimeter(X, unit=controlUnits$perimUnit)
@@ -372,6 +360,22 @@ calc_fs_internal <- function(X, index, metrics,
       if(verbose){ cat("Pre-calculating angles \n") }
       X[["fs_angle"]] <- fs_mbr(X)
     }
+  }
+  
+  # filter records
+  if(!is.null(minArea)){
+    if(verbose) { cat(paste0("Filtering features larger than ", minArea," \n")) }
+    X <- subset(X, fs_area > units::as_units(minArea, 
+                                             controlUnits$areaUnit))
+  }
+  
+  if(!is.null(maxArea)){
+    if(verbose) { cat(paste0("Filtering features smaller than ", maxArea," \n")) }
+    X <- subset(X, fs_area < units::as_units(maxArea, 
+                                             controlUnits$areaUnit))
+  }
+  if(nrow(X) == 0){ # filter removed all?
+    return(NULL)
   }
   
   # creating the names of the functions to call
