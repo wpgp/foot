@@ -239,6 +239,8 @@ calc_fs_internal <- function(X, index, metrics,
         
         X <- zonalIndex(X, index, returnObject=TRUE, clip=clip)
         index <- "zoneID"
+        # drop non-intersecting buildings
+        X <- subset(X, !is.na(zoneID))
       } else{
         warning("Index must be a polygon or a column name. Ignoring input.")
         index <- NULL
@@ -248,14 +250,13 @@ calc_fs_internal <- function(X, index, metrics,
       
     } else if(class(index) == "character"){
       index <- index[1]
+      if(!index %in% names(X)) stop("Index column not found in footprints.")
       
     } else{
       warning("Index must be a polygon or a column name/index. Ignoring input.")
       index <- rep(1, nrow(X))
     }
   }
-  # drop non-intersecting buildings
-  X <- subset(X, !is.na(zoneID))
   # check for empty zone intersection
   if(is.null(X) | nrow(X) == 0){
     return(NULL)
