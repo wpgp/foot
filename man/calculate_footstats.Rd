@@ -16,6 +16,7 @@ calculate_footstats(
   minArea = NULL,
   maxArea = NULL,
   controlUnits = NULL,
+  clip = FALSE,
   gridded = FALSE,
   template = NULL,
   outputPath = NULL,
@@ -31,6 +32,7 @@ calculate_footstats(
   minArea = NULL,
   maxArea = NULL,
   controlUnits = NULL,
+  clip = FALSE,
   gridded = FALSE,
   template = NULL,
   outputPath = NULL,
@@ -46,6 +48,7 @@ calculate_footstats(
   minArea = NULL,
   maxArea = NULL,
   controlUnits = NULL,
+  clip = FALSE,
   gridded = FALSE,
   template = NULL,
   outputPath = NULL,
@@ -61,6 +64,7 @@ calculate_footstats(
   minArea = NULL,
   maxArea = NULL,
   controlUnits = NULL,
+  clip = FALSE,
   gridded = FALSE,
   template = NULL,
   outputPath = NULL,
@@ -76,6 +80,7 @@ calculate_footstats(
   minArea = NULL,
   maxArea = NULL,
   controlUnits = NULL,
+  clip = FALSE,
   gridded = FALSE,
   template = NULL,
   outputPath = NULL,
@@ -91,6 +96,7 @@ calculate_footstats(
   minArea = NULL,
   maxArea = NULL,
   controlUnits = NULL,
+  clip = FALSE,
   gridded = FALSE,
   template = NULL,
   outputPath = NULL,
@@ -123,6 +129,9 @@ respectively.}
 \code{areaUnit}, \code{perimUnit}, and \code{distUnit}. The values for
 these items should be strings that can be coerced into a \code{units}
 object.}
+
+\item{clip}{(optional). Logical. Should polygons which span pixel zones be
+clipped? Default is \code{FALSE}.}
 
 \item{gridded}{Should a gridded output be created? Default \code{FALSE}.}
 

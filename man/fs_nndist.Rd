@@ -12,7 +12,7 @@ fs_nndist(X, Y, maxSearch = 100, unit = "m")
 \item{Y}{(Optional) Spatial object to measure distances to.}
 
 \item{maxSearch}{Maximum search radius around \code{X} to search. Distance in
-meters. Default is 1000.}
+meters. Default is 100.}
 
 \item{unit}{Character abbreviation for the units to return from the distance
 calculation.}

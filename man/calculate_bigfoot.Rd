@@ -100,7 +100,7 @@ these items should be strings that can be coerced into a \code{units}
 object.}
 
 \item{clip}{(optional). Logical. Should polygons which span pixel zones be
-clipped?}
+clipped? Default is \code{FALSE}.}
 
 \item{template}{(optional). When creating a gridded output, a supplied
 \code{stars} or \code{raster} dataset to align the data.}
