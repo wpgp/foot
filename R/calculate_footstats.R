@@ -237,7 +237,7 @@ calc_fs_internal <- function(X, index, metrics,
         indexZones <- index # make copy
         indexZones$index <- 1:nrow(indexZones)
         
-        X <- zonalIndex(X, index, returnObject=TRUE)
+        X <- zonalIndex(X, index, returnObject=TRUE, clip=clip)
         index <- "zoneID"
       } else{
         warning("Index must be a polygon or a column name. Ignoring input.")
@@ -253,6 +253,10 @@ calc_fs_internal <- function(X, index, metrics,
       warning("Index must be a polygon or a column name. Ignoring input.")
       index <- NULL
     }
+  }
+  # check for empty zone intersection
+  if(is.null(X) | nrow(X) == 0){
+    return(NULL)
   }
   
   # get full set of units - sort alphabetically to make matches
