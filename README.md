@@ -66,7 +66,8 @@ grid <- kampala$mastergrid
 ```
 
 The `foot` package provides tools to calculate and summarise building
-morphology measures at multiple scales. These include
+morphology measures at multiple scales. These include building-level
+measures.
 
 ``` r
 # building-level metrics
@@ -86,6 +87,8 @@ buildings$built_area <- fs_area(buildings,
 #> 5   137 POLYGON ((32.60786 0.344552... 349.57765 [m^2]
 #> 6   138 POLYGON ((32.60765 0.345604... 164.00931 [m^2]
 ```
+
+As well as area-level summaries.
 
 ``` r
 # Area-level summary metrics
@@ -109,6 +112,9 @@ admin_area <- fs_area_mean(building_zone,
 #> 6:     6  1021.9529 [m^2]
 ```
 
+Or gridded summary outputs, with the options to include a circular focal
+window.
+
 ``` r
 # calculated along a raster within a focal window
 gridded <- calculate_bigfoot(buildings, 
@@ -128,8 +134,10 @@ Rasters (or tables):
 
 1.  Binary settlement indicators
 2.  Counts of structures
-3.  Building area (total, mean, median, standard dev., coeff. var.)
-4.  Building perimeter (total, mean, median, standard dev., coeff. var.)
+3.  Building area (total, mean, median, min, max, standard dev., coeff.
+    var.)
+4.  Building perimeter (total, mean, median, min, max, standard dev.,
+    coeff. var.)
 5.  Nearest neighbour distance (mean, median, standard dev.)
 6.  Nearest neighbour index
 7.  Structure orientation angle (normalised entropy)
