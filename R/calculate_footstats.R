@@ -316,11 +316,11 @@ calc_fs_internal <- function(X, index, metrics,
     # metrics <- c(metrics, "fs_nndist_mean", "fs_count")
     metrics <- metrics[!grepl("nnindex", metrics)]
     nnIndex <- TRUE
-    
-    if(exists("indexZones")){
-      zonalArea <- data.table::data.table(index=indexZones$index, 
-                                          zoneArea=fs_area(indexZones, 
-                                                           unit=controlUnits$areaUnit))
+    # 
+    # if(exists("indexZones")){
+    #   zonalArea <- data.table::data.table(index=indexZones$index, 
+    #                                       zoneArea=fs_area(indexZones, 
+    #                                                        unit=controlUnits$areaUnit))
     } else{
       warnings("Nearest neighbour index requires zonal areas.")
       nnIndex <- FALSE
@@ -421,10 +421,12 @@ calc_fs_internal <- function(X, index, metrics,
   # }
   
   if(nnIndex){
-    nniDT <- merged_result[, list(index, fs_nndist_m_mean, fs_count)]
-    nniDT <- merge(nniDT, zonalArea, by.x="index", by.y="zoneID")
-    nniDT[, fs_nnindex := fs_nndist_m_mean / (0.5 * sqrt(zoneArea / fs_count)), by=index]
-    units(nniDT$fs_nnindex) <- NULL
+    nniDT <- fs_nnindex(X, index=indexZones, unit=controlUnits$distUnit)
+    
+    # nniDT <- merged_result[, list(index, fs_nndist_m_mean, fs_count)]
+    # nniDT <- merge(nniDT, zonalArea, by.x="index", by.y="zoneID")
+    # nniDT[, fs_nnindex := fs_nndist_m_mean / (0.5 * sqrt(zoneArea / fs_count)), by=index]
+    # units(nniDT$fs_nnindex) <- NULL
     
     merged_result <- merge(merged_result, nniDT[, list(index, fs_nnindex)], by=index)
   }
