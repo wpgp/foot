@@ -317,13 +317,12 @@ calc_fs_internal <- function(X, index, metrics,
     metrics <- metrics[!grepl("nnindex", metrics)]
     nnIndex <- TRUE
     # 
-    # if(exists("indexZones")){
+    if(!exists("indexZones")){
+      warning("Nearest neighbour index requires zonal areas.")
+      nnIndex <- FALSE
     #   zonalArea <- data.table::data.table(index=indexZones$index, 
     #                                       zoneArea=fs_area(indexZones, 
     #                                                        unit=controlUnits$areaUnit))
-    } else{
-      warnings("Nearest neighbour index requires zonal areas.")
-      nnIndex <- FALSE
     }
   } 
   

@@ -89,7 +89,7 @@ fs_nnindex_calc <- function(X, index, unit=NULL){
     X[['index']] <- 1
     zonalArea <- data.table::data.table(index=indexZones$index, 
                                         zoneArea=fs_area(indexZones, 
-                                                         unit=paste0(unit, "^2"))
+                                                         unit=paste0(unit, "^2")))
   } else{
     if(!inherits(index, "sf")){
       if(inherits(index, "Spatial")){
