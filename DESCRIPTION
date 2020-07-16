@@ -1,6 +1,6 @@
 Package: foot
 Title: A package for processing building footprints
-Version: 0.3.1
+Version: 0.4
 Date: 2020-07-16
 Authors@R: 
 	c(person(given="WorldPop Research Group, University of Southampton", 
