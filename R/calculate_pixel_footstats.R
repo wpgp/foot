@@ -21,7 +21,7 @@
 #'   these items should be strings that can be coerced into a \code{units}
 #'   object.
 #' @param clip (optional). Logical. Should polygons which span pixel zones be
-#'   clipped?
+#'   clipped? Default is \code{FALSE}.
 #' @param template (optional). When creating a gridded output, a supplied
 #'   \code{stars} or \code{raster} dataset to align the data.
 #' @param parallel logical. Should a parallel backend be used to process the
@@ -424,6 +424,7 @@ process_tile <- function(mgTile, mgBuffTile,
             aoi <- sf::st_as_sfc(sf::st_bbox(mgPoly))
             zn <- suggestUTMzone(sf::st_coordinates(sf::st_centroid(aoi)))
             mgPolyArea <- sf::st_transform(mgPoly, crs=zn)
+            # circular buffer around centre point
             mgPolyArea <- sf::st_buffer(sf::st_centroid(mgPolyArea), 
                                         dist=focalRadius)
             mgPolyArea <- sf::st_transform(mgPolyArea, crs=sf::st_crs(mgPoly))
@@ -436,7 +437,7 @@ process_tile <- function(mgTile, mgBuffTile,
         
         # get index to pixels
         if(verbose){ cat("Generating zonal index \n") }
-        Xsub <- zonalIndex(Xsub, zone=mgPolyArea, clip=clip)
+        Xsub <- zonalIndex(Xsub, zone=mgPolyArea, clip=clip, returnObject=TRUE)
         # drop non-intersecting buildings
         Xsub <- subset(Xsub, !is.na(zoneID))
         if(is.null(Xsub) | nrow(Xsub) == 0){

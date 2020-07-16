@@ -20,6 +20,8 @@
 #'   \code{areaUnit}, \code{perimUnit}, and \code{distUnit}. The values for
 #'   these items should be strings that can be coerced into a \code{units}
 #'   object.
+#' @param clip (optional). Logical. Should polygons which span pixel zones be
+#'   clipped? Default is \code{FALSE}. 
 #' @param gridded Should a gridded output be created? Default \code{FALSE}.
 #' @param template (optional). When creating a gridded output, a supplied
 #'   \code{stars} or \code{raster} dataset to align the data.
@@ -46,6 +48,7 @@ calculate_footstats <- function(X,
                                 minArea=NULL,
                                 maxArea=NULL,
                                 controlUnits=NULL,
+                                clip=FALSE,
                                 gridded=FALSE, 
                                 template=NULL,
                                 outputPath=NULL,
@@ -59,6 +62,7 @@ calculate_footstats.sf <- function(X, index=NULL, metrics='all',
                                    minArea=NULL,
                                    maxArea=NULL,
                                    controlUnits=NULL,
+                                   clip=FALSE,
                                    gridded=FALSE, template=NULL, 
                                    outputPath=NULL, 
                                    outputTag=NULL,
@@ -71,7 +75,7 @@ calculate_footstats.sf <- function(X, index=NULL, metrics='all',
   }
   
   result <- calc_fs_internal(X, index, metrics, minArea, maxArea,
-                             controlUnits, gridded, 
+                             controlUnits, clip, gridded, 
                              template, outputPath, outputTag, driver, verbose)
   
   return(result)
@@ -84,6 +88,7 @@ calculate_footstats.sfc <- function(X, index=NULL, metrics='all',
                                     minArea=NULL,
                                     maxArea=NULL,
                                     controlUnits=NULL,
+                                    clip=FALSE,
                                     gridded=FALSE, template=NULL, 
                                     outputPath=NULL, 
                                     outputTag=NULL,
@@ -95,6 +100,7 @@ calculate_footstats.sfc <- function(X, index=NULL, metrics='all',
   result <- calculate_footstats(X, index=index, metrics=metrics, 
                                 minArea=minArea, maxArea=maxArea,
                                 controlUnits=controlUnits,
+                                clip=clip,
                                 gridded=gridded, template=template, 
                                 outputPath=outputPath, 
                                 outputTag=outputTag,
@@ -110,6 +116,7 @@ calculate_footstats.sp <- function(X, index=NULL, metrics='all',
                                    minArea=NULL,
                                    maxArea=NULL,
                                    controlUnits=NULL,
+                                   clip=FALSE,
                                    gridded=FALSE, template=NULL, 
                                    outputPath=NULL, 
                                    outputTag=NULL,
@@ -120,7 +127,7 @@ calculate_footstats.sp <- function(X, index=NULL, metrics='all',
   
   result <- calculate_footstats(X, index=index, metrics=metrics, 
                                 minArea=minArea, maxArea=maxArea,
-                                controlUnits=controlUnits,
+                                controlUnits=controlUnits, clip=clip,
                                 gridded=gridded, template=template, 
                                 outputPath=outputPath, 
                                 outputTag=outputTag,
@@ -136,6 +143,7 @@ calculate_footstats.character <- function(X, index=NULL, metrics='all',
                                           minArea=NULL,
                                           maxArea=NULL,
                                           controlUnits=NULL,
+                                          clip=FALSE,
                                           gridded=FALSE, template=NULL, 
                                           outputPath=NULL, 
                                           outputTag=NULL,
@@ -147,6 +155,7 @@ calculate_footstats.character <- function(X, index=NULL, metrics='all',
   result <- calculate_footstats(X, index=index, metrics=metrics, 
                                 minArea, maxArea,
                                 controlUnits=controlUnits,
+                                clip=clip,
                                 gridded=gridded, template=template, 
                                 outputPath=outputPath, 
                                 outputTag=outputTag,
@@ -162,6 +171,7 @@ calculate_footstats.list <- function(X, index=NULL, metrics='all',
                                      minArea=NULL,
                                      maxArea=NULL,
                                      controlUnits=NULL,
+                                     clip=FALSE,
                                      gridded=FALSE, template=NULL, 
                                      outputPath=NULL, 
                                      outputTag=NULL,
@@ -183,7 +193,7 @@ calculate_footstats.list <- function(X, index=NULL, metrics='all',
   # expand other arguments - recycling values
   args <- list(index=index, metrics=metrics, 
                minArea=minArea, maxArea=maxArea,
-               controlUnits=controlUnits, 
+               controlUnits=controlUnits, clip=clip,
                gridded=gridded, template=template, 
                outputPath=outputPath, driver=driver, 
                verbose=verbose)
@@ -197,6 +207,7 @@ calculate_footstats.list <- function(X, index=NULL, metrics='all',
                         minArea=args$minArea[i],
                         maxArea=args$maxArea[i],
                         controlUnits=args$controlUnits[i],
+                        clip=args$clip[i],
                         gridded=args$gridded[i], 
                         template=args$template[i],
                         outputPath=args$outputPath[i], 
@@ -211,7 +222,7 @@ calculate_footstats.list <- function(X, index=NULL, metrics='all',
 
 calc_fs_internal <- function(X, index, metrics, 
                              minArea, maxArea,
-                             controlUnits,
+                             controlUnits, clip,
                              gridded, template, 
                              outputPath, outputTag, driver, verbose){
   
@@ -376,7 +387,9 @@ calc_fs_internal <- function(X, index, metrics,
     arguments <- names(formals(func))
 
     tryCatch(do.call(what=func,
-                     args=mget(arguments, envir=parent.env(environment()), ifnotfound=list(NULL))
+                     args=mget(arguments, 
+                               envir=parent.env(environment()), 
+                               ifnotfound=list(NULL))
                     ),
              error = function(e){
                message("")
