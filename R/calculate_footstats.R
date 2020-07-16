@@ -232,6 +232,9 @@ calc_fs_internal <- function(X, index, metrics,
   
   if(verbose){ cat("Creating zonal index \n") }
   if(!is.null(index)){
+    if(inherits(index, "Spatial")){
+      index <- sf::st_as_sf(index)
+    }
     if(inherits(index, "sf")){
       if(any(sf::st_geometry_type(index) %in% c("POLYGON","MULTIPOLYGON"))){
         indexZones <- index # make copy
@@ -239,12 +242,12 @@ calc_fs_internal <- function(X, index, metrics,
         
         X <- zonalIndex(X, index, returnObject=TRUE, clip=clip)
         index <- "zoneID"
-        # drop non-intersecting buildings
-        X <- subset(X, !is.na(zoneID))
       } else{
         warning("Index must be a polygon or a column name. Ignoring input.")
         index <- NULL
       }
+      # drop non-intersecting buildings
+      X <- subset(X, !is.na(zoneID))
     } else if(class(index) == "numeric"){
       if(length(index) != nrow(X)) stop("Index length does not match footprints.")
       
