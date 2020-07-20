@@ -463,6 +463,10 @@ process_tile <- function(mgTile, mgBuffTile,
         # clean-up
         rm(Xsub)
         
+        # check for errors in the return
+        if(is.null(tileResults)){
+          return(NULL)
+        }
         # store results tile calculations
         mgPoly <- merge(mgPoly, 
                         tileResults, 
