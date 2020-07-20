@@ -243,7 +243,7 @@ calc_fs_internal <- function(X, index, metrics,
         X <- zonalIndex(X, index, returnObject=TRUE, clip=clip)
         index <- "zoneID"
         # check for no intersecting
-        if(is.null(X) | nrow(X) == 0){
+        if(is.null(X)){
           return(NULL)
         }
       } else{
@@ -253,7 +253,7 @@ calc_fs_internal <- function(X, index, metrics,
       # drop non-intersecting buildings
       X <- subset(X, !is.na(zoneID))
       # check for no intersecting
-      if(is.null(X) | nrow(X) == 0){
+      if(nrow(X) == 0){
         return(NULL)
       }
     } else if(class(index) == "numeric"){
