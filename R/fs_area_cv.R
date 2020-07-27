@@ -65,17 +65,18 @@ fs_area_cv_calc <- function(X, index, unit=NULL){
   if(is.null(index)){
     warning("No index found, treating as one group.")
     index <- rep(1, nrow(X))
-  } else{
-    if(length(index)==1){
-      if((is.numeric(index) & index <= ncol(X)) | 
-         (is.character(index) & index %in% names(X))){
-        index <- X[[index]]
-      }
-    } else if(length(index) != nrow(X)){
-      message("Invalid index")
-      stop()
-    }
   } 
+  # else{
+  #   if(length(index)==1){
+  #     if((is.numeric(index) & index <= ncol(X)) | 
+  #        (is.character(index) & index %in% names(X))){
+  #       index <- X[[index]]
+  #     }
+  #   } else if(length(index) != nrow(X)){
+  #     message("Invalid index")
+  #     stop()
+  #   }
+  # } 
   
   meanDT <- fs_area_mean(X, index=index, unit=unit, col="fs_area")
   sdDT <- fs_area_sd(X, index=index, unit=unit, col="fs_area")
@@ -85,6 +86,7 @@ fs_area_cv_calc <- function(X, index, unit=NULL){
   
   DT <- merge(meanDT, sdDT, by="index")
   DT[, area_calc := get(sdCol) / get(mCol), by=index]
+  DT[, area_calc := units::drop_units(area_calc)]
   
   colNam <- "fs_area_cv"
   data.table::setkey(DT, index)

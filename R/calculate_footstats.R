@@ -20,6 +20,8 @@
 #'   \code{areaUnit}, \code{perimUnit}, and \code{distUnit}. The values for
 #'   these items should be strings that can be coerced into a \code{units}
 #'   object.
+#' @param clip (optional). Logical. Should polygons which span pixel zones be
+#'   clipped? Default is \code{FALSE}. 
 #' @param gridded Should a gridded output be created? Default \code{FALSE}.
 #' @param template (optional). When creating a gridded output, a supplied
 #'   \code{stars} or \code{raster} dataset to align the data.
@@ -46,6 +48,7 @@ calculate_footstats <- function(X,
                                 minArea=NULL,
                                 maxArea=NULL,
                                 controlUnits=NULL,
+                                clip=FALSE,
                                 gridded=FALSE, 
                                 template=NULL,
                                 outputPath=NULL,
@@ -59,6 +62,7 @@ calculate_footstats.sf <- function(X, index=NULL, metrics='all',
                                    minArea=NULL,
                                    maxArea=NULL,
                                    controlUnits=NULL,
+                                   clip=FALSE,
                                    gridded=FALSE, template=NULL, 
                                    outputPath=NULL, 
                                    outputTag=NULL,
@@ -71,7 +75,7 @@ calculate_footstats.sf <- function(X, index=NULL, metrics='all',
   }
   
   result <- calc_fs_internal(X, index, metrics, minArea, maxArea,
-                             controlUnits, gridded, 
+                             controlUnits, clip, gridded, 
                              template, outputPath, outputTag, driver, verbose)
   
   return(result)
@@ -84,6 +88,7 @@ calculate_footstats.sfc <- function(X, index=NULL, metrics='all',
                                     minArea=NULL,
                                     maxArea=NULL,
                                     controlUnits=NULL,
+                                    clip=FALSE,
                                     gridded=FALSE, template=NULL, 
                                     outputPath=NULL, 
                                     outputTag=NULL,
@@ -95,6 +100,7 @@ calculate_footstats.sfc <- function(X, index=NULL, metrics='all',
   result <- calculate_footstats(X, index=index, metrics=metrics, 
                                 minArea=minArea, maxArea=maxArea,
                                 controlUnits=controlUnits,
+                                clip=clip,
                                 gridded=gridded, template=template, 
                                 outputPath=outputPath, 
                                 outputTag=outputTag,
@@ -110,6 +116,7 @@ calculate_footstats.sp <- function(X, index=NULL, metrics='all',
                                    minArea=NULL,
                                    maxArea=NULL,
                                    controlUnits=NULL,
+                                   clip=FALSE,
                                    gridded=FALSE, template=NULL, 
                                    outputPath=NULL, 
                                    outputTag=NULL,
@@ -120,7 +127,7 @@ calculate_footstats.sp <- function(X, index=NULL, metrics='all',
   
   result <- calculate_footstats(X, index=index, metrics=metrics, 
                                 minArea=minArea, maxArea=maxArea,
-                                controlUnits=controlUnits,
+                                controlUnits=controlUnits, clip=clip,
                                 gridded=gridded, template=template, 
                                 outputPath=outputPath, 
                                 outputTag=outputTag,
@@ -136,6 +143,7 @@ calculate_footstats.character <- function(X, index=NULL, metrics='all',
                                           minArea=NULL,
                                           maxArea=NULL,
                                           controlUnits=NULL,
+                                          clip=FALSE,
                                           gridded=FALSE, template=NULL, 
                                           outputPath=NULL, 
                                           outputTag=NULL,
@@ -147,6 +155,7 @@ calculate_footstats.character <- function(X, index=NULL, metrics='all',
   result <- calculate_footstats(X, index=index, metrics=metrics, 
                                 minArea, maxArea,
                                 controlUnits=controlUnits,
+                                clip=clip,
                                 gridded=gridded, template=template, 
                                 outputPath=outputPath, 
                                 outputTag=outputTag,
@@ -162,6 +171,7 @@ calculate_footstats.list <- function(X, index=NULL, metrics='all',
                                      minArea=NULL,
                                      maxArea=NULL,
                                      controlUnits=NULL,
+                                     clip=FALSE,
                                      gridded=FALSE, template=NULL, 
                                      outputPath=NULL, 
                                      outputTag=NULL,
@@ -183,7 +193,7 @@ calculate_footstats.list <- function(X, index=NULL, metrics='all',
   # expand other arguments - recycling values
   args <- list(index=index, metrics=metrics, 
                minArea=minArea, maxArea=maxArea,
-               controlUnits=controlUnits, 
+               controlUnits=controlUnits, clip=clip,
                gridded=gridded, template=template, 
                outputPath=outputPath, driver=driver, 
                verbose=verbose)
@@ -197,6 +207,7 @@ calculate_footstats.list <- function(X, index=NULL, metrics='all',
                         minArea=args$minArea[i],
                         maxArea=args$maxArea[i],
                         controlUnits=args$controlUnits[i],
+                        clip=args$clip[i],
                         gridded=args$gridded[i], 
                         template=args$template[i],
                         outputPath=args$outputPath[i], 
@@ -211,7 +222,7 @@ calculate_footstats.list <- function(X, index=NULL, metrics='all',
 
 calc_fs_internal <- function(X, index, metrics, 
                              minArea, maxArea,
-                             controlUnits,
+                             controlUnits, clip,
                              gridded, template, 
                              outputPath, outputTag, driver, verbose){
   
@@ -219,29 +230,47 @@ calc_fs_internal <- function(X, index, metrics,
     stop("Polygons must have a spatial reference.")
   }
   
-  if(verbose){ cat("Creating index \n") }
+  if(verbose){ cat("Creating zonal index \n") }
   if(!is.null(index)){
+    if(inherits(index, "Spatial")){
+      index <- sf::st_as_sf(index)
+    }
     if(inherits(index, "sf")){
       if(any(sf::st_geometry_type(index) %in% c("POLYGON","MULTIPOLYGON"))){
         indexZones <- index # make copy
         indexZones$index <- 1:nrow(indexZones)
         
-        X <- zonalIndex(X, index, returnObject=TRUE)
+        X <- zonalIndex(X, index, returnObject=TRUE, clip=clip)
         index <- "zoneID"
+        # check for no intersecting
+        if(is.null(X)){
+          return(NULL)
+        }
       } else{
         warning("Index must be a polygon or a column name. Ignoring input.")
         index <- NULL
+      }
+      # drop non-intersecting buildings
+      X <- subset(X, !is.na(zoneID))
+      # check for no intersecting
+      if(nrow(X) == 0){
+        return(NULL)
       }
     } else if(class(index) == "numeric"){
       if(length(index) != nrow(X)) stop("Index length does not match footprints.")
       
     } else if(class(index) == "character"){
       index <- index[1]
+      if(!index %in% names(X)) stop("Index column not found in footprints.")
       
     } else{
-      warning("Index must be a polygon or a column name. Ignoring input.")
-      index <- NULL
+      warning("Index must be a polygon or a column name/index. Ignoring input.")
+      index <- rep(1, nrow(X))
     }
+  }
+  # check for empty zone intersection
+  if(is.null(X) | nrow(X) == 0){
+    return(NULL)
   }
   
   # get full set of units - sort alphabetically to make matches
@@ -257,31 +286,16 @@ calc_fs_internal <- function(X, index, metrics,
     controlUnits[names(controlUnits) %in% names(providedUnits)] <- providedUnits
   }
   
-  # filter records
-  if(!is.null(minArea)){
-    if(verbose) { cat(paste0("Filtering features larger than ", minArea," \n")) }
-    X <- subset(X, fs_area > units::as_units(minArea, 
-                                             controlUnits$areaUnit))
-  }
-  
-  if(!is.null(maxArea)){
-    if(verbose) { cat(paste0("Filtering features smaller than ", maxArea," \n")) }
-    X <- subset(X, fs_area < units::as_units(maxArea, 
-                                             controlUnits$areaUnit))
-  }
-  
-  if(nrow(X) == 0){ # filter removed all?
-    return(NULL)
-  }
-  
-  if(verbose){ cat("Selectinig metrics \n") }
-  if(toupper(metrics[1]) == 'ALL'){
-    metrics <- get_fs_metrics("ALL")
-  }
-  
-  if(toupper(metrics[1]) == "NODIST"){
-    metrics <- get_fs_metrics("NODIST")
-  }
+  # select and expand list of metrics
+  if(verbose){ cat("Selecting metrics \n") }
+  metrics <- get_fs_metrics(short_names=metrics, group=metrics)
+  # if(toupper(metrics[1]) == 'ALL'){
+  #   metrics <- get_fs_metrics("ALL")
+  # }
+  # 
+  # if(toupper(metrics[1]) == "NODIST"){
+  #   metrics <- get_fs_metrics("NODIST")
+  # }
   
   # if(any(grepl("area_cv", metrics, fixed=T))){
   #   metrics <- c(metrics, "fs_area_mean", "fs_area_sd")
@@ -299,44 +313,43 @@ calc_fs_internal <- function(X, index, metrics,
   #   perim_cv <- FALSE
   # }
   
-  if(any(grepl("compact", metrics, fixed=T))){
-    compact <- TRUE
-  } else{
-    compact <- FALSE
-  }
+  # if(any(grepl("compact", metrics, fixed=T))){
+  #   compact <- TRUE
+  # } else{
+  #   compact <- FALSE
+  # }
   
+  nnIndex <- FALSE
   if(any(grepl("nnindex", metrics, fixed=T))){
-    metrics <- c(metrics, "fs_nndist_mean", "fs_count")
+    # metrics <- c(metrics, "fs_nndist_mean", "fs_count")
     metrics <- metrics[!grepl("nnindex", metrics)]
     nnIndex <- TRUE
-    
-    if(exists("indexZones")){
-      zonalArea <- data.table::data.table(index=indexZones$index, 
-                                          zoneArea=fs_area(indexZones, unit="m^2"))
-    } else{
-      warnings("Nearest neighbour index requires zonal areas.")
+    # 
+    if(!exists("indexZones")){
+      warning("Nearest neighbour index requires zonal areas.")
       nnIndex <- FALSE
-      # zoneAreas <- fs_area(sf::st_as_sfc(sf::st_bbox(X), crs=sf::st_crs(X)))
-      # zonalArea <- data.table(zoneID=1:length(zoneAreas), zoneArea=zoneAreas)
+    #   zonalArea <- data.table::data.table(index=indexZones$index, 
+    #                                       zoneArea=fs_area(indexZones, 
+    #                                                        unit=controlUnits$areaUnit))
     }
-    
-  } else{
-    nnIndex <- FALSE
-  }
+  } 
   
   if(any(grepl("angle", metrics, fixed=T))){
     normalize <- TRUE
   }
   
   # pre-calculate unit geometry measures
-  if(any(grepl("area", metrics, fixed=T)) | compact==TRUE){
+  if(any(grepl("area", metrics, fixed=T)) |
+     any(grepl("compact", metrics, fixed=T)) |
+     !is.null(minArea) | !is.null(maxArea)){
     if(!"fs_area" %in% names(X)){
       if(verbose){ cat("Pre-calculating footprint areas \n") }
       X[["fs_area"]] <- fs_area(X, unit=controlUnits$areaUnit)
     }
   }
   
-  if(any(grepl("perim", metrics, fixed=T)) | compact==TRUE){
+  if(any(grepl("perim", metrics, fixed=T)) |
+     any(grepl("compact", metrics, fixed=T))){
     if(!"fs_perim" %in% names(X)){
       if(verbose){ cat("Pre-calculating footprint perimeters \n")}
       X[["fs_perim"]] <- fs_perimeter(X, unit=controlUnits$perimUnit)
@@ -355,6 +368,22 @@ calc_fs_internal <- function(X, index, metrics,
       if(verbose){ cat("Pre-calculating angles \n") }
       X[["fs_angle"]] <- fs_mbr(X)
     }
+  }
+  
+  # filter records
+  if(!is.null(minArea)){
+    if(verbose) { cat(paste0("Filtering features larger than ", minArea," \n")) }
+    X <- subset(X, fs_area > units::as_units(minArea, 
+                                             controlUnits$areaUnit))
+  }
+  
+  if(!is.null(maxArea)){
+    if(verbose) { cat(paste0("Filtering features smaller than ", maxArea," \n")) }
+    X <- subset(X, fs_area < units::as_units(maxArea, 
+                                             controlUnits$areaUnit))
+  }
+  if(nrow(X) == 0){ # filter removed all?
+    return(NULL)
   }
   
   # creating the names of the functions to call
@@ -376,7 +405,9 @@ calc_fs_internal <- function(X, index, metrics,
     arguments <- names(formals(func))
 
     tryCatch(do.call(what=func,
-                     args=mget(arguments, envir=parent.env(environment()), ifnotfound=list(NULL))
+                     args=mget(arguments, 
+                               envir=parent.env(environment()), 
+                               ifnotfound=list(NULL))
                     ),
              error = function(e){
                message("")
@@ -387,7 +418,7 @@ calc_fs_internal <- function(X, index, metrics,
   
   # merge all
   merged_result <- Reduce(function(...) merge(...), result)
-  
+
   # if(area_cv){
   #   merged_result[, fs_area_cv:=fs_area_ha_sd / fs_area_ha_mean]
   # }
@@ -397,12 +428,16 @@ calc_fs_internal <- function(X, index, metrics,
   # }
   
   if(nnIndex){
-    nniDT <- merged_result[, list(index, fs_nndist_m_mean, fs_count)]
-    nniDT <- merge(nniDT, zonalArea, by.x="index", by.y="zoneID")
-    nniDT[, fs_nnindex := fs_nndist_m_mean / (0.5 * sqrt(zoneArea / fs_count)), by=index]
-    units(nniDT$fs_nnindex) <- NULL
+    if(verbose){ cat("  Calculating nearest neighbour index... \n")}
+    nniDT <- fs_nnindex(X, index=indexZones, unit=controlUnits$distUnit)
+    # nniDT <- merged_result[, list(index, fs_nndist_m_mean, fs_count)]
+    # nniDT <- merge(nniDT, zonalArea, by.x="index", by.y="zoneID")
+    # nniDT[, fs_nnindex := fs_nndist_m_mean / (0.5 * sqrt(zoneArea / fs_count)), by=index]
+    # units(nniDT$fs_nnindex) <- NULL
     
-    merged_result <- merge(merged_result, nniDT[, list(index, fs_nnindex)], by=index)
+    merged_result <- merge(merged_result, 
+                           nniDT[, list(index, fs_nnindex)], 
+                           by="index")
   }
   if(verbose){ cat("Finished calculating metrics. \n") }
   

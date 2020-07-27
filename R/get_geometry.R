@@ -117,25 +117,26 @@ fs_shape <- function(X){
     X <- sf::st_as_sf(X)
   }
   
-  if(!"fs_area" %in% names(X)){
-    if(any(!sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON"))){
-      stop("Area requires polygons")
-    } else{
-      X[["fs_area"]] <- fs_area(X, unit="m^2")
-    }
-  }
-  
   if(any(!sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON"))){
-    stop("Area requires polygons")
+    stop("Shape index requires polygons")
+  } 
+  
+  if(!"fs_area" %in% names(X)){
+    X[["fs_area"]] <- fs_area(X, unit="m^2")
   } else{
-    mbc <- fs_mbc(X)
-    mbcA <- fs_area(mbc, unit="m^2")
+    units(X$fs_area) <- units::as_units("m^2")
   }
   
-  shapeIdx <- X[["fs_area"]] / mbcA
-  units(shapeIdx) <- NULL
+  DT <- data.table::data.table(sf::st_drop_geometry(X),
+                               geom=sf::st_geometry(X))
   
-  return(shapeIdx)
+  DT[, mbc := fs_mbc(geom)]
+  DT[, mbcA := fs_area(mbc, unit="m^2")]
+  # calculate index
+  DT[, shapeIdx := fs_area / mbcA]
+  units(DT$shapeIdx) <- NULL
+  
+  return(DT[["shapeIdx"]])
 }
 
 

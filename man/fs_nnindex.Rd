@@ -17,7 +17,8 @@ fs_nnindex(X, index = NULL, unit = NULL, col = NULL)
 
 \item{index}{A spatial polygon object of \code{sf} or \code{sp} type. If
 omitted all observations in \code{X} are assumed to be within one zone and
-the area of the bounding box is used for the nearest neighbour index.}
+the area of the minimum bounding circle is used for the nearest neighbour
+index.}
 
 \item{unit}{character or \code{units} object to define distance. Default is
 NULL}

@@ -22,7 +22,7 @@ suggestUTMzone <- function(pt){
 #' @param X Spatial object of \code{sf} type, typically polygons or points.
 #' @param Y (Optional) Spatial object to measure distances to.
 #' @param maxSearch Maximum search radius around \code{X} to search. Distance in
-#'   meters. Default is 1000.
+#'   meters. Default is 100.
 #' @param unit Character abbreviation for the units to return from the distance
 #'   calculation.
 #'

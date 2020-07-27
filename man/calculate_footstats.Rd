@@ -16,7 +16,8 @@ calculate_footstats(
   minArea = NULL,
   maxArea = NULL,
   controlUnits = NULL,
-  gridded = TRUE,
+  clip = FALSE,
+  gridded = FALSE,
   template = NULL,
   outputPath = NULL,
   outputTag = NULL,
@@ -31,7 +32,8 @@ calculate_footstats(
   minArea = NULL,
   maxArea = NULL,
   controlUnits = NULL,
-  gridded = TRUE,
+  clip = FALSE,
+  gridded = FALSE,
   template = NULL,
   outputPath = NULL,
   outputTag = NULL,
@@ -46,7 +48,8 @@ calculate_footstats(
   minArea = NULL,
   maxArea = NULL,
   controlUnits = NULL,
-  gridded = TRUE,
+  clip = FALSE,
+  gridded = FALSE,
   template = NULL,
   outputPath = NULL,
   outputTag = NULL,
@@ -61,7 +64,8 @@ calculate_footstats(
   minArea = NULL,
   maxArea = NULL,
   controlUnits = NULL,
-  gridded = TRUE,
+  clip = FALSE,
+  gridded = FALSE,
   template = NULL,
   outputPath = NULL,
   outputTag = NULL,
@@ -76,7 +80,8 @@ calculate_footstats(
   minArea = NULL,
   maxArea = NULL,
   controlUnits = NULL,
-  gridded = TRUE,
+  clip = FALSE,
+  gridded = FALSE,
   template = NULL,
   outputPath = NULL,
   outputTag = NULL,
@@ -91,7 +96,8 @@ calculate_footstats(
   minArea = NULL,
   maxArea = NULL,
   controlUnits = NULL,
-  gridded = TRUE,
+  clip = FALSE,
+  gridded = FALSE,
   template = NULL,
   outputPath = NULL,
   outputTag = NULL,
@@ -124,7 +130,10 @@ respectively.}
 these items should be strings that can be coerced into a \code{units}
 object.}
 
-\item{gridded}{Should a gridded output be created? Default \code{TRUE}.}
+\item{clip}{(optional). Logical. Should polygons which span pixel zones be
+clipped? Default is \code{FALSE}.}
+
+\item{gridded}{Should a gridded output be created? Default \code{FALSE}.}
 
 \item{template}{(optional). When creating a gridded output, a supplied
 \code{stars} or \code{raster} dataset to align the data.}

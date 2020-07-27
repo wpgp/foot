@@ -26,6 +26,10 @@ get_fs_metrics <- function(short_names, group=NULL){
   which_rows <- NULL
   if(!missing(short_names)){
     metrics <- tolower(short_names)
+    # clean back to short names
+    metrics <- gsub("fs_", "", metrics, fixed=T)
+    metrics <- gsub("_calc", "", metrics, fixed=T)
+    
     if("all" %in% metrics) {
       return(list_fs("name"))
     }

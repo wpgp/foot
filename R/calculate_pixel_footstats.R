@@ -21,7 +21,7 @@
 #'   these items should be strings that can be coerced into a \code{units}
 #'   object.
 #' @param clip (optional). Logical. Should polygons which span pixel zones be
-#'   clipped?
+#'   clipped? Default is \code{FALSE}.
 #' @param template (optional). When creating a gridded output, a supplied
 #'   \code{stars} or \code{raster} dataset to align the data.
 #' @param parallel logical. Should a parallel backend be used to process the
@@ -33,6 +33,8 @@
 #'   location of the output. Default is the temp directory.
 #' @param outputTag (optional). A character string that will be added to the
 #'   beginning of the output name for the gridded files.
+#' @param tries (optional). The number of attempts to write a tile to the output
+#'   file. Default is 100.
 #' @param verbose logical. Should progress messages be printed. Default
 #'   \code{False}.
 #' 
@@ -74,6 +76,7 @@ calculate_bigfoot <- function(X,
                               nCores=max(1, parallel::detectCores()-1),
                               outputPath=tempdir(),
                               outputTag=NULL,
+                              tries=100,
                               verbose=FALSE) UseMethod("calculate_bigfoot")
 
 
@@ -92,6 +95,7 @@ calculate_bigfoot.sf <- function(X,
                                  nCores=max(1, parallel::detectCores()-1),
                                  outputPath=tempdir(),
                                  outputTag=NULL,
+                                 tries=100,
                                  verbose=FALSE){
 
   if(any(!sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON") )){
@@ -102,7 +106,7 @@ calculate_bigfoot.sf <- function(X,
   result <- calc_fs_px_internal(X, metrics, focalRadius, 
                                 minArea, maxArea, controlUnits, clip,
                                 template, tileSize, parallel, nCores,
-                                outputPath, outputTag, verbose)
+                                outputPath, outputTag, tries, verbose)
   
   invisible(result)
 }
@@ -123,6 +127,7 @@ calculate_bigfoot.sp <- function(X,
                                  nCores=max(1, parallel::detectCores()-1),
                                  outputPath=tempdir(),
                                  outputTag=NULL,
+                                 tries=100,
                                  verbose=FALSE){
   
   # convert to sf
@@ -136,7 +141,7 @@ calculate_bigfoot.sp <- function(X,
   result <- calc_fs_px_internal(X, metrics, focalRadius, 
                                 minArea, maxArea, controlUnits, clip,
                                 template, tileSize, parallel, nCores,
-                                outputPath, outputTag, verbose)
+                                outputPath, outputTag, tries, verbose)
   
   invisible(result)
 }
@@ -157,12 +162,13 @@ calculate_bigfoot.character <- function(X,
                                         nCores=max(1, parallel::detectCores()-1),
                                         outputPath=tempdir(),
                                         outputTag=NULL,
+                                        tries=100,
                                         verbose=FALSE){
         
   result <- calc_fs_px_internal(X, metrics, focalRadius, 
                                 minArea, maxArea, controlUnits, clip,
                                 template, tileSize, parallel, nCores,
-                                outputPath, outputTag, verbose)
+                                outputPath, outputTag, tries, verbose)
   
   invisible(result)
 }
@@ -182,6 +188,7 @@ calc_fs_px_internal <- function(X,
                                 nCores,
                                 outputPath,
                                 outputTag,
+                                tries,
                                 verbose){
   
   if(is.null(template)){
@@ -272,7 +279,8 @@ calc_fs_px_internal <- function(X,
                                         "minArea",
                                         "maxArea",
                                         "clip",
-                                        "allOutPath"),
+                                        "allOutPath",
+                                        "tries"),
                               envir=environment())
     }
     doParallel::registerDoParallel(cl)
@@ -292,7 +300,8 @@ calc_fs_px_internal <- function(X,
                    focalRadius, minArea, maxArea,
                    controlUnits,
                    clip,
-                   allOutPath, 
+                   allOutPath,
+                   tries,
                    verbose=FALSE) 
     }
     parallel::stopCluster(cl)
@@ -316,6 +325,7 @@ calc_fs_px_internal <- function(X,
                    controlUnits,
                    clip,
                    allOutPath, 
+                   tries,
                    verbose)
     } # end for loop on tiles
   }
@@ -331,7 +341,8 @@ process_tile <- function(mgTile, mgBuffTile,
                          X, metrics, 
                          focalRadius, 
                          minArea, maxArea, controlUnits, clip,
-                         allOutPath, 
+                         allOutPath,
+                         tries,
                          verbose=FALSE){
   
   # blank tile for the results
@@ -353,6 +364,7 @@ process_tile <- function(mgTile, mgBuffTile,
     Xsub <- sf::st_read(X,
                         wkt_filter=wkt, 
                         quiet=!verbose)
+    if(verbose){ cat("\n") }
   }
 
   # remove empty geometries
@@ -364,49 +376,54 @@ process_tile <- function(mgTile, mgBuffTile,
   
   # check for records
   if(nrow(Xsub) > 0){
-    # pre-calculate unit geometry measures
-    if(any(grepl("area", metrics, fixed=T)) | 
-       any(grepl("compact", metrics, fixed=T)) | 
-       !is.null(minArea) | !is.null(maxArea)){
-      if(!"fs_area" %in% names(Xsub)){
-        if(verbose){ cat("Pre-calculating footprint areas \n") }
-        Xsub[["fs_area"]] <- fs_area(Xsub, unit=controlUnits$areaUnit)
+    # if no clipping, speed up processing to avoid duplicated calculations after
+    # zone index which can duplicate features.
+    if(clip==FALSE){ 
+      # pre-calculate unit geometry measures
+      if(any(grepl("area", metrics, fixed=T)) |
+         any(grepl("compact", metrics, fixed=T)) |
+         !is.null(minArea) | !is.null(maxArea)){
+        if(!"fs_area" %in% names(Xsub)){
+          if(verbose){ cat("Pre-calculating footprint areas \n") }
+          Xsub[["fs_area"]] <- fs_area(Xsub, unit=controlUnits$areaUnit)
+        }
       }
-    }
-    
-    if(any(grepl("perim", metrics, fixed=T)) | 
-       any(grepl("compact", metrics, fixed=T))){
-      if(!"fs_perim" %in% names(Xsub)){
-        if(verbose){ cat("Pre-calculating footprint perimeters \n")}
-        Xsub[["fs_perim"]] <- fs_perimeter(Xsub, unit=controlUnits$perimUnit)
+  
+      if(any(grepl("perim", metrics, fixed=T)) |
+         any(grepl("compact", metrics, fixed=T))){
+        if(!"fs_perim" %in% names(Xsub)){
+          if(verbose){ cat("Pre-calculating footprint perimeters \n")}
+          Xsub[["fs_perim"]] <- fs_perimeter(Xsub, unit=controlUnits$perimUnit)
+        }
       }
-    }
-    
-    if(any(grepl("nndist", metrics, fixed=T))){
-      if(!"fs_nndist" %in% names(Xsub)){
-        if(verbose){ cat("Pre-calculating nearest neighbour distances \n") }
-        Xsub[["fs_nndist"]] <- fs_nndist(Xsub, unit=controlUnits$distUnit)
+  
+      if(any(grepl("nndist", metrics, fixed=T))){
+        if(!"fs_nndist" %in% names(Xsub)){
+          if(verbose){ cat("Pre-calculating nearest neighbour distances \n") }
+          Xsub[["fs_nndist"]] <- fs_nndist(Xsub, unit=controlUnits$distUnit)
+        }
       }
-    }
-    
-    if(any(grepl("angle", metrics, fixed=T))){
-      if(!"fs_angle" %in% names(Xsub)){
-        if(verbose){ cat("Pre-calculating angles \n") }
-        Xsub[["fs_angle"]] <- fs_mbr(Xsub)
+  
+      if(any(grepl("angle", metrics, fixed=T))){
+        if(!"fs_angle" %in% names(Xsub)){
+          if(verbose){ cat("Pre-calculating angles \n") }
+          Xsub[["fs_angle"]] <- fs_mbr(Xsub)
+        }
       }
-    }
-    
-    # filter records
-    if(!is.null(minArea)){
-      if(verbose) { cat(paste0("Filtering features larger than ", minArea," \n")) }
-      Xsub <- subset(Xsub, fs_area > units::as_units(minArea, 
-                                                     controlUnits$areaUnit))
-    }
-    
-    if(!is.null(maxArea)){
-      if(verbose) { cat(paste0("Filtering features smaller than ", maxArea," \n")) }
-      Xsub <- subset(Xsub, fs_area < units::as_units(maxArea, 
-                                                     controlUnits$areaUnit))
+  
+      # filter records
+      if(!is.null(minArea)){
+        if(verbose) { cat(paste0("Filtering features larger than ", minArea," \n")) }
+        Xsub <- subset(Xsub, fs_area > units::as_units(minArea,
+                                                       controlUnits$areaUnit))
+      }
+      if(!is.null(maxArea)){
+        if(verbose) { cat(paste0("Filtering features smaller than ", maxArea," \n")) }
+        Xsub <- subset(Xsub, fs_area < units::as_units(maxArea,
+                                                       controlUnits$areaUnit))
+      }
+      # no need to re-filter if not clipping
+      minArea <- maxArea <- NULL
     }
     
     if(nrow(Xsub) > 0){
@@ -424,6 +441,7 @@ process_tile <- function(mgTile, mgBuffTile,
             aoi <- sf::st_as_sfc(sf::st_bbox(mgPoly))
             zn <- suggestUTMzone(sf::st_coordinates(sf::st_centroid(aoi)))
             mgPolyArea <- sf::st_transform(mgPoly, crs=zn)
+            # circular buffer around centre point
             mgPolyArea <- sf::st_buffer(sf::st_centroid(mgPolyArea), 
                                         dist=focalRadius)
             mgPolyArea <- sf::st_transform(mgPolyArea, crs=sf::st_crs(mgPoly))
@@ -434,24 +452,32 @@ process_tile <- function(mgTile, mgBuffTile,
           mgPolyArea <- mgPoly
         }
         
-        # get index to pixels
-        if(verbose){ cat("Generating zonal index \n") }
-        Xsub <- zonalIndex(Xsub, zone=mgPolyArea, clip=clip)
-        if(is.null(Xsub)){
-          return(NULL)
-        }
+        # # get index to pixels
+        # if(verbose){ cat("Generating zonal index \n") }
+        # Xsub <- zonalIndex(Xsub, zone=mgPolyArea, clip=clip, returnObject=TRUE)
+        # # drop non-intersecting buildings
+        # Xsub <- subset(Xsub, !is.na(zoneID))
+        # if(is.null(Xsub) | nrow(Xsub) == 0){
+        #   return(NULL)
+        # }
         # footprint statistics within the tile
         tileResults <- calculate_footstats(Xsub,
-                                           index="zoneID",
+                                           # index="zoneID",
+                                           index=mgPolyArea,
                                            metrics=metrics,
                                            minArea=minArea,
                                            maxArea=maxArea,
                                            controlUnits=controlUnits,
+                                           clip=clip,
                                            gridded=FALSE,
                                            verbose=verbose)
         # clean-up
         rm(Xsub)
         
+        # check for errors in the return
+        if(is.null(tileResults)){
+          return(NULL)
+        }
         # store results tile calculations
         mgPoly <- merge(mgPoly, 
                         tileResults, 
@@ -489,7 +515,8 @@ process_tile <- function(mgTile, mgBuffTile,
           path <- which(grepl(n, allOutPath, fixed=T))
           # print(allOutPath[[path]])
           if(length(path)==1){
-            write_tile(outGrid=resArea, outName=allOutPath[[path]], update=TRUE)
+            write_tile(outGrid=resArea, outName=allOutPath[[path]], 
+                       tries=tries, update=TRUE)
           }
         } # end output loop
         if(verbose){ cat("Finished writing grids\n") }
@@ -501,10 +528,10 @@ process_tile <- function(mgTile, mgBuffTile,
 
 # helper function for writing tiles
 # based on {spatial.tools}
-write_tile <- function(outGrid, outName, update=FALSE){
+write_tile <- function(outGrid, outName, tries=100, update=FALSE){
   writeSuccess <- FALSE
   tryCount <- 1
-  tryThreshold <- 100
+  tryThreshold <- tries
 
   while(!writeSuccess & (tryCount <= tryThreshold))
   {
