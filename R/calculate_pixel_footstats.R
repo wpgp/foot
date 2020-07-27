@@ -33,6 +33,8 @@
 #'   location of the output. Default is the temp directory.
 #' @param outputTag (optional). A character string that will be added to the
 #'   beginning of the output name for the gridded files.
+#' @param tries (optional). The number of attempts to write a tile to the output
+#'   file. Default is 100.
 #' @param verbose logical. Should progress messages be printed. Default
 #'   \code{False}.
 #' 
@@ -74,6 +76,7 @@ calculate_bigfoot <- function(X,
                               nCores=max(1, parallel::detectCores()-1),
                               outputPath=tempdir(),
                               outputTag=NULL,
+                              tries=100,
                               verbose=FALSE) UseMethod("calculate_bigfoot")
 
 
@@ -92,6 +95,7 @@ calculate_bigfoot.sf <- function(X,
                                  nCores=max(1, parallel::detectCores()-1),
                                  outputPath=tempdir(),
                                  outputTag=NULL,
+                                 tries=100,
                                  verbose=FALSE){
 
   if(any(!sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON") )){
@@ -102,7 +106,7 @@ calculate_bigfoot.sf <- function(X,
   result <- calc_fs_px_internal(X, metrics, focalRadius, 
                                 minArea, maxArea, controlUnits, clip,
                                 template, tileSize, parallel, nCores,
-                                outputPath, outputTag, verbose)
+                                outputPath, outputTag, tries, verbose)
   
   invisible(result)
 }
@@ -123,6 +127,7 @@ calculate_bigfoot.sp <- function(X,
                                  nCores=max(1, parallel::detectCores()-1),
                                  outputPath=tempdir(),
                                  outputTag=NULL,
+                                 tries=100,
                                  verbose=FALSE){
   
   # convert to sf
@@ -136,7 +141,7 @@ calculate_bigfoot.sp <- function(X,
   result <- calc_fs_px_internal(X, metrics, focalRadius, 
                                 minArea, maxArea, controlUnits, clip,
                                 template, tileSize, parallel, nCores,
-                                outputPath, outputTag, verbose)
+                                outputPath, outputTag, tries, verbose)
   
   invisible(result)
 }
@@ -157,12 +162,13 @@ calculate_bigfoot.character <- function(X,
                                         nCores=max(1, parallel::detectCores()-1),
                                         outputPath=tempdir(),
                                         outputTag=NULL,
+                                        tries=100,
                                         verbose=FALSE){
         
   result <- calc_fs_px_internal(X, metrics, focalRadius, 
                                 minArea, maxArea, controlUnits, clip,
                                 template, tileSize, parallel, nCores,
-                                outputPath, outputTag, verbose)
+                                outputPath, outputTag, tries, verbose)
   
   invisible(result)
 }
@@ -182,6 +188,7 @@ calc_fs_px_internal <- function(X,
                                 nCores,
                                 outputPath,
                                 outputTag,
+                                tries,
                                 verbose){
   
   if(is.null(template)){
@@ -272,7 +279,8 @@ calc_fs_px_internal <- function(X,
                                         "minArea",
                                         "maxArea",
                                         "clip",
-                                        "allOutPath"),
+                                        "allOutPath",
+                                        "tries"),
                               envir=environment())
     }
     doParallel::registerDoParallel(cl)
@@ -292,7 +300,8 @@ calc_fs_px_internal <- function(X,
                    focalRadius, minArea, maxArea,
                    controlUnits,
                    clip,
-                   allOutPath, 
+                   allOutPath,
+                   tries,
                    verbose=FALSE) 
     }
     parallel::stopCluster(cl)
@@ -316,6 +325,7 @@ calc_fs_px_internal <- function(X,
                    controlUnits,
                    clip,
                    allOutPath, 
+                   tries,
                    verbose)
     } # end for loop on tiles
   }
@@ -331,7 +341,8 @@ process_tile <- function(mgTile, mgBuffTile,
                          X, metrics, 
                          focalRadius, 
                          minArea, maxArea, controlUnits, clip,
-                         allOutPath, 
+                         allOutPath,
+                         tries,
                          verbose=FALSE){
   
   # blank tile for the results
@@ -504,7 +515,8 @@ process_tile <- function(mgTile, mgBuffTile,
           path <- which(grepl(n, allOutPath, fixed=T))
           # print(allOutPath[[path]])
           if(length(path)==1){
-            write_tile(outGrid=resArea, outName=allOutPath[[path]], update=TRUE)
+            write_tile(outGrid=resArea, outName=allOutPath[[path]], 
+                       tries=tries, update=TRUE)
           }
         } # end output loop
         if(verbose){ cat("Finished writing grids\n") }
@@ -516,10 +528,10 @@ process_tile <- function(mgTile, mgBuffTile,
 
 # helper function for writing tiles
 # based on {spatial.tools}
-write_tile <- function(outGrid, outName, update=FALSE){
+write_tile <- function(outGrid, outName, tries=100, update=FALSE){
   writeSuccess <- FALSE
   tryCount <- 1
-  tryThreshold <- 100
+  tryThreshold <- tries
 
   while(!writeSuccess & (tryCount <= tryThreshold))
   {

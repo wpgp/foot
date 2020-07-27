@@ -22,6 +22,7 @@ calculate_bigfoot(
   nCores = max(1, parallel::detectCores() - 1),
   outputPath = tempdir(),
   outputTag = NULL,
+  tries = 100,
   verbose = FALSE
 )
 
@@ -39,6 +40,7 @@ calculate_bigfoot(
   nCores = max(1, parallel::detectCores() - 1),
   outputPath = tempdir(),
   outputTag = NULL,
+  tries = 100,
   verbose = FALSE
 )
 
@@ -56,6 +58,7 @@ calculate_bigfoot(
   nCores = max(1, parallel::detectCores() - 1),
   outputPath = tempdir(),
   outputTag = NULL,
+  tries = 100,
   verbose = FALSE
 )
 
@@ -73,6 +76,7 @@ calculate_bigfoot(
   nCores = max(1, parallel::detectCores() - 1),
   outputPath = tempdir(),
   outputTag = NULL,
+  tries = 100,
   verbose = FALSE
 )
 }
@@ -118,6 +122,9 @@ location of the output. Default is the temp directory.}
 
 \item{outputTag}{(optional). A character string that will be added to the
 beginning of the output name for the gridded files.}
+
+\item{tries}{(optional). The number of attempts to write a tile to the output
+file. Default is 100.}
 
 \item{verbose}{logical. Should progress messages be printed. Default
 \code{False}.}
