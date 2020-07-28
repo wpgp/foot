@@ -27,7 +27,8 @@ Imports:
     doParallel,
     parallel,
     foreach,
-    units
+    units,
+    filelock
 LazyData: true
 Description: Support for morphometric calculations and zonal summaries of measures derived from building footprint polygons.
 Encoding: UTF-8
