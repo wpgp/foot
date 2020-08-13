@@ -1,20 +1,20 @@
 Package: foot
 Title: A package for processing building footprints
-Version: 0.4
-Date: 2020-07-16
+Version: 0.4.1
+Date: 2020-08-13
 Authors@R: 
 	c(person(given="WorldPop Research Group, University of Southampton", 
 			 role="aut"),
 	  person(family="Jochem", 
 			 given="Chris", 
-			 role="ctb"),
+			 role=c("ctb","cre"),
+			 email="w.c.jochem@soton.ac.uk"),
 	  person(family="Dooley", 
 			 given="Claire", 
 			 role="ctb"),
 	  person(family="Leasure", 
 			 given="Doug", 
-			 role="cre", 
-			 email="D.R.Leasure@soton.ac.uk")
+			 role="ctb")
 	)
 License: GPL-3.0
 URL: https://github.com/wpgp/foot
@@ -27,7 +27,8 @@ Imports:
     doParallel,
     parallel,
     foreach,
-    units
+    units,
+    filelock
 LazyData: true
 Description: Support for morphometric calculations and zonal summaries of measures derived from building footprint polygons.
 Encoding: UTF-8

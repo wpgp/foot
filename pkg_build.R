@@ -11,6 +11,7 @@ usethis::use_package("lwgeom")
 usethis::use_package("doParallel")
 usethis::use_package("parallel")
 usethis::use_package("foreach")
+usethis::use_package("filelock")
 # usethis::use_package("purrr")
 usethis::use_package("units")
 

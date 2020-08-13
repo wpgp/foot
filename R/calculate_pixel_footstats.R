@@ -52,9 +52,32 @@
 #' 
 #' @return Invisible. Returns a vector of paths to the output files.
 #' 
+#' @examples 
+#' data(kampala)
+#' buildings <- kampala$buildings
+#' templateGrid <- kampala$mastergrid
+#' 
+#' calculate_bigfoot(X=buildings,
+#'                   metrics=c("shape_mean",
+#'                             "count",
+#'                             "perim_total"),  
+#'                   controlUnits=list(areaUnit="m^2"),
+#'                   minArea=50,  # footprints must be larger than 50 m^2
+#'                   maxArea=1000,  # footprints must be smaller than 1000 m^2
+#'                   template=templateGrid, 
+#'                   outputPath=tempdir(),  
+#'                   outputTag="kampala",
+#'                   parallel=FALSE,
+#'                   verbose=TRUE)  
+#'
+#' # read one of the output files and plot as a raster layer
+#' outGrid <- raster::raster(file.path(tempdir(), "kampala_count.tif"))
+#' raster::plot(outGrid)
+#' 
 #' @import doParallel
 #' @import parallel
 #' @import foreach
+#' @import filelock
 #' @import sf
 #' @import stars
 #' @import iterators
@@ -284,10 +307,12 @@ calc_fs_px_internal <- function(X,
                               envir=environment())
     }
     doParallel::registerDoParallel(cl)
-    parallel::clusterEvalQ(cl, {library(foot); library(stars); library(sf)})
+    parallel::clusterEvalQ(cl, {library(foot); library(stars); 
+      library(sf); library(filelock)})
     
     if(verbose){ cat(paste0("Begin parallel tile processing: ", 
                             Sys.time(), "\n"))}
+
     foreach::foreach(job=iterators::iter(tiles, by="row"),
                      jobBuff=iterators::iter(tilesBuff, by="row"),
                      .export="process_tile"
@@ -303,6 +328,8 @@ calc_fs_px_internal <- function(X,
                    allOutPath,
                    tries,
                    verbose=FALSE) 
+      
+      NULL
     }
     parallel::stopCluster(cl)
     
@@ -515,8 +542,12 @@ process_tile <- function(mgTile, mgBuffTile,
           path <- which(grepl(n, allOutPath, fixed=T))
           # print(allOutPath[[path]])
           if(length(path)==1){
-            write_tile(outGrid=resArea, outName=allOutPath[[path]], 
-                       tries=tries, update=TRUE)
+            lck <- filelock::lock(file.path(tempdir(), paste0(path, ".lock")))
+            write_tile(outGrid=resArea, 
+                       outName=allOutPath[[path]], 
+                       tries=tries, 
+                       update=TRUE)
+            filelock::unlock(lck)
           }
         } # end output loop
         if(verbose){ cat("Finished writing grids\n") }
