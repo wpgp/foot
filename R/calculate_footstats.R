@@ -6,9 +6,10 @@
 #'   multiple spatial types, including \code{sf} and \code{sp}, or a filepath
 #'   string to a file, or a list where each member provides a spatial object or
 #'   a filepath string.
-#' @param index A character or numeric value identifying a column within
-#'   \code{X} which provides a zonal index for summarising values. Alternatively
-#'   a vector of indices can be provided. If omitted all observations with
+#' @param index A spatial polygon file defining areas. Or a character or numeric
+#'   value identifying a column within \code{X} which provides a zonal index for
+#'   summarising values. Alternatively a vector of indices can be provided. If
+#'   omitted all observations with
 #'   \code{X} are assumed to be within one zone.
 #' @param metrics character vector. Names of footprint statistics in the form of
 #'   "fs_area_mean", etc. Other options include \code{ALL} or \code{NODIST} to
@@ -37,6 +38,15 @@
 #' 
 #' @return a \code{data.table} with an 'index' column and named columns for each
 #'   footprint statistic. Alternatively, geoTiffs of 
+#'   
+#' @examples 
+#' data(kampala)
+#' buildings <- kampala$buildings
+#' adminzones <- kampala$adminZones
+#' 
+#' calculate_footstats(buildings, 
+#'                     index=adminzones, 
+#'                     metrics=c("fs_area_mean","fs_area_cv"))    
 #' 
 #' @aliases calculate_footstats
 #' @rdname calculate_footstats

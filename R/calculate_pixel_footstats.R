@@ -52,6 +52,28 @@
 #' 
 #' @return Invisible. Returns a vector of paths to the output files.
 #' 
+#' @examples 
+#' data(kampala)
+#' buildings <- kampala$buildings
+#' templateGrid <- kampala$mastergrid
+#' 
+#' calculate_bigfoot(X=buildings,
+#'                   metrics=c("shape_mean",
+#'                             "count",
+#'                             "perim_total"),  
+#'                   controlUnits=list(areaUnit="m^2"),
+#'                   minArea=50,  # footprints must be larger than 50 m^2
+#'                   maxArea=1000,  # footprints must be smaller than 1000 m^2
+#'                   template=templateGrid, 
+#'                   outputPath=tempdir(),  
+#'                   outputTag="kampala",
+#'                   parallel=FALSE,
+#'                   verbose=TRUE)  
+#'
+#' # read one of the output files and plot as a raster layer
+#' outGrid <- raster::raster(file.path(tempdir(), "kampala_count.tif"))
+#' raster::plot(outGrid)
+#' 
 #' @import doParallel
 #' @import parallel
 #' @import foreach
