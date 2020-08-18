@@ -7,13 +7,23 @@
 #' @param normalize A logical value indicating whether to normalize the entropy. 
 #' Default is \code{TRUE}.
 #' 
-#' @details This measure uses the angle of the minimum rotated rectangle enclosing 
-#' each footprint poygon. Entropy is an information criteria measure. When summarising
-#' the angles of footprints, higher entropy values may suggest less formally planned 
-#' or zoned areas. The entropy calculation uses the common Shannon's Entropy. The 
-#' normalization step produces an indicator for how much a zone departs from a grid.
+#' @details This measure uses the angle of the minimum rotated rectangle
+#'   enclosing each footprint poygon. Entropy is an information criteria
+#'   measure. When summarising the angles of footprints, higher entropy values
+#'   may suggest less formally planned or zoned areas. The entropy calculation
+#'   uses the common Shannon's Entropy. The normalization step produces an
+#'   indicator for how much a zone departs from a grid.
 #'
 #' @return \code{data.table} of zonal indices and values.
+#' 
+#' @examples 
+#' data(kampala)
+#' b <- kampala$buildings
+#' # assign random groups
+#' idx <- sample(1:10, nrow(b), replace=T)
+#' 
+#' angles <- fs_angle_entropy(b, index=idx, normalize=F)
+#' angle_norm <- fs_angle_entropy(b, index=idx, normalize=T)
 #' 
 #' @import data.table
 #' 
