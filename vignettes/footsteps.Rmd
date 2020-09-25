@@ -258,7 +258,7 @@ clusters <- merge(clusters, zarea, by.x="Id", by.y="index")
 The `zonalIndex` function works by spatial intersection. This produces some
 (potentially useful) side effects that users need to be aware of.
 
-The default behaviour is for any intersecting structure to included in the zone.
+The default behaviour is for any intersecting structure to be included in the zone.
 ```{r warning=FALSE}
 # Note the selected structures extend beyond the cluster boundary
 plot(sf::st_geometry(clusters)[[6]])
@@ -321,7 +321,7 @@ results <- calculate_footstats(buildings,
 
 Note that this function uses the default arguments and units for creating zones
 and calculating metrics. For the requested metrics the standard deviation is
-required for the CV calculation. This is dependency is added and handled
+required for the CV calculation. This dependency is added and handled
 internally by `calculate_footstats`. Also note that one zone has only one
 structure in it, so NA values are returned for the CV.
 
@@ -376,7 +376,7 @@ sometimes it may be necessary to know the true amount of settlement *per pixel*.
 The zonal index functions can be used to intersect buildings to grid squares,
 and then supply those "pixels" as zones to the feature calculations as shown.
 ```{r message=FALSE, warning=FALSE, tidy=F}
-# convert the grid to a `stars` object and then `sf` to get polygons
+# convert the grid to a `stars` object and then `sf` to create polygons from the grid cells
 sgrid <- stars::st_as_stars(mgrid)
 sgrid <- sf::st_as_sf(sgrid)
 

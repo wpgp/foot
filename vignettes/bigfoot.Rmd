@@ -46,7 +46,7 @@ individually or in parallel. This function works as a wrapper to
 package for managing the input/output and creating and indexing spatial zones.
 
 By default the function performs calculations in parallel (which can be changed
-with the argument `parallel=FALSE`. To monitor the supplied values and
+with the argument `parallel=FALSE`). To monitor the supplied values and
 processing steps, set `verbose=TRUE`.
 
 ### Main inputs
@@ -88,12 +88,12 @@ calculate_bigfoot(X = bldgPath, template = sotonGrid, metrics = "settled", verbo
 
 ### Specifying outputs
 By default the outputs of `bigfoot` are saved as GeoTiffs in `R`'s `tempdir()`
-which is changed for the each session. Each grid is named by the short name of
+which is changed for each session. Each grid is named by the short name of
 the calculated metric.
 
 
 ```r
-# retrieve the gridded outputs
+# retrieve the gridded output
 outGrid <- raster::raster(file.path(tempdir(), "settled.tif"))
 
 raster::plot(outGrid)
@@ -153,7 +153,7 @@ calculate_bigfoot(X=bldgPath,
 ```
 
 Note that when a focal radius is specified, this value is always appended to the
-end of the file names so that the outputs can be identified.
+end of the file names so that the output can be identified.
 
 ```r
 # note that the filename includes both a tag and a focal radius value
@@ -224,6 +224,7 @@ raster::plot(outGrid)
 ```
 
 ![Total building perimeter in KM](figure/Fig4-1.png)
+
 In the above example, note that the units for the nearest neighbour distance
 were not specified in the `controlUnits` list. The default value was still used.
 

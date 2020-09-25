@@ -4,17 +4,18 @@ rm(list=ls()); gc(); cat("\014"); try(dev.off(), silent=T)
 # working directory
 setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 
-usethis::use_package("data.table")
-usethis::use_package("sf")
-usethis::use_package("stars")
-usethis::use_package("lwgeom")
-usethis::use_package("doParallel")
-usethis::use_package("parallel")
-usethis::use_package("foreach")
-usethis::use_package("filelock")
-# usethis::use_package("purrr")
-usethis::use_package("units")
+library("data.table")
+library("sf")
+library("stars")
+library("lwgeom")
+library("doParallel")
+library("parallel")
+library("foreach")
+library("filelock")
+library("purrr")
+library("units")
 
+library("roxygen2")
 # package documentation
 devtools::document()
 

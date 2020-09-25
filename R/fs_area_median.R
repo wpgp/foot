@@ -2,7 +2,7 @@
 #' 
 #' @description Calculate and summarise selected metrics of building 
 #' footprint polygons within zones.
-#' #' @inheritParams fs_area_mean
+#' @inheritParams fs_area_mean
 #' @return \code{data.table} of zonal indices and values
 #' 
 #' @import data.table

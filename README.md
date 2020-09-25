@@ -27,7 +27,7 @@ gridded surface.
 The `foot` package can be installed directly from Github.
 
 ``` r
-devtools::install_github("wgpg/foot", auth_token="tkn", build_vignettes=TRUE)
+devtools::install_github("wpgp/foot", auth_token="tkn", build_vignettes=TRUE)
 ```
 
 where, “tkn” is an authentication token. This is required because `foot`
@@ -35,8 +35,7 @@ is still in a private repo. You can obtain a token from
 <https://github.com/settings/tokens> and generating a personal token
 with ‘repo’ level access. This will be a long character string.
 
-Alternatively, clone the repository and install using the code in using
-the code in `./pkg_build.R`
+Alternatively, clone the repository and install using the code in `./pkg_build.R`
 
 Note that building and running the code may require additional packages:
 `stars`, `raster`, `sf`, `data.table`, `lwgeom`, `purrr`. et al.
