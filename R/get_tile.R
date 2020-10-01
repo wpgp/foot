@@ -25,7 +25,7 @@
 #'   }
 #'   
 #'  @examples 
-#'  data(kampala)
+#'  data("kampala")
 #'  # example dataset
 #'  g <- kampala$mastergrid
 #'  
