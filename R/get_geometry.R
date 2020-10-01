@@ -148,7 +148,7 @@ fs_shape <- function(X){
 #'
 #' @param X polygons of building footprints in type \code{sf}.
 #' @param returnShape logical. Should the function return the \code{sf} polygon
-#'   of the rotated bounding rectange or should it retun the angle (in degrees).
+#'   of the rotated bounding rectangle or should it return the angle (in degrees).
 #' @return a numeric angle from 0 to 360 degrees or the rotated rectangle as a
 #'   polygon of type \code{sf}.
 #' @details This function is currently not vectorized and processing is limited
