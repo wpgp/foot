@@ -1,11 +1,4 @@
----
-output:
-  github_document:
-    toc: true
-    toc_depth: 2
-    html_preview: false
----
-  
+
 ```{r setup, include = FALSE}
   knitr::opts_chunk$set(
   collapse = TRUE,
@@ -25,7 +18,7 @@ for processing 2D vector representations of buildings. The functionality
 includes basic geometry and morphology measures, distance and clustering
 metrics. These calculations are supported with helper functions for spatial
 intersections and tiled reading/writing of data. Two main wrapper functions
-provide standardised workflows for process building polygons to summarise
+provide standardised workflows for processing building polygons to summarise
 metrics within polygons or on a gridded surface.
 
 ## Installation
@@ -124,6 +117,16 @@ A full list of function names can be retrieved with `get_fs_metrics()`.
 ## Contributions
 Contributions are welcome. Raise or respond to an issue, or create a new branch
 to develop a feature/modification and submit a pull request.
+
+## Acknowledgements
+This work was undertaken by members of the WorldPop Research Group at the
+University of Southampton. Funding came from the Bill and Melinda Gates
+Foundation and the United Kingdom Foreign, Commonwealth & Development Office as
+part of the Geo-Referenced Infrastructure and Demographic Data for Development
+project (OPP1182408). Project partners in [GRID3](https://grid3.org/) include
+the WorldPop Research Group, the United Nations Population Fund, the Flowminder
+Foundation, and the Center for International Earth Science Information Network
+within the Earth Institute at Columbia University.
 
 ## Repository Structure
 The repository is structured as an R package with an additional folder "wd" that
