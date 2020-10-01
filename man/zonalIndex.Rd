@@ -30,10 +30,11 @@ zonalIndex(X, zone, zoneField = NULL, returnObject = TRUE, clip = FALSE)
 \item{zone}{Spatial data (or path to file) with polygon zones or a spatial
 grid ("raster")}
 
-\item{zoneField}{(Optional) Unique identifier for each zone}
+\item{zoneField}{(Optional) Column name of unique identifiers in \code{zone}
+to use. If omitted, the zoneID will be numbered \code{1:nrow(zone)}.}
 
 \item{returnObject}{Logical of whether to return an sf object of X with zonal
-information. Default \code{TRUE}.}
+information. Default is \code{TRUE} which is generally preferred.}
 
 \item{clip}{Logical of whether polygons of X which span multiple zones should
 be clipped to the zone. If not clipped, then whole building footprints are
@@ -41,10 +42,23 @@ linked to each zone. Default \code{FALSE}}
 }
 \value{
 'sf' object with attributes of \code{X} plus the unique zone ID or a
-  \code{data.table} with the ID to the records in \code{X} and the zone IDs.
+  \code{data.table} with the row number to the record in \code{X} matched to
+  the zone IDs.
 }
 \description{
 Find the area, grid cells, or other zone that a building polygon
   overlaps or is located in. Implements an efficient spatial join by
   intersection.
+}
+\examples{
+data("kampala")
+
+buildings <- kampala$buildings
+clusters <- kampala$clusters
+
+# assign zones and return a new 'sf' object
+zonalIndex(buildings, clusters)
+# return only a table of indices - note column names
+zonalIndex(buildings, clusters, zoneField="Id", returnObject=FALSE)
+
 }
