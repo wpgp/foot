@@ -1,7 +1,7 @@
 Package: foot
 Title: A package for processing building footprints
 Version: 0.4.1
-Date: 2020-08-13
+Date: 2020-10-01
 Authors@R: 
 	c(person(given="WorldPop Research Group, University of Southampton", 
 			 role="aut"),
@@ -14,10 +14,14 @@ Authors@R:
 			 role="ctb"),
 	  person(family="Leasure", 
 			 given="Doug", 
-			 role="ctb")
+			 role="ctb"),
+	  person(family="Darin",
+	  		 give="Edith",
+	  		 role="ctb")
 	)
 License: GPL-3.0
 URL: https://github.com/wpgp/foot
+BugReports: https://github.com/wpgp/foot/issues
 Imports: 
     data.table,
     purrr,

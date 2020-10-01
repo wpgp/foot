@@ -10,14 +10,15 @@
 #'   and corners as NA. make weights window
 #' 
 #' @examples 
-#' f <- make_circular_filter(11)
+#' f <- foot::make_circular_filter(11)
 #' print(f)
 #' class(f)
 #' 
-#' based on: https://stackoverflow.com/questions/54742340/r-extract-a-circle-from-a-matrix
+#' 
 #' @name circularFilter
 #' @export
 make_circular_filter <- function(size=5){
+  # based on: https://stackoverflow.com/questions/54742340/r-extract-a-circle-from-a-matrix
   g <- expand.grid(1:size, 1:size)
   ctr <- c(size/2, size/2) + .5
   
