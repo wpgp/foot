@@ -33,9 +33,20 @@ Calculate the entropy of rotation angles for building footprint
 polygons within zones.
 }
 \details{
-This measure uses the angle of the minimum rotated rectangle enclosing 
-each footprint poygon. Entropy is an information criteria measure. When summarising
-the angles of footprints, higher entropy values may suggest less formally planned 
-or zoned areas. The entropy calculation uses the common Shannon's Entropy. The 
-normalization step produces an indicator for how much a zone departs from a grid.
+This measure uses the angle of the minimum rotated rectangle
+  enclosing each footprint poygon. Entropy is an information criteria
+  measure. When summarising the angles of footprints, higher entropy values
+  may suggest less formally planned or zoned areas. The entropy calculation
+  uses the common Shannon's Entropy. The normalization step produces an
+  indicator for how much a zone departs from a grid.
+}
+\examples{
+data(kampala)
+b <- kampala$buildings
+# assign random groups
+idx <- sample(1:10, nrow(b), replace=T)
+
+angles <- fs_angle_entropy(b, index=idx, normalize=F)
+angle_norm <- fs_angle_entropy(b, index=idx, normalize=T)
+
 }

@@ -8,16 +8,24 @@
 make_circular_filter(size = 5)
 }
 \arguments{
-\item{size}{The length of the side of a square matrix. The circular window has a radius of size/2.}
+\item{size}{The length of the side of a square matrix. The circular window
+has a radius of size/2.}
 }
 \value{
-Matrix with values inside the circle set to 1, the center set to 0, and corners as NA.
-make weights window
-based on: https://stackoverflow.com/questions/54742340/r-extract-a-circle-from-a-matrix
+Matrix with values inside the circle set to 1, the center set to 0,
+  and corners as NA. make weights window
 }
 \description{
-Make an approximately circular filter inside of an 'n x n' matrix.
+Make an approximately circular filter inside of an 'n x n'
+  matrix.
 }
 \details{
 Filters for gridded data
+}
+\examples{
+f <- make_circular_filter(11)
+print(f)
+class(f)
+
+based on: https://stackoverflow.com/questions/54742340/r-extract-a-circle-from-a-matrix
 }
