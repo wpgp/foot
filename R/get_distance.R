@@ -52,7 +52,8 @@ suggestUTMzone <- function(pt){
 #' # calculate distance between buildings in m
 #' fs_nndist(buildings, unit="m")
 #' 
-#' # calculate unrestricted distance between buildings and points
+#' # calculate unrestricted distance 
+#' # between buildings and another set of points
 #' fs_nndist(buildings, sf::st_centroid(clusters), maxSearch=NULL)
 #' 
 #' # use footprint centroids
@@ -66,7 +67,7 @@ fs_nndist <- function(X, Y, maxSearch=100, method='poly', unit="m"){
   uid <- 1:nrow(X)
   
   if(method[1]=='centroid'){
-    X <- sf::st_centroid(X)
+    suppressWarnings(X <- sf::st_centroid(X))
   }
   
   if(missing(Y)){
@@ -75,7 +76,7 @@ fs_nndist <- function(X, Y, maxSearch=100, method='poly', unit="m"){
     searchObj <- Y
     
     if(method[1]=='centroid'){
-      searchObj <- sf::st_centroid(searchObj)
+      suppressWarnins(searchObj <- sf::st_centroid(searchObj))
     }
   }
   
@@ -94,7 +95,10 @@ fs_nndist <- function(X, Y, maxSearch=100, method='poly', unit="m"){
   # buffer search
   if(!is.null(maxSearch)){
     if(sf::st_is_longlat(searchObj)){
-      zn <- suggestUTMzone(sf::st_coordinates(sf::st_centroid(sf::st_as_sfc(sf::st_bbox(X)))))
+      zn <- suggestUTMzone(
+                          suppressWarnings(sf::st_coordinates(
+                            sf::st_centroid(sf::st_as_sfc(sf::st_bbox(X)))))
+                          )
       
       searchBuffer <- sf::st_transform(searchObj, zn)
       searchBuffer <- sf::st_buffer(searchBuffer, maxSearch)

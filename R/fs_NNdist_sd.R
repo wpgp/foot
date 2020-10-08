@@ -79,7 +79,7 @@ fs_nndist_sd_calc <- function(X, index, unit=NULL, ...){
   DT <- data.table::data.table(index=index, 
                                area_calc=X[["fs_nndist"]])
   data.table::setkey(DT, index)
-  result <- DT[, setNames(.(sd(area_calc)), colNam), by=index]
+  result <- DT[, setNames(.(sd(area_calc, na.rm=T)), colNam), by=index]
   
   return(result)
 }
