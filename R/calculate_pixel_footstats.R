@@ -227,7 +227,7 @@ calc_fs_px_internal <- function(X,
                                 outputTag,
                                 tries,
                                 verbose){
-  
+
   if(is.null(template)){
     stop("Template raster or grid required.")
   } else if(is.character(template)){

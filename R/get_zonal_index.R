@@ -32,7 +32,7 @@
 #'   modified.
 #'   
 #' @examples 
-#' data("kampala")
+#' data("kampala", package="foot")
 #' 
 #' buildings <- kampala$buildings
 #' clusters <- kampala$clusters
