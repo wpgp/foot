@@ -23,9 +23,9 @@ Make an approximately circular filter inside of an 'n x n'
 Filters for gridded data
 }
 \examples{
-f <- make_circular_filter(11)
+f <- foot::make_circular_filter(11)
 print(f)
 class(f)
 
-based on: https://stackoverflow.com/questions/54742340/r-extract-a-circle-from-a-matrix
+
 }

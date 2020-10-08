@@ -34,7 +34,7 @@ Calculate and summarise selected metrics of building footprint
   polygons within zones.
 }
 \details{
-The nearest neighbour index (NNI) is a measure of clustering. It
+The nearest neighbour index (NNI) is a measure of spatial clustering. It
   compares the observed mean neighbour distances with a hypothetical maximum
   of dispersed observations given the area of the zone. Note that NNI is
   sensitive to changes in the zone area.
@@ -42,4 +42,8 @@ The nearest neighbour index (NNI) is a measure of clustering. It
   \deqn{ NNI_z = \frac{\bar{NND_z}}{(0.5 * \sqrt{\frac{A_z}{n_z}}})}, 
   where z is the zone, A is the area, NND is the mean nearest neighbour
   distance, and n is the count.
+  
+  If a pre-calculated neighbour distance is not supplied, the function uses
+  \code{fs_nndist} to calculate the distance between centroids of the
+  building footprints within the same spatial zone indicated by \code{index}.
 }

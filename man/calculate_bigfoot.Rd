@@ -15,7 +15,8 @@ calculate_bigfoot(
   minArea = NULL,
   maxArea = NULL,
   controlUnits = NULL,
-  clip = FALSE,
+  controlDist = NULL,
+  zoneMethod = "centroid",
   template = NULL,
   tileSize = c(500, 500),
   parallel = TRUE,
@@ -33,7 +34,8 @@ calculate_bigfoot(
   minArea = NULL,
   maxArea = NULL,
   controlUnits = NULL,
-  clip = FALSE,
+  controlDist = NULL,
+  zoneMethod = "centroid",
   template = NULL,
   tileSize = c(500, 500),
   parallel = TRUE,
@@ -51,7 +53,8 @@ calculate_bigfoot(
   minArea = NULL,
   maxArea = NULL,
   controlUnits = NULL,
-  clip = FALSE,
+  controlDist = NULL,
+  zoneMethod = "centroid",
   template = NULL,
   tileSize = c(500, 500),
   parallel = TRUE,
@@ -69,7 +72,8 @@ calculate_bigfoot(
   minArea = NULL,
   maxArea = NULL,
   controlUnits = NULL,
-  clip = FALSE,
+  controlDist = NULL,
+  zoneMethod = "centroid",
   template = NULL,
   tileSize = c(500, 500),
   parallel = TRUE,
@@ -98,13 +102,19 @@ template pixel. Creates a focal processing window for metrics.}
 
 \item{maxArea}{numeric. Maximum footprint area to filter \code{X}.}
 
-\item{controlUnits}{(optional) named list. Elements can include
-\code{areaUnit}, \code{perimUnit}, and \code{distUnit}. The values for
-these items should be strings that can be coerced into a \code{units}
-object.}
+\item{controlUnits}{(Optional) named list to control the units used in the
+geometry functions. Elements can include \code{areaUnit}, \code{perimUnit},
+and \code{distUnit}. The values for these items should be strings that can
+be coerced into a \code{units} object.}
 
-\item{clip}{(optional). Logical. Should polygons which span pixel zones be
-clipped? Default is \code{FALSE}.}
+\item{controlDist}{(Optional) named list to override default options for
+distance calculations. Elements can include \code{maxSearch} and
+\code{method}. Ignored if \code{metrics} does not include a distance
+calculation. See \code{\link[foot]{fs_nndist}}.}
+
+\item{zoneMethod}{One of \code{'centroid', 'intersect', 'clip'}. How should
+footprints which span pixel zones be allocated? Default is by its
+\code{'centroid'}. See \code{\link[foot]{zonalIndex}} for details.}
 
 \item{template}{(optional). When creating a gridded output, a supplied
 \code{stars} or \code{raster} dataset to align the data.}
@@ -115,7 +125,8 @@ length 2 (rows, column pixels). Ignored if n provided. Default is 1000.}
 \item{parallel}{logical. Should a parallel backend be used to process the
 tiles.}
 
-\item{nCores}{number of CPU cores to use if \code{parallel} is \code{TRUE}.}
+\item{nCores}{number of CPU cores to use if \code{parallel} is \code{TRUE}.
+Default is 1 less than the available CPUs.}
 
 \item{outputPath}{(optional). When creating a gridded output, a path for the
 location of the output. Default is the temp directory.}
@@ -152,7 +163,7 @@ calculate_bigfoot
   for the calculations.
 }
 \examples{
-data(kampala)
+data("kampala", package="foot")
 buildings <- kampala$buildings
 templateGrid <- kampala$mastergrid
 

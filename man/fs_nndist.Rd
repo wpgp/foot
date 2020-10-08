@@ -4,15 +4,18 @@
 \alias{fs_nndist}
 \title{Nearest neighbour distance calculation}
 \usage{
-fs_nndist(X, Y, maxSearch = 100, unit = "m")
+fs_nndist(X, Y, maxSearch = 100, method = "poly", unit = "m")
 }
 \arguments{
 \item{X}{Spatial object of \code{sf} type, typically polygons or points.}
 
 \item{Y}{(Optional) Spatial object to measure distances to.}
 
-\item{maxSearch}{Maximum search radius around \code{X} to search. Distance in
-meters. Default is 100. To ignore, set this to `NULL`.}
+\item{maxSearch}{Maximum radius around \code{X} to search. Distance in
+meters. Default is 100. To ignore the search limit, set to `NULL`.}
+
+\item{method}{Either \code{'poly'} or \code{'centroid'} to assign a geometry
+method. See details. Default is 'poly'.}
 
 \item{unit}{Character abbreviation for the units to return from the distance
 calculation.}
@@ -27,11 +30,17 @@ If \code{Y} is omitted the nearest neighbour distances are found
   within \code{X}. Otherwise, the distance for each object in \code{X} to its
   nearest neighbour in \code{Y} is returned. 
   
+  Use \code{method} to adjust which geometry of \code{X} and \code{Y} is used
+  for distance calculations. When \code{method='poly'} distances are measured
+  between polygon edges. When \code{method='centroid'}, the centroids of
+  building footprints are used instead. Centroid-based distance calculations
+  are faster.
+  
   Providing a maximum search radius is strongly advised to speed up the
   calculation.
 }
 \examples{
-data("kampala")
+data("kampala", package="foot")
 
 # get sample of buildings
 buildings <- kampala$buildings
@@ -43,5 +52,8 @@ fs_nndist(buildings, unit="m")
 
 # calculate unrestricted distance between buildings and points
 fs_nndist(buildings, sf::st_centroid(clusters), maxSearch=NULL)
+
+# use footprint centroids
+fs_nndist(buildings, method='centroid', unit='m')
 
 }

@@ -10,19 +10,19 @@
 \alias{zonalIndex.character}
 \title{Index buildings footprints to 'zones'}
 \usage{
-zonalIndex(X, zone, zoneField = NULL, returnObject = TRUE, clip = FALSE)
+zonalIndex(X, zone, zoneField = NULL, method = "centroid", returnObject = TRUE)
 
-\method{zonalIndex}{sf}(X, zone, zoneField = NULL, returnObject = TRUE, clip = FALSE)
+\method{zonalIndex}{sf}(X, zone, zoneField = NULL, method = "centroid", returnObject = TRUE)
 
-\method{zonalIndex}{sfc}(X, zone, zoneField = NULL, returnObject = TRUE, clip = FALSE)
+\method{zonalIndex}{sfc}(X, zone, zoneField = NULL, method = "centroid", returnObject = TRUE)
 
-\method{zonalIndex}{sp}(X, zone, zoneField = NULL, returnObject = TRUE, clip = FALSE)
+\method{zonalIndex}{sp}(X, zone, zoneField = NULL, method = "centroid", returnObject = TRUE)
 
-\method{zonalIndex}{stars}(X, zone, zoneField = NULL, returnObject = TRUE, clip = FALSE)
+\method{zonalIndex}{stars}(X, zone, zoneField = NULL, method = "centroid", returnObject = TRUE)
 
-\method{zonalIndex}{raster}(X, zone, zoneField = NULL, returnObject = TRUE, clip = FALSE)
+\method{zonalIndex}{raster}(X, zone, zoneField = NULL, method = "centroid", returnObject = TRUE)
 
-\method{zonalIndex}{character}(X, zone, zoneField = NULL, returnObject = TRUE, clip = FALSE)
+\method{zonalIndex}{character}(X, zone, zoneField = NULL, method = "centroid", returnObject = TRUE)
 }
 \arguments{
 \item{X}{Spatial data (or path to file) with building footprint polygons}
@@ -31,14 +31,14 @@ zonalIndex(X, zone, zoneField = NULL, returnObject = TRUE, clip = FALSE)
 grid ("raster")}
 
 \item{zoneField}{(Optional) Column name of unique identifiers in \code{zone}
-to use. If omitted, the zoneID will be numbered \code{1:nrow(zone)}.}
+to use. If omitted, the 'zoneID' will be numbered \code{1:nrow(zone)}.}
+
+\item{method}{One of \code{'centroid', 'intersect', 'clip'} to determine how
+footprints are allocated to zones. See details. Default is
+\code{"centroid"}.}
 
 \item{returnObject}{Logical of whether to return an sf object of X with zonal
 information. Default is \code{TRUE} which is generally preferred.}
-
-\item{clip}{Logical of whether polygons of X which span multiple zones should
-be clipped to the zone. If not clipped, then whole building footprints are
-linked to each zone. Default \code{FALSE}}
 }
 \value{
 'sf' object with attributes of \code{X} plus the unique zone ID or a
@@ -50,14 +50,33 @@ Find the area, grid cells, or other zone that a building polygon
   overlaps or is located in. Implements an efficient spatial join by
   intersection.
 }
+\details{
+Zone assignments for building footprints can be done using three
+  possible methods, set by the \code{method=} parameter. Defining by
+  'centroid' allocates and entire building and its characteristics to the
+  zone(s) which its centroid intersects. Centroids are defined by
+  \code{\link[sf]{st_centroid}} which could be outside the polygon shape.
+  This is the default mode. Defining zones by 'intersect' uses the geometric
+  binary predicate from \code{\link[sf]{st_intersects}}. This method will
+  include a whole building and its characteristics into all zones that it
+  intersects. Therefore a building could appear to be "counted" twice. The
+  final approach, 'clip', uses \code{\link[sf]{st_intersection}} to split
+  footprints so that only that area of the polygon intersecting the zone is
+  include. This method is more time consuming because the geometries are
+  modified.
+}
 \examples{
-data("kampala")
+data("kampala", package="foot")
 
 buildings <- kampala$buildings
 clusters <- kampala$clusters
 
 # assign zones and return a new 'sf' object
 zonalIndex(buildings, clusters)
+
+# assign all intersecting zones
+zonalIndex(buildings, clusters, method="intersect")
+
 # return only a table of indices - note column names
 zonalIndex(buildings, clusters, zoneField="Id", returnObject=FALSE)
 

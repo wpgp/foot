@@ -16,12 +16,8 @@ calculate_footstats(
   minArea = NULL,
   maxArea = NULL,
   controlUnits = NULL,
-  clip = FALSE,
-  gridded = FALSE,
-  template = NULL,
-  outputPath = NULL,
-  outputTag = NULL,
-  driver = "GTiff",
+  controlDist = NULL,
+  zoneMethod = "centroid",
   verbose = FALSE
 )
 
@@ -32,12 +28,8 @@ calculate_footstats(
   minArea = NULL,
   maxArea = NULL,
   controlUnits = NULL,
-  clip = FALSE,
-  gridded = FALSE,
-  template = NULL,
-  outputPath = NULL,
-  outputTag = NULL,
-  driver = "GTiff",
+  controlDist = NULL,
+  zoneMethod = "centroid",
   verbose = FALSE
 )
 
@@ -48,12 +40,8 @@ calculate_footstats(
   minArea = NULL,
   maxArea = NULL,
   controlUnits = NULL,
-  clip = FALSE,
-  gridded = FALSE,
-  template = NULL,
-  outputPath = NULL,
-  outputTag = NULL,
-  driver = "GTiff",
+  controlDist = NULL,
+  zoneMethod = "centroid",
   verbose = FALSE
 )
 
@@ -64,12 +52,8 @@ calculate_footstats(
   minArea = NULL,
   maxArea = NULL,
   controlUnits = NULL,
-  clip = FALSE,
-  gridded = FALSE,
-  template = NULL,
-  outputPath = NULL,
-  outputTag = NULL,
-  driver = "GTiff",
+  controlDist = NULL,
+  zoneMethod = "centroid",
   verbose = FALSE
 )
 
@@ -80,12 +64,8 @@ calculate_footstats(
   minArea = NULL,
   maxArea = NULL,
   controlUnits = NULL,
-  clip = FALSE,
-  gridded = FALSE,
-  template = NULL,
-  outputPath = NULL,
-  outputTag = NULL,
-  driver = "GTiff",
+  controlDist = NULL,
+  zoneMethod = "centroid",
   verbose = FALSE
 )
 
@@ -96,12 +76,8 @@ calculate_footstats(
   minArea = NULL,
   maxArea = NULL,
   controlUnits = NULL,
-  clip = FALSE,
-  gridded = FALSE,
-  template = NULL,
-  outputPath = NULL,
-  outputTag = NULL,
-  driver = "GTiff",
+  controlDist = NULL,
+  zoneMethod = "centroid",
   verbose = FALSE
 )
 }
@@ -114,8 +90,7 @@ a filepath string.}
 \item{index}{A spatial polygon file defining areas. Or a character or numeric
 value identifying a column within \code{X} which provides a zonal index for
 summarising values. Alternatively a vector of indices can be provided. If
-omitted all observations with
-\code{X} are assumed to be within one zone.}
+omitted all observations with \code{X} are assumed to be within one zone.}
 
 \item{metrics}{character vector. Names of footprint statistics in the form of
 "fs_area_mean", etc. Other options include \code{ALL} or \code{NODIST} to
@@ -131,30 +106,21 @@ respectively.}
 these items should be strings that can be coerced into a \code{units}
 object.}
 
-\item{clip}{(optional). Logical. Should polygons which span pixel zones be
-clipped? Default is \code{FALSE}.}
+\item{controlDist}{(Optional) named list to override default options for
+distance calculations. Elements can include \code{maxSearch} and
+\code{method}. Ignored if \code{metrics} does not include a distance
+calculation. See \code{\link[foot]{fs_nndist}}.}
 
-\item{gridded}{Should a gridded output be created? Default \code{FALSE}.}
-
-\item{template}{(optional). When creating a gridded output, a supplied
-\code{stars} or \code{raster} dataset to align the data.}
-
-\item{outputPath}{(optional). When creating a gridded output, a path for the
-location of the output.}
-
-\item{outputTag}{(optional). A character string that will be added tagged to
-the beginning of the output gridded files. If \code{X} is a \code{list},
-then the names of the list items will be used or a vector of tags of the
-same length as \code{X} should be supplied.}
-
-\item{driver}{character. Currently supports geotiff ("GTiff").}
+\item{zoneMethod}{One of \code{'centroid', 'intersect', 'clip'}. How should
+footprints which span zones be clipped? Default is \code{'centroid'}.
+See \code{\link[foot]{zonalIndex}} for details.}
 
 \item{verbose}{logical. Should progress messages be printed. 
 Default \code{False}.}
 }
 \value{
-a \code{data.table} with an 'index' column and named columns for each
-  footprint statistic. Alternatively, geoTiffs of
+a \code{data.table} with an 'index' column identify the zone and
+  named columns for each footprint summary statistic.
 }
 \description{
 Calculate groups of metrics for building footprint datasets
@@ -163,7 +129,7 @@ Calculate groups of metrics for building footprint datasets
 calculate_footstats
 }
 \examples{
-data(kampala)
+data("kampala", package="foot")
 buildings <- kampala$buildings
 adminzones <- kampala$adminZones
 

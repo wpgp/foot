@@ -6,11 +6,11 @@
 \alias{fs_nndist_mean.sf}
 \title{Nearest neighbour mean distance}
 \usage{
-fs_nndist_mean(X, index = NULL, unit = NULL, col = NULL)
+fs_nndist_mean(X, index = NULL, unit = NULL, col = NULL, ...)
 
-\method{fs_nndist_mean}{sp}(X, index = NULL, unit = NULL, col = NULL)
+\method{fs_nndist_mean}{sp}(X, index = NULL, unit = NULL, col = NULL, ...)
 
-\method{fs_nndist_mean}{sf}(X, index = NULL, unit = NULL, col = NULL)
+\method{fs_nndist_mean}{sf}(X, index = NULL, unit = NULL, col = NULL, ...)
 }
 \arguments{
 \item{X}{Spatial object with building footprint polygons}
@@ -24,6 +24,8 @@ to be within one zone.}
 Default is \code{NULL} which will use the units of the spatial reference system}
 
 \item{col}{column name within \code{X} with pre-calculated area measures}
+
+\item{...}{Additional arguments to pass to \code{fs_nndist}.}
 }
 \value{
 \code{data.table} of zonal indices and values.
