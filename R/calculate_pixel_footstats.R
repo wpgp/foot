@@ -22,6 +22,9 @@
 #'   object.
 #' @param clip (optional). Logical. Should polygons which span pixel zones be
 #'   clipped? Default is \code{FALSE}.
+#' @param zoneMethod One of \code{'centroid', 'intersect', 'clip'}. How should
+#'   footprints which span pixel zones be allocated? Default is by its
+#'   \code{'centroid'}. See \code{\link[foot]{zonalIndex}} for details.
 #' @param template (optional). When creating a gridded output, a supplied
 #'   \code{stars} or \code{raster} dataset to align the data.
 #' @param parallel logical. Should a parallel backend be used to process the
@@ -92,7 +95,7 @@ calculate_bigfoot <- function(X,
                               minArea=NULL,
                               maxArea=NULL,
                               controlUnits=NULL,
-                              clip=FALSE,
+                              zoneMethod='centroid',
                               template=NULL,
                               tileSize=c(500, 500),
                               parallel=TRUE,
@@ -111,7 +114,7 @@ calculate_bigfoot.sf <- function(X,
                                  minArea=NULL,
                                  maxArea=NULL,
                                  controlUnits=NULL,
-                                 clip=FALSE,
+                                 zoneMethod='centroid',
                                  template=NULL,
                                  tileSize=c(500, 500),
                                  parallel=TRUE,
@@ -127,7 +130,8 @@ calculate_bigfoot.sf <- function(X,
   }
   
   result <- calc_fs_px_internal(X, metrics, focalRadius, 
-                                minArea, maxArea, controlUnits, clip,
+                                minArea, maxArea, 
+                                controlUnits, controlDist, zoneMethod,
                                 template, tileSize, parallel, nCores,
                                 outputPath, outputTag, tries, verbose)
   
@@ -143,7 +147,8 @@ calculate_bigfoot.sp <- function(X,
                                  minArea=NULL,
                                  maxArea=NULL,
                                  controlUnits=NULL,
-                                 clip=FALSE,
+                                 controlDist=NULL,
+                                 zoneMethod='centroid',
                                  template=NULL,
                                  tileSize=c(500, 500),
                                  parallel=TRUE,
@@ -162,7 +167,8 @@ calculate_bigfoot.sp <- function(X,
   }
   
   result <- calc_fs_px_internal(X, metrics, focalRadius, 
-                                minArea, maxArea, controlUnits, clip,
+                                minArea, maxArea, 
+                                controlUnits, controlDist, zoneMethod,
                                 template, tileSize, parallel, nCores,
                                 outputPath, outputTag, tries, verbose)
   
@@ -178,7 +184,8 @@ calculate_bigfoot.character <- function(X,
                                         minArea=NULL,
                                         maxArea=NULL,
                                         controlUnits=NULL,
-                                        clip=FALSE,
+                                        controlDist=NULL,
+                                        zoneMethod='centroid',
                                         template=NULL,
                                         tileSize=c(500, 500),
                                         parallel=TRUE,
@@ -189,7 +196,8 @@ calculate_bigfoot.character <- function(X,
                                         verbose=FALSE){
         
   result <- calc_fs_px_internal(X, metrics, focalRadius, 
-                                minArea, maxArea, controlUnits, clip,
+                                minArea, maxArea, 
+                                controlUnits, controlDist, zoneMethod,
                                 template, tileSize, parallel, nCores,
                                 outputPath, outputTag, tries, verbose)
   
@@ -204,7 +212,7 @@ calc_fs_px_internal <- function(X,
                                 minArea,
                                 maxArea,
                                 controlUnits,
-                                clip,
+                                zoneMethod,
                                 template,
                                 tileSize,
                                 parallel,
@@ -226,6 +234,10 @@ calc_fs_px_internal <- function(X,
     outputTag <- paste0(outputTag, "_")
   } else{
     outputTag <- ""
+  }
+  
+  if(!zoneMethod %in% c("centroid","intersect","clip")){
+    stop("Zone method must be one of 'centroid', 'intersect', or 'clip'")
   }
   
   # get full list of metrics
@@ -301,7 +313,7 @@ calc_fs_px_internal <- function(X,
                                         "focalRadius",
                                         "minArea",
                                         "maxArea",
-                                        "clip",
+                                        "zoneMethod",
                                         "allOutPath",
                                         "tries"),
                               envir=environment())
@@ -324,7 +336,7 @@ calc_fs_px_internal <- function(X,
                    X, metrics, 
                    focalRadius, minArea, maxArea,
                    controlUnits,
-                   clip,
+                   zoneMethod,
                    allOutPath,
                    tries,
                    verbose=FALSE) 
@@ -350,7 +362,7 @@ calc_fs_px_internal <- function(X,
                    focalRadius, 
                    minArea, maxArea,
                    controlUnits,
-                   clip,
+                   zoneMethod,
                    allOutPath, 
                    tries,
                    verbose)
@@ -367,7 +379,7 @@ calc_fs_px_internal <- function(X,
 process_tile <- function(mgTile, mgBuffTile, 
                          X, metrics, 
                          focalRadius, 
-                         minArea, maxArea, controlUnits, clip,
+                         controlUnits, constrolDist, zoneMethod,
                          allOutPath,
                          tries,
                          verbose=FALSE){
@@ -405,7 +417,7 @@ process_tile <- function(mgTile, mgBuffTile,
   if(nrow(Xsub) > 0){
     # if no clipping, speed up processing to avoid duplicated calculations after
     # zone index which can duplicate features.
-    if(clip==FALSE){ 
+    if(zoneMethod %in% c("centroid","intersects")){ 
       # pre-calculate unit geometry measures
       if(any(grepl("area", metrics, fixed=T)) |
          any(grepl("compact", metrics, fixed=T)) |
@@ -495,8 +507,7 @@ process_tile <- function(mgTile, mgBuffTile,
                                            minArea=minArea,
                                            maxArea=maxArea,
                                            controlUnits=controlUnits,
-                                           clip=clip,
-                                           gridded=FALSE,
+                                           zoneMethod=zoneMethod,
                                            verbose=verbose)
         # clean-up
         rm(Xsub)

@@ -20,6 +20,10 @@
 #'   \code{areaUnit}, \code{perimUnit}, and \code{distUnit}. The values for
 #'   these items should be strings that can be coerced into a \code{units}
 #'   object.
+#'   calculation. See \code{\link[foot]{fs_nndist}}.
+#' @param zoneMethod One of \code{'centroid', 'intersect', 'clip'}. How should
+#'   footprints which span zones be clipped? Default is \code{'centroid'}.
+#'   See \code{\link[foot]{zonalIndex}} for details.
 #' @param verbose logical. Should progress messages be printed. 
 #' Default \code{False}.
 #' 
@@ -45,6 +49,7 @@ calculate_footstats <- function(X,
                                 minArea=NULL,
                                 maxArea=NULL,
                                 controlUnits=NULL,
+                                zoneMethod='centroid',
                                 verbose=FALSE) UseMethod("calculate_footstats")
 
 #' @name calculate_footstats
@@ -53,6 +58,7 @@ calculate_footstats.sf <- function(X, index=NULL, metrics='all',
                                    minArea=NULL,
                                    maxArea=NULL,
                                    controlUnits=NULL,
+                                   zoneMethod='centroid',
                                    verbose=FALSE){
   
   if(any(!sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON") )){
@@ -61,6 +67,7 @@ calculate_footstats.sf <- function(X, index=NULL, metrics='all',
   }
   
   result <- calc_fs_internal(X, index, metrics, minArea, maxArea,
+                             controlUnits, controlDist, zoneMethod, verbose)
   
   return(result)
 }
@@ -72,6 +79,7 @@ calculate_footstats.sfc <- function(X, index=NULL, metrics='all',
                                     minArea=NULL,
                                     maxArea=NULL,
                                     controlUnits=NULL,
+                                    zoneMethod='centroid',
                                     verbose=FALSE){
   # cast to sf for consistency
   X <- sf::st_as_sf(X)
@@ -79,6 +87,7 @@ calculate_footstats.sfc <- function(X, index=NULL, metrics='all',
   result <- calculate_footstats(X, index=index, metrics=metrics, 
                                 minArea=minArea, maxArea=maxArea,
                                 controlUnits=controlUnits,
+                                zoneMethod=zoneMethod,
                                 verbose=verbose)
   return(result)
 }
@@ -90,12 +99,14 @@ calculate_footstats.sp <- function(X, index=NULL, metrics='all',
                                    minArea=NULL,
                                    maxArea=NULL,
                                    controlUnits=NULL,
+                                   zoneMethod='centroid',
                                    verbose=FALSE){
   # convert to sf
   X <- sf::st_as_sf(X)
   
   result <- calculate_footstats(X, index=index, metrics=metrics, 
                                 minArea=minArea, maxArea=maxArea,
+                                zoneMethod=zoneMethod,
                                 verbose=verbose)
   return(result)
 }
@@ -107,6 +118,7 @@ calculate_footstats.character <- function(X, index=NULL, metrics='all',
                                           minArea=NULL,
                                           maxArea=NULL,
                                           controlUnits=NULL,
+                                          zoneMethod='centroid',
                                           verbose=FALSE){
   # attempt to read in file
   X <- sf::st_read(X)
@@ -114,6 +126,7 @@ calculate_footstats.character <- function(X, index=NULL, metrics='all',
   result <- calculate_footstats(X, index=index, metrics=metrics, 
                                 minArea, maxArea,
                                 controlUnits=controlUnits,
+                                zoneMethod=zoneMethod,
                                 verbose=verbose)
   return(result)
 }
@@ -125,6 +138,7 @@ calculate_footstats.list <- function(X, index=NULL, metrics='all',
                                      minArea=NULL,
                                      maxArea=NULL,
                                      controlUnits=NULL,
+                                     zoneMethod='centroid',
                                      verbose=FALSE){
   
   if(is.null(outputTag)){
@@ -142,6 +156,7 @@ calculate_footstats.list <- function(X, index=NULL, metrics='all',
   # expand other arguments - recycling values
   args <- list(index=index, metrics=metrics, 
                minArea=minArea, maxArea=maxArea,
+               zoneMethod=zoneMethod,
                verbose=verbose)
   maxL <- max(lengths(args), length(X))
   args <- lapply(args, rep, length.out=maxL)
@@ -153,6 +168,7 @@ calculate_footstats.list <- function(X, index=NULL, metrics='all',
                         minArea=args$minArea[i],
                         maxArea=args$maxArea[i],
                         controlUnits=args$controlUnits[i],
+                        zoneMethod=args$zoneMethod[i],
                         verbose=args$verbose[i])
   })
   
@@ -176,7 +192,7 @@ calc_fs_internal <- function(X, index, metrics,
         indexZones <- index # make copy
         indexZones$index <- 1:nrow(indexZones)
         
-        X <- zonalIndex(X, index, returnObject=TRUE, clip=clip)
+        X <- zonalIndex(X, zone=index, method=zoneMethod, returnObject=TRUE)
         index <- "zoneID"
         # check for no intersecting
         if(is.null(X)){
@@ -192,13 +208,11 @@ calc_fs_internal <- function(X, index, metrics,
       if(nrow(X) == 0){
         return(NULL)
       }
-    } else if(class(index) == "numeric"){
-      if(length(index) != nrow(X)) stop("Index length does not match footprints.")
-      
-    } else if(class(index) == "character"){
-      index <- index[1]
-      if(!index %in% names(X)) stop("Index column not found in footprints.")
-      
+    } else if(class(index) == "numeric" | class(index) == "character"){
+      if(length(index) != nrow(X)){
+        index <- colnames(X)[index[1]]
+        if(!index %in% names(X)) stop("Index column not found in footprints.")
+      }
     } else{
       warning("Index must be a polygon or a column name/index. Ignoring input.")
       index <- rep(1, nrow(X))
