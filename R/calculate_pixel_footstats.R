@@ -32,6 +32,7 @@
 #' @param parallel logical. Should a parallel backend be used to process the
 #'   tiles.
 #' @param nCores number of CPU cores to use if \code{parallel} is \code{TRUE}.
+#'   Default is 1 less than the available CPUs.
 #' @param tileSize number of pixels per side of a tile. Can be a vector of
 #'   length 2 (rows, column pixels). Ignored if n provided. Default is 1000.
 #' @param outputPath (optional). When creating a gridded output, a path for the
@@ -58,7 +59,7 @@
 #' @return Invisible. Returns a vector of paths to the output files.
 #' 
 #' @examples 
-#' data(kampala)
+#' data("kampala", package="foot")
 #' buildings <- kampala$buildings
 #' templateGrid <- kampala$mastergrid
 #' 
@@ -322,8 +323,6 @@ calc_fs_px_internal <- function(X,
       cl <- parallel::makeCluster(spec=nCores, type="PSOCK")
       parallel::clusterExport(cl, 
                               varlist=c("X",
-                                        # "tiles",
-                                        # "tilesBuff",
                                         "template",
                                         "metrics",
                                         "controlUnits",
@@ -345,6 +344,7 @@ calc_fs_px_internal <- function(X,
 
     foreach::foreach(job=iterators::iter(tiles, by="row"),
                      jobBuff=iterators::iter(tilesBuff, by="row"),
+                     .inorder=FALSE,
                      .export="process_tile"
                      ) %dopar% {
       mgTile <- stars::st_as_stars(template[,job$xl:job$xu, job$yl:job$yu])
@@ -514,14 +514,6 @@ process_tile <- function(mgTile, mgBuffTile,
           mgPolyArea <- mgPoly
         }
         
-        # # get index to pixels
-        # if(verbose){ cat("Generating zonal index \n") }
-        # Xsub <- zonalIndex(Xsub, zone=mgPolyArea, clip=clip, returnObject=TRUE)
-        # # drop non-intersecting buildings
-        # Xsub <- subset(Xsub, !is.na(zoneID))
-        # if(is.null(Xsub) | nrow(Xsub) == 0){
-        #   return(NULL)
-        # }
         # footprint statistics within the tile
         tileResults <- calculate_footstats(Xsub,
                                            index=mgPolyArea,
@@ -607,5 +599,5 @@ write_tile <- function(outGrid, outName, tries=100, update=FALSE){
     tryCount <- tryCount + 1
     Sys.sleep(1) 
   }
-  if(tryCount > tryThreshold) stop("Writing failed after 100 tries, exiting.")
+  if(tryCount > tryThreshold) stop(paste0("Writing failed after ", tries, " tries, exiting."))
 }
