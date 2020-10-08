@@ -81,44 +81,52 @@ fs_angle_entropy_calc <- function(X, index, normalize=TRUE){
     X[["fs_angle"]] <- sapply(sf::st_geometry(X), fs_mbr)
   }
   
+  indexCol <- "index" # default
+  
   if(is.null(index)){
-    warning("No index found, treating as one group.")
+    message("No index found, treating as one group.")
     index <- rep(1, nrow(X))
   } else{
-    if(length(index)==1){
-      if((is.numeric(index) & index <= ncol(X)) | 
-         (is.character(index) & index %in% names(X))){
-        index <- X[[index]]
+    if(is.character(index)){ 
+      if(length(index)==1){ 
+        if(nrow(X)>1){ # it must be a column name
+          if(!index %in% colnames(X)){
+            stop("Index column not found in footprints.")
+          } else{
+            indexCol <- index
+            index <- X[[indexCol]]
+          }
+        } # potential issue if 1 row X and 1 column name - won't affect calcs
+      } else if(length(index != nrow(X))){
+        stop("Invalid length of zonal index.")
+      } 
+    } else if(is.numeric(index)){
+      if(length(index) != nrow(X)){
+        stop("Invalid length of zonal index.")
       }
-    } else if(length(index) != nrow(X)){
-      message("Invalid index")
-      stop()
     }
   } 
   
-  # abins <- cut(0:360, seq(5, 355, 10), labels=F) + 1
-  # abins[is.na(abins)] <- 1
-  
   colNam <- "fs_angle_entropy"
-  DT <- data.table::data.table(index=c(index, index), 
+  DT <- data.table::data.table(idxCol=c(index, index), 
                                area_calc=c(X[["fs_angle"]], (X[["fs_angle"]] + 180) %% 360)
                               )
+  data.table::setnames(DT, "idxCol", indexCol)
+  
   DT[, bin := cut(area_calc, seq(5, 355, 10), labels=F) + 1]
   DT[is.na(bin), bin := 1]
   
-  data.table::setkey(DT, index)
+  data.table::setkeyv(DT, indexCol)
   result <- DT[, list(entropy = -1 * sum(prop.table(table(bin)) * 
                                          log(prop.table(table(bin)))) ), 
-             by=index]
+             by=indexCol]
   
   if(normalize){ # based on Boeing (2019)
     hmax <- 3.584
     hg <- 1.386
-    
     result[, entropy := 1 - ((entropy-hg) / (hmax - hg))^2, by=index]
   } 
-  
   data.table::setnames(result, "entropy", colNam)
   
-  return(result)
+  return(result[]) # [] trick needed to print on return because used ':='. known data.table bug
 }
