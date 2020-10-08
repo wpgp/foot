@@ -9,8 +9,7 @@
 #' @param index A spatial polygon file defining areas. Or a character or numeric
 #'   value identifying a column within \code{X} which provides a zonal index for
 #'   summarising values. Alternatively a vector of indices can be provided. If
-#'   omitted all observations with
-#'   \code{X} are assumed to be within one zone.
+#'   omitted all observations with \code{X} are assumed to be within one zone.
 #' @param metrics character vector. Names of footprint statistics in the form of
 #'   "fs_area_mean", etc. Other options include \code{ALL} or \code{NODIST} to
 #'   calculate all available metrics and all except nearest neighbour distances,
@@ -28,7 +27,7 @@
 #'   named columns for each footprint summary statistic.
 #'   
 #' @examples 
-#' data(kampala)
+#' data("kampala", package="foot")
 #' buildings <- kampala$buildings
 #' adminzones <- kampala$adminZones
 #' 
@@ -226,48 +225,16 @@ calc_fs_internal <- function(X, index, metrics,
   # select and expand list of metrics
   if(verbose){ cat("Selecting metrics \n") }
   metrics <- get_fs_metrics(short_names=metrics, group=metrics)
-  # if(toupper(metrics[1]) == 'ALL'){
-  #   metrics <- get_fs_metrics("ALL")
-  # }
-  # 
-  # if(toupper(metrics[1]) == "NODIST"){
-  #   metrics <- get_fs_metrics("NODIST")
-  # }
-  
-  # if(any(grepl("area_cv", metrics, fixed=T))){
-  #   metrics <- c(metrics, "fs_area_mean", "fs_area_sd")
-  #   metrics <- metrics[!grepl("area_cv", metrics)]
-  #   area_cv <- TRUE
-  # } else{
-  #   area_cv <- FALSE
-  # }
-  # 
-  # if(any(grepl("perim_cv", metrics, fixed=T))){
-  #   metrics <- c(metrics, "fs_perim_mean", "fs_perim_sd")
-  #   metrics <- metrics[!grepl("perim_cv", metrics)]
-  #   perim_cv <- TRUE
-  # } else{
-  #   perim_cv <- FALSE
-  # }
-  
-  # if(any(grepl("compact", metrics, fixed=T))){
-  #   compact <- TRUE
-  # } else{
-  #   compact <- FALSE
-  # }
   
   nnIndex <- FALSE
   if(any(grepl("nnindex", metrics, fixed=T))){
-    # metrics <- c(metrics, "fs_nndist_mean", "fs_count")
+    # calculated after the main processing loop
     metrics <- metrics[!grepl("nnindex", metrics)]
     nnIndex <- TRUE
     # 
     if(!exists("indexZones")){
       warning("Nearest neighbour index requires zonal areas.")
       nnIndex <- FALSE
-    #   zonalArea <- data.table::data.table(index=indexZones$index, 
-    #                                       zoneArea=fs_area(indexZones, 
-    #                                                        unit=controlUnits$areaUnit))
     }
   } 
   
@@ -331,8 +298,7 @@ calc_fs_internal <- function(X, index, metrics,
   result <- lapply(seq_along(metrics_calc), function(current_metric){
     if(verbose){ cat("  ", metrics[[current_metric]], " \n") }
     func <- get(metrics_calc[[current_metric]], mode="function")
-    
-    # getUnit <- fs_footprint_metrics$default_units[match(metrics[[current_metric]], fs_footprint_metrics$name)]
+
     getUnit <- switch(get_fs_group(metrics[[current_metric]]), 
                       area = controlUnits$areaUnit,
                       perim = controlUnits$perimUnit,
@@ -356,22 +322,9 @@ calc_fs_internal <- function(X, index, metrics,
   # merge all
   merged_result <- Reduce(function(...) merge(...), result)
 
-  # if(area_cv){
-  #   merged_result[, fs_area_cv:=fs_area_ha_sd / fs_area_ha_mean]
-  # }
-  # 
-  # if(perim_cv){
-  #   merged_result[, fs_perim_cv:=fs_perim_m_sd / fs_perim_m_mean]
-  # }
-  
   if(nnIndex){
     if(verbose){ cat("  Calculating nearest neighbour index... \n")}
     nniDT <- fs_nnindex(X, index=indexZones, unit=controlUnits$distUnit)
-    # nniDT <- merged_result[, list(index, fs_nndist_m_mean, fs_count)]
-    # nniDT <- merge(nniDT, zonalArea, by.x="index", by.y="zoneID")
-    # nniDT[, fs_nnindex := fs_nndist_m_mean / (0.5 * sqrt(zoneArea / fs_count)), by=index]
-    # units(nniDT$fs_nnindex) <- NULL
-    
     merged_result <- merge(merged_result, 
                            nniDT[, list(index, fs_nnindex)], 
                            by="index")
