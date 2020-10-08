@@ -8,17 +8,23 @@
 #' Default is \code{TRUE}.
 #' 
 #' @details This measure uses the angle of the minimum rotated rectangle
-#'   enclosing each footprint poygon. Entropy is an information criteria
+#'   enclosing each footprint polygon. Entropy is an information criteria
 #'   measure. When summarising the angles of footprints, higher entropy values
 #'   may suggest less formally planned or zoned areas. The entropy calculation
 #'   uses the common Shannon's Entropy. The normalization step produces an
-#'   indicator for how much a zone departs from a grid.
+#'   indicator for how much a zone departs from a grid. This metric is based on
+#'   work by Boeing (2019).
 #'
 #' @return \code{data.table} of zonal indices and values.
 #' 
+#' @references Boeing, Geoff (2019). "Urban spatial order: Street network
+#'   orientation, configuration, and entropy." Applied Network Science, 4(67),
+#'   \url{https://doi.org/10.1007/s41109-019-0189-1}.
+#' 
 #' @examples 
-#' data(kampala)
+#' data("kampala", package="foot")
 #' b <- kampala$buildings
+#' 
 #' # assign random groups
 #' idx <- sample(1:10, nrow(b), replace=T)
 #' 
@@ -31,7 +37,9 @@
 #' @rdname fs_angle_entropy
 #' 
 #' @export 
-fs_angle_entropy <- function(X, index=NULL, col=NULL, normalize=TRUE) UseMethod("fs_angle_entropy")
+fs_angle_entropy <- function(X, index=NULL, 
+                             col=NULL, 
+                             normalize=TRUE) UseMethod("fs_angle_entropy")
 
 
 #' @name fs_angle_entropy
