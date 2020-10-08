@@ -64,7 +64,7 @@ fs_area_sd_calc <- function(X, index, unit=NULL){
   }
   
   if(is.null(index)){
-    warning("No index found, treating as one group.")
+    message("No index found, treating as one group.")
     index <- rep(1, nrow(X))
   } else{
     if(length(index)==1){
@@ -73,8 +73,7 @@ fs_area_sd_calc <- function(X, index, unit=NULL){
         index <- X[[index]]
       }
     } else if(length(index) != nrow(X)){
-      message("Invalid index")
-      stop()
+      stop("Invalid index")
     }
   } 
   
