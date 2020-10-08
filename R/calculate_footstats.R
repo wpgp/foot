@@ -6,10 +6,11 @@
 #'   multiple spatial types, including \code{sf} and \code{sp}, or a filepath
 #'   string to a file, or a list where each member provides a spatial object or
 #'   a filepath string.
-#' @param index A spatial polygon file defining areas. Or a character or numeric
-#'   value identifying a column within \code{X} which provides a zonal index for
-#'   summarising values. Alternatively a vector of indices can be provided. If
-#'   omitted all observations with \code{X} are assumed to be within one zone.
+#' @param index A spatial polygon file defining areas. Or a string identifying a
+#'   column within \code{X} which provides a zonal index for summarising values.
+#'   Alternatively a vector of indices (with \code{length(index)==nrow(X)}) can
+#'   be provided. If omitted, all observations in \code{X} are assumed to be
+#'   within one zone.
 #' @param metrics character vector. Names of footprint statistics in the form of
 #'   "fs_area_mean", etc. Other options include \code{ALL} or \code{NODIST} to
 #'   calculate all available metrics and all except nearest neighbour distances,
@@ -227,16 +228,25 @@ calc_fs_internal <- function(X, index, metrics,
       if(nrow(X) == 0){
         return(NULL)
       }
-    } else if(class(index) == "numeric" | class(index) == "character"){
+    } else if(is.character(index)){ # could be column or a vector of str codes
+      if(length(index)==1){ # do we only have 1 footprint?
+        if(nrow(X)>1){ # it must be a column name
+          if(!index %in% colnames(X)){
+            stop("Index column not found in footprints.")
+          } 
+        } 
+      } else if(length(index != nrow(X))){
+        stop("Invalid length of zonal index.")
+      }
+    } else if(is.numeric(index)){
       if(length(index) != nrow(X)){
-        index <- colnames(X)[index[1]]
-        if(!index %in% names(X)) stop("Index column not found in footprints.")
+        stop("Invalid length of zonal index.")
       }
     } else{
-      warning("Index must be a polygon or a column name/index. Ignoring input.")
+      warning("Index must be a polygon, vector or a column name. Ignoring input.")
       index <- rep(1, nrow(X))
     }
-  }
+      
   # check for empty zone intersection
   if(is.null(X) | nrow(X) == 0){
     return(NULL)
