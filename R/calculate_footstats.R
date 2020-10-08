@@ -234,7 +234,7 @@ calc_fs_internal <- function(X, index, metrics,
           if(!index %in% colnames(X)){
             stop("Index column not found in footprints.")
           } 
-        } 
+        } # potential issue if 1 row X and 1 column name - won't affect calcs
       } else if(length(index != nrow(X))){
         stop("Invalid length of zonal index.")
       }
@@ -242,10 +242,11 @@ calc_fs_internal <- function(X, index, metrics,
       if(length(index) != nrow(X)){
         stop("Invalid length of zonal index.")
       }
-    } else{
-      warning("Index must be a polygon, vector or a column name. Ignoring input.")
-      index <- rep(1, nrow(X))
     }
+  } else{ # index is null
+    warning("Index must be a polygon, vector or a column name. Ignoring input.")
+    index <- rep(1, nrow(X))
+  }
       
   # check for empty zone intersection
   if(is.null(X) | nrow(X) == 0){
