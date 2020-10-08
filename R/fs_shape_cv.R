@@ -17,33 +17,33 @@
 #' data("kampala", package="foot")
 #' 
 #' buildings = kampala$buildings
-#' fs_shape_mean(buildings)
+#' fs_shape_cv(buildings)
 #'  
 #' @import data.table
 #' 
-#' @aliases fs_shape_mean
-#' @rdname fs_shape_mean
+#' @aliases fs_shape_cv
+#' @rdname fs_shape_cv
 #' 
 #' @export 
-fs_shape_mean <- function(X, 
-                          index=NULL, 
-                          unit=NULL, 
-                          col=NULL) UseMethod("fs_shape_mean")
+fs_shape_cv <- function(X, 
+                        index=NULL, 
+                        unit=NULL, 
+                        col=NULL) UseMethod("fs_shape_cv")
 
 
-#' @name fs_shape_mean
+#' @name fs_shape_cv
 #' @export
-fs_shape_mean.sp <- function(X, index=NULL, unit=NULL, col=NULL){
+fs_shape_cv <- function(X, index=NULL, unit=NULL, col=NULL){
   X <- sf::st_as_sf(X)
   
-  result <- fs_shape_mean(X, index, unit, col)
+  result <- fs_shape_cv(X, index, unit, col)
   return(result)
 }
 
 
-#' @name fs_shape_mean
+#' @name fs_shape_cv
 #' @export
-fs_shape_mean.sf <- function(X, index=NULL, unit=NULL, col=NULL){
+fs_shape_cv <- function(X, index=NULL, unit=NULL, col=NULL){
   if(!is.null(col)){
     # warning("Ignoring supplied column.")
     if(!col %in% names(X)){
@@ -67,21 +67,21 @@ fs_shape_mean.sf <- function(X, index=NULL, unit=NULL, col=NULL){
         unit <- "m^2"
       }
     }
-
+    
     X[["fs_shape"]] <- fs_shape(X)
-    result <- fs_shape_mean_calc(X, index, unit)
+    result <- fs_shape_cv_calc(X, index, unit)
   }
   return(result)
 }
 
 
-fs_shape_mean_calc <- function(X, index, unit=NULL){
+fs_shape_cv_calc <- function(X, index, unit=NULL){
   if(!"fs_shape" %in% names(X)){
     X[["fs_shape"]] <- fs_shape(X, unit=unit)
   } 
-    
+  
   if(is.null(index)){
-    warning("No index found, treating as one group.")
+    message("No index found, treating as one group.")
     index <- rep(1, nrow(X))
   } else{
     if(length(index)==1){
@@ -90,16 +90,22 @@ fs_shape_mean_calc <- function(X, index, unit=NULL){
         index <- X[[index]]
       }
     } else if(length(index) != nrow(X)){
-      message("Invalid index")
-      stop()
+      stop("Invalid index")
     }
   } 
   
-  colNam <- "fs_shape_mean"
-  DT <- data.table::data.table(index=index, 
-                               area_calc=X[["fs_shape"]])
-  data.table::setkey(DT, index)
-  result <- DT[, setNames(.(mean(area_calc)), colNam), by=index]
+  meanDT <- fs_shape_mean(X, index=index, unit=unit, col="fs_shape")
+  sdDT <- fs_shape_sd(X, index=index, unit=unit, col="fs_shape")
   
-  return(result)
+  mCol <- paste0("fs_shape_mean")
+  sdCol <- paste0("fs_shape_sd")
+  
+  DT <- merge(meanDT, sdDT, by="index")
+  DT[, area_calc := get(sdCol) / get(mCol), by=index]
+  
+  colNam <- "fs_shape_cv"
+  data.table::setkey(DT, index)
+  data.table::setnames(DT, "area_calc", colNam)
+  
+  return(DT[, list(index, fs_shape_cv)])
 }

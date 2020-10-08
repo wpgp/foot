@@ -71,13 +71,11 @@ fs_compact <- function(X){
   if(!inherits(X, 'sf')){
     X <- sf::st_as_sf(X)
   }
-  
-  if(!"fs_area" %in% names(X)){
-    if(any(!sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON"))){
+
+  if(any(!sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON"))){
       stop("Area requires polygons")
-    } else{
+  } else{
       X[["fs_area"]] <- fs_area(X, unit="m^2")
-    }
   }
   
   if(!"fs_perimeter" %in% names(X)){
@@ -99,6 +97,8 @@ fs_compact <- function(X){
 #' 
 #' @description Calculates a measure of shape or "roundness".
 #' @param X polygons of building footprints of type \code{sf}.
+#' @param unit string indicating unit of measure. Passed to
+#'   \code{units::set_units}.
 #' @return numeric vector with shape index values ranging from 0 to 1 or each
 #'   item in \code{X}.
 #' 
@@ -110,9 +110,18 @@ fs_compact <- function(X){
 #' The function first looks for pre-calculated values of area in a field called
 #' \code{fs_area}. If not present, the areas are calculated in m^2.
 #' 
+#' @examples 
+#' data("kampala", package="foot")
+#' buildings = kampala$buildings
+#' 
+#' fs_shape(buildings)
+#' 
+#' # how the calculation is done - first observation
+#' fs_area(buildings[1,]) / fs_area(fs_mbc(buildings[1,]))
+#' 
 #' @name fs_shape
 #' @export
-fs_shape <- function(X){
+fs_shape <- function(X, unit=NULL){
   if(!inherits(X, "sf")){
     X <- sf::st_as_sf(X)
   }
@@ -121,17 +130,21 @@ fs_shape <- function(X){
     stop("Shape index requires polygons")
   } 
   
+  if(is.null(unit)){
+    unit <- "m^2"
+  }
+  
   if(!"fs_area" %in% names(X)){
-    X[["fs_area"]] <- fs_area(X, unit="m^2")
+    X[["fs_area"]] <- fs_area(X, unit=unit)
   } else{
-    units(X$fs_area) <- units::as_units("m^2")
+    units(X$fs_area) <- units::as_units(unit)
   }
   
   DT <- data.table::data.table(sf::st_drop_geometry(X),
                                geom=sf::st_geometry(X))
   
   DT[, mbc := fs_mbc(geom)]
-  DT[, mbcA := fs_area(mbc, unit="m^2")]
+  DT[, mbcA := fs_area(mbc, unit=unit)]
   # calculate index
   DT[, shapeIdx := fs_area / mbcA]
   units(DT$shapeIdx) <- NULL
