@@ -68,26 +68,38 @@ fs_area_min_calc <- function(X, index=NULL, unit=NULL){
     unit <- st_crs(X)$units
   }
   
+  indexCol <- "index" # default
+  
   if(is.null(index)){
-    warning("No index found, treating as one group.")
+    message("No index found, treating as one group.")
     index <- rep(1, nrow(X))
   } else{
-    if(length(index)==1){
-      if((is.numeric(index) & index <= ncol(X)) | 
-         (is.character(index) & index %in% names(X))){
-        index <- X[[index]]
+    if(is.character(index)){ 
+      if(length(index)==1){ 
+        if(nrow(X)>1){ # it must be a column name
+          if(!index %in% colnames(X)){
+            stop("Index column not found in footprints.")
+          } else{
+            indexCol <- index
+            index <- X[[indexCol]]
+          }
+        } # potential issue if 1 row X and 1 column name - won't affect calcs
+      } else if(length(index != nrow(X))){
+        stop("Invalid length of zonal index.")
+      } 
+    } else if(is.numeric(index)){
+      if(length(index) != nrow(X)){
+        stop("Invalid length of zonal index.")
       }
-    } else if(length(index) != nrow(X)){
-      message("Invalid index")
-      stop()
     }
-  }
+  } 
   
   colNam <- paste0("fs_area_", unit, "_min")
-  DT <- data.table::data.table(index=index, 
+  DT <- data.table::data.table(idxCol=index, 
                                area_calc=X[["fs_area"]])
-  data.table::setkey(DT, index)
-  result <- DT[, setNames(.(min(area_calc)), colNam), by=index]
+  data.table::setnames(DT, "idxCol", indexCol)
+  data.table::setkeyv(DT, indexCol)
+  result <- DT[, setNames(.(min(area_calc)), colNam), by=indexCol]
   
   return(result)
 }

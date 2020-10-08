@@ -4,10 +4,10 @@
 #' footprint polygons within zones.
 #' 
 #' @param X Spatial object with building footprint polygons
-#' @param index A character or numeric value identifying a column within
-#'   \code{X} which provides a zonal index for summarising values. Alternatively
-#'   a vector of indices can be provided. If omitted, all observations in
-#'   \code{X} are assumed to be within one zone.
+#' @param index A string identifying a column within \code{X} which provides a
+#'   zonal index for summarising values. Alternatively a vector of indices can
+#'   be provided. If omitted, all observations in \code{X} are assumed to be
+#'   within one zone.
 #' @param unit character or \code{units} object to define area. Default is
 #'   \code{NULL} which will use the units of the spatial reference system
 #' @param col column name within \code{X} with pre-calculated area measures
@@ -110,7 +110,7 @@ fs_area_mean_calc <- function(X, index=NULL, unit=NULL){
                                area_calc=X[["fs_area"]])
   data.table::setnames(DT, "idxCol", indexCol)
   data.table::setkeyv(DT, indexCol)
-  result <- DT[, setNames(.(mean(area_calc)), colNam), by=..indexCol]
+  result <- DT[, setNames(.(mean(area_calc)), colNam), by=indexCol]
   
   return(result)
 }
