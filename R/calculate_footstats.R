@@ -21,23 +21,11 @@
 #'   \code{areaUnit}, \code{perimUnit}, and \code{distUnit}. The values for
 #'   these items should be strings that can be coerced into a \code{units}
 #'   object.
-#' @param clip (optional). Logical. Should polygons which span pixel zones be
-#'   clipped? Default is \code{FALSE}. 
-#' @param gridded Should a gridded output be created? Default \code{FALSE}.
-#' @param template (optional). When creating a gridded output, a supplied
-#'   \code{stars} or \code{raster} dataset to align the data.
-#' @param outputPath (optional). When creating a gridded output, a path for the
-#'   location of the output.
-#' @param outputTag (optional). A character string that will be added tagged to
-#'   the beginning of the output gridded files. If \code{X} is a \code{list},
-#'   then the names of the list items will be used or a vector of tags of the
-#'   same length as \code{X} should be supplied.
-#' @param driver character. Currently supports geotiff ("GTiff").
 #' @param verbose logical. Should progress messages be printed. 
 #' Default \code{False}.
 #' 
-#' @return a \code{data.table} with an 'index' column and named columns for each
-#'   footprint statistic. Alternatively, geoTiffs of 
+#' @return a \code{data.table} with an 'index' column identify the zone and
+#'   named columns for each footprint summary statistic.
 #'   
 #' @examples 
 #' data(kampala)
@@ -58,12 +46,6 @@ calculate_footstats <- function(X,
                                 minArea=NULL,
                                 maxArea=NULL,
                                 controlUnits=NULL,
-                                clip=FALSE,
-                                gridded=FALSE, 
-                                template=NULL,
-                                outputPath=NULL,
-                                outputTag=NULL,
-                                driver="GTiff",
                                 verbose=FALSE) UseMethod("calculate_footstats")
 
 #' @name calculate_footstats
@@ -72,11 +54,6 @@ calculate_footstats.sf <- function(X, index=NULL, metrics='all',
                                    minArea=NULL,
                                    maxArea=NULL,
                                    controlUnits=NULL,
-                                   clip=FALSE,
-                                   gridded=FALSE, template=NULL, 
-                                   outputPath=NULL, 
-                                   outputTag=NULL,
-                                   driver="GTiff",
                                    verbose=FALSE){
   
   if(any(!sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON") )){
@@ -85,8 +62,6 @@ calculate_footstats.sf <- function(X, index=NULL, metrics='all',
   }
   
   result <- calc_fs_internal(X, index, metrics, minArea, maxArea,
-                             controlUnits, clip, gridded, 
-                             template, outputPath, outputTag, driver, verbose)
   
   return(result)
 }
@@ -98,11 +73,6 @@ calculate_footstats.sfc <- function(X, index=NULL, metrics='all',
                                     minArea=NULL,
                                     maxArea=NULL,
                                     controlUnits=NULL,
-                                    clip=FALSE,
-                                    gridded=FALSE, template=NULL, 
-                                    outputPath=NULL, 
-                                    outputTag=NULL,
-                                    driver="GTiff",
                                     verbose=FALSE){
   # cast to sf for consistency
   X <- sf::st_as_sf(X)
@@ -110,11 +80,6 @@ calculate_footstats.sfc <- function(X, index=NULL, metrics='all',
   result <- calculate_footstats(X, index=index, metrics=metrics, 
                                 minArea=minArea, maxArea=maxArea,
                                 controlUnits=controlUnits,
-                                clip=clip,
-                                gridded=gridded, template=template, 
-                                outputPath=outputPath, 
-                                outputTag=outputTag,
-                                driver=driver,
                                 verbose=verbose)
   return(result)
 }
@@ -126,22 +91,12 @@ calculate_footstats.sp <- function(X, index=NULL, metrics='all',
                                    minArea=NULL,
                                    maxArea=NULL,
                                    controlUnits=NULL,
-                                   clip=FALSE,
-                                   gridded=FALSE, template=NULL, 
-                                   outputPath=NULL, 
-                                   outputTag=NULL,
-                                   driver="GTiff",
                                    verbose=FALSE){
   # convert to sf
   X <- sf::st_as_sf(X)
   
   result <- calculate_footstats(X, index=index, metrics=metrics, 
                                 minArea=minArea, maxArea=maxArea,
-                                controlUnits=controlUnits, clip=clip,
-                                gridded=gridded, template=template, 
-                                outputPath=outputPath, 
-                                outputTag=outputTag,
-                                driver=driver,
                                 verbose=verbose)
   return(result)
 }
@@ -153,11 +108,6 @@ calculate_footstats.character <- function(X, index=NULL, metrics='all',
                                           minArea=NULL,
                                           maxArea=NULL,
                                           controlUnits=NULL,
-                                          clip=FALSE,
-                                          gridded=FALSE, template=NULL, 
-                                          outputPath=NULL, 
-                                          outputTag=NULL,
-                                          driver="GTiff",
                                           verbose=FALSE){
   # attempt to read in file
   X <- sf::st_read(X)
@@ -165,11 +115,6 @@ calculate_footstats.character <- function(X, index=NULL, metrics='all',
   result <- calculate_footstats(X, index=index, metrics=metrics, 
                                 minArea, maxArea,
                                 controlUnits=controlUnits,
-                                clip=clip,
-                                gridded=gridded, template=template, 
-                                outputPath=outputPath, 
-                                outputTag=outputTag,
-                                driver=driver,
                                 verbose=verbose)
   return(result)
 }
@@ -181,11 +126,6 @@ calculate_footstats.list <- function(X, index=NULL, metrics='all',
                                      minArea=NULL,
                                      maxArea=NULL,
                                      controlUnits=NULL,
-                                     clip=FALSE,
-                                     gridded=FALSE, template=NULL, 
-                                     outputPath=NULL, 
-                                     outputTag=NULL,
-                                     driver="GTiff",
                                      verbose=FALSE){
   
   if(is.null(outputTag)){
@@ -203,9 +143,6 @@ calculate_footstats.list <- function(X, index=NULL, metrics='all',
   # expand other arguments - recycling values
   args <- list(index=index, metrics=metrics, 
                minArea=minArea, maxArea=maxArea,
-               controlUnits=controlUnits, clip=clip,
-               gridded=gridded, template=template, 
-               outputPath=outputPath, driver=driver, 
                verbose=verbose)
   maxL <- max(lengths(args), length(X))
   args <- lapply(args, rep, length.out=maxL)
@@ -217,12 +154,6 @@ calculate_footstats.list <- function(X, index=NULL, metrics='all',
                         minArea=args$minArea[i],
                         maxArea=args$maxArea[i],
                         controlUnits=args$controlUnits[i],
-                        clip=args$clip[i],
-                        gridded=args$gridded[i], 
-                        template=args$template[i],
-                        outputPath=args$outputPath[i], 
-                        outputTag=outputTag[[i]],
-                        driver=args$driver[i], 
                         verbose=args$verbose[i])
   })
   
@@ -232,10 +163,6 @@ calculate_footstats.list <- function(X, index=NULL, metrics='all',
 
 calc_fs_internal <- function(X, index, metrics, 
                              minArea, maxArea,
-                             controlUnits, clip,
-                             gridded, template, 
-                             outputPath, outputTag, driver, verbose){
-  
   if(is.na(st_crs(X))){
     stop("Polygons must have a spatial reference.")
   }
@@ -450,74 +377,7 @@ calc_fs_internal <- function(X, index, metrics,
                            by="index")
   }
   if(verbose){ cat("Finished calculating metrics. \n") }
-  
-  # output
-  if(gridded==TRUE){
-    if(verbose){ cat("\nCreating gridded datasets \n") }
-    
-    if(is.null(outputPath)){
-      outputPath <- tempdir()
-    } else{
-      dir.create(outputPath)
-    }
-    
-    # get template for aligning gridded output
-    if(is.null(template)){
-      template <- stars::st_as_stars(sf::st_bbox(X), values=NA_real_)  # default resolution
-    } else if(inherits(template, "stars")){
-      # no change?
-    } else if(class(template) == "RasterLayer"){
-      template <- stars::st_as_stars(template)
-    } else if(class(template) == "character"){
-      template <- stars::read_stars(template)[1]
-    } else{
-      stop("Error opening template dataset.")
-    }
-    
-    template[!is.na(template)] <- NA
-        
-    if(exists("indexZones")){ # process buildings
-      spatial_result <- merge(indexZones, merged_result, by.x="index", by.y="index")
-      
-    } else{
-      if(sf::st_crs(template) != sf::st_crs(X)){
-        stop("CRS for buildings and template raster not matching.")
-      }
-      
-      # use building centroids to rasterize
-      if(!any(sf::st_geometry_type(X) %in% c("POINT"))){
-        X <- sf::st_centroid(X)
-      }
 
-      mp <- sf::st_cast(sf::st_geometry(X), 
-                        to="MULTIPOINT", 
-                        ids=X[[index]], 
-                        group_or_split=TRUE)
-      X <- sf::st_sf(index=unique(X[[index]]), geometry=mp, crs=sf::st_crs(X))
-      names(X)[1] <- index
-      
-      spatial_result <- merge(X, merged_result, by.x=index, by.y="index")
-    }
-    
-    if(verbose){ cat("Writing grids... \n") }
-    for(val in names(merged_result)[!names(merged_result) %in% "index"]){
-      if(is.null(outputTag)){
-        outName <- paste(val, "tif", sep=".")
-      } else{
-        outName <- paste(outputTag, "_", val, "tif", sep=".")
-      }
-      
-      if(verbose){ cat(" ", outName, "\n") }
-      stars::st_rasterize(spatial_result[val], 
-                          file=file.path(outputPath, outName), 
-                          template=template,
-                          driver=driver,
-                          options="compress=LZW")
-    }
-    if(verbose){ cat("Finished writing grids\n") }
-  }
-  
-  # if(verbose){ cat("Finished!\n") }
   return(merged_result)
 }
 
