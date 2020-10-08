@@ -50,7 +50,8 @@ clusters <- kampala$clusters
 # calculate distance between buildings in m
 fs_nndist(buildings, unit="m")
 
-# calculate unrestricted distance between buildings and points
+# calculate unrestricted distance 
+# between buildings and another set of points
 fs_nndist(buildings, sf::st_centroid(clusters), maxSearch=NULL)
 
 # use footprint centroids

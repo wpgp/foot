@@ -13,7 +13,9 @@ usethis::use_package("parallel")
 usethis::use_package("foreach")
 usethis::use_package("filelock")
 # usethis::use_package("purrr")
+usethis::use_package("iterators")
 usethis::use_package("units")
+usethis::use_package("mmap")
 
 # package documentation
 devtools::document()
