@@ -1,5 +1,5 @@
 Package: foot
-Title: A package for processing building footprints
+Title: foot: An R package for processing building footprints
 Version: 0.4.1
 Date: 2020-10-01
 Authors@R: 
@@ -34,7 +34,7 @@ Imports:
     units,
     filelock
 LazyData: true
-Description: Support for morphometric calculations and zonal summaries of measures derived from building footprint polygons.
+Description: Support for morphometric calculations and generating gridded or zonal summaries of measures derived from building footprint polygons.
 Encoding: UTF-8
 RoxygenNote: 7.1.0
 Suggests: 
