@@ -13,7 +13,7 @@
 #'   measures.
 #' @return \code{data.table} of zonal indices and values
 #'
-#' @details The nearest neighbour index (NNI) is a measure of clustering. It
+#' @details The nearest neighbour index (NNI) is a measure of spatial clustering. It
 #'   compares the observed mean neighbour distances with a hypothetical maximum
 #'   of dispersed observations given the area of the zone. Note that NNI is
 #'   sensitive to changes in the zone area.
@@ -21,6 +21,10 @@
 #'   \deqn{ NNI_z = \frac{\bar{NND_z}}{(0.5 * \sqrt{\frac{A_z}{n_z}}})}, 
 #'   where z is the zone, A is the area, NND is the mean nearest neighbour
 #'   distance, and n is the count.
+#'   
+#'   If a pre-calculated neighbour distance is not supplied, the function uses
+#'   \code{fs_nndist} to calculate the distance between centroids of the
+#'   building footprints within the same spatial zone indicated by \code{index}.
 #' 
 #' @import data.table
 #' 
@@ -101,26 +105,30 @@ fs_nnindex_calc <- function(X, index, unit=NULL){
     }
     index$index <- 1:nrow(index)
     
-    X <- zonalIndex(X, index, returnObject=TRUE)
+    X <- zonalIndex(X, zone=index, method="centroid", returnObject=TRUE)
     
     zonalArea <- data.table::data.table(index=index$index, 
                                         zoneArea=fs_area(index, 
                                                          unit=paste0(unit, "^2")))
   }
   
-  # get NN distance only within each zone
-  # use centroid points rather than polygon edge distances
-  X <- sf::st_set_geometry(X, sf::st_geometry(sf::st_centroid(X)))
-  xDT <- data.table::data.table(X)
-  meanDT <- xDT[, list(dist=mean(fs_nndist(sf::st_as_sf(.SD), 
-                                           maxSearch=NULL, 
-                                           unit=unit)) ), 
-                by="zoneID"]
+  if("fs_nndist" %in% names(X)){
+    meanDT <- fs_nndist_mean(X, index=X$zoneID, unit=unit, col="fs_nndist")
+  } else{
+    # get NN distance only within each zone
+    # use centroid points rather than polygon edge distances
+    # X <- sf::st_set_geometry(X, sf::st_geometry(sf::st_centroid(X)))
+    xDT <- data.table::data.table(X)
+    meanDT <- xDT[, list(dist=mean(fs_nndist(sf::st_as_sf(.SD), 
+                                             maxSearch=NULL,
+                                             method='centroid',
+                                             unit=unit)) ), 
+                  by="zoneID"]
+    
+    mCol <- paste0("fs_nndist_", unit, "_mean")
+    data.table::setnames(meanDT, c("index", mCol)) 
+  }
 
-  mCol <- paste0("fs_nndist_", unit, "_mean")
-  data.table::setnames(meanDT, c("index", mCol))
-  # meanDT <- fs_nndist_mean(X, index=X$zoneID, unit=unit, col="fs_nndist")
-  
   countDT <- fs_count(X, index=X$zoneID)
   cCol <- "fs_count"
   

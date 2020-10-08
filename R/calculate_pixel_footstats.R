@@ -16,12 +16,14 @@
 #'   template pixel. Creates a focal processing window for metrics.
 #' @param minArea numeric. Minimum footprint area to filter \code{X}.
 #' @param maxArea numeric. Maximum footprint area to filter \code{X}.
-#' @param controlUnits (optional) named list. Elements can include
-#'   \code{areaUnit}, \code{perimUnit}, and \code{distUnit}. The values for
-#'   these items should be strings that can be coerced into a \code{units}
-#'   object.
-#' @param clip (optional). Logical. Should polygons which span pixel zones be
-#'   clipped? Default is \code{FALSE}.
+#' @param controlUnits (Optional) named list to control the units used in the
+#'   geometry functions. Elements can include \code{areaUnit}, \code{perimUnit},
+#'   and \code{distUnit}. The values for these items should be strings that can
+#'   be coerced into a \code{units} object.
+#' @param controlDist (Optional) named list to override default options for
+#'   distance calculations. Elements can include \code{maxSearch} and
+#'   \code{method}. Ignored if \code{metrics} does not include a distance
+#'   calculation. See \code{\link[foot]{fs_nndist}}.
 #' @param zoneMethod One of \code{'centroid', 'intersect', 'clip'}. How should
 #'   footprints which span pixel zones be allocated? Default is by its
 #'   \code{'centroid'}. See \code{\link[foot]{zonalIndex}} for details.
@@ -95,6 +97,7 @@ calculate_bigfoot <- function(X,
                               minArea=NULL,
                               maxArea=NULL,
                               controlUnits=NULL,
+                              controlDist=NULL,
                               zoneMethod='centroid',
                               template=NULL,
                               tileSize=c(500, 500),
@@ -114,6 +117,7 @@ calculate_bigfoot.sf <- function(X,
                                  minArea=NULL,
                                  maxArea=NULL,
                                  controlUnits=NULL,
+                                 controlDist=NULL,
                                  zoneMethod='centroid',
                                  template=NULL,
                                  tileSize=c(500, 500),
@@ -212,6 +216,7 @@ calc_fs_px_internal <- function(X,
                                 minArea,
                                 maxArea,
                                 controlUnits,
+                                controlDist,
                                 zoneMethod,
                                 template,
                                 tileSize,
@@ -243,7 +248,7 @@ calc_fs_px_internal <- function(X,
   # get full list of metrics
   metrics <- get_fs_metrics(short_names=metrics, group=metrics)
   
-  # get full set of units - sort alphabetically to make matches
+  # get full set of unit controls - sort alphabetically to make matches
   providedUnits <- controlUnits
   
   controlUnits <- list(areaUnit=get_fs_units("fs_area_mean"),
@@ -254,6 +259,18 @@ calc_fs_px_internal <- function(X,
   if(!is.null(providedUnits)){
     providedUnits <- providedUnits[order(names(providedUnits))]
     controlUnits[names(controlUnits) %in% names(providedUnits)] <- providedUnits
+  }
+  
+  # get full set of distance calculation controls
+  providedDist <- controlDist
+  # set defaults
+  controlDist <- list(maxSearch=100,
+                      method='poly')
+  controlDist <- controlDist[order(names(controlDist))]
+  # update with provided control values
+  if(!is.null(providedDist)){
+    providedDist <- providedDist[order(names(providedDist))]
+    controlDist[names(controlDist) %in% names(providedDist)] <- providedDist
   }
   
   # create empty output grids to match template
@@ -282,7 +299,7 @@ calc_fs_px_internal <- function(X,
   tiles <- gridTiles(template, px=tileSize)
   
   if(focalRadius > 0){
-    # convert focal radius pixels for extraction (approximation)
+    # convert focal radius to pixels for extraction (approximation)
     # assuming pixels are equal dimensions x,y
     if(sf::st_is_longlat(template)){ # approximate meters
       pxM <- 111111*abs(stars::st_dimensions(template)[[1]]$delta)
@@ -310,6 +327,7 @@ calc_fs_px_internal <- function(X,
                                         "template",
                                         "metrics",
                                         "controlUnits",
+                                        "controlDist",
                                         "focalRadius",
                                         "minArea",
                                         "maxArea",
@@ -335,7 +353,7 @@ calc_fs_px_internal <- function(X,
       process_tile(mgTile, mgBuffTile, 
                    X, metrics, 
                    focalRadius, minArea, maxArea,
-                   controlUnits,
+                   controlUnits, controlDist,
                    zoneMethod,
                    allOutPath,
                    tries,
@@ -362,6 +380,7 @@ calc_fs_px_internal <- function(X,
                    focalRadius, 
                    minArea, maxArea,
                    controlUnits,
+                   controlDist,
                    zoneMethod,
                    allOutPath, 
                    tries,
@@ -379,6 +398,7 @@ calc_fs_px_internal <- function(X,
 process_tile <- function(mgTile, mgBuffTile, 
                          X, metrics, 
                          focalRadius, 
+                         minArea, maxArea, 
                          controlUnits, constrolDist, zoneMethod,
                          allOutPath,
                          tries,
@@ -439,7 +459,10 @@ process_tile <- function(mgTile, mgBuffTile,
       if(any(grepl("nndist", metrics, fixed=T))){
         if(!"fs_nndist" %in% names(Xsub)){
           if(verbose){ cat("Pre-calculating nearest neighbour distances \n") }
-          Xsub[["fs_nndist"]] <- fs_nndist(Xsub, unit=controlUnits$distUnit)
+          Xsub[["fs_nndist"]] <- fs_nndist(Xsub, 
+                                           maxSearch=controlDist$maxSearch, 
+                                           method=controlDist$method, 
+                                           unit=controlUnits$distUnit)
         }
       }
   
@@ -501,12 +524,12 @@ process_tile <- function(mgTile, mgBuffTile,
         # }
         # footprint statistics within the tile
         tileResults <- calculate_footstats(Xsub,
-                                           # index="zoneID",
                                            index=mgPolyArea,
                                            metrics=metrics,
                                            minArea=minArea,
                                            maxArea=maxArea,
                                            controlUnits=controlUnits,
+                                           controlDist=controlDist,
                                            zoneMethod=zoneMethod,
                                            verbose=verbose)
         # clean-up

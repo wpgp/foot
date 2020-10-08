@@ -20,6 +20,9 @@
 #'   \code{areaUnit}, \code{perimUnit}, and \code{distUnit}. The values for
 #'   these items should be strings that can be coerced into a \code{units}
 #'   object.
+#' @param controlDist (Optional) named list to override default options for
+#'   distance calculations. Elements can include \code{maxSearch} and
+#'   \code{method}. Ignored if \code{metrics} does not include a distance
 #'   calculation. See \code{\link[foot]{fs_nndist}}.
 #' @param zoneMethod One of \code{'centroid', 'intersect', 'clip'}. How should
 #'   footprints which span zones be clipped? Default is \code{'centroid'}.
@@ -49,6 +52,7 @@ calculate_footstats <- function(X,
                                 minArea=NULL,
                                 maxArea=NULL,
                                 controlUnits=NULL,
+                                controlDist=NULL,
                                 zoneMethod='centroid',
                                 verbose=FALSE) UseMethod("calculate_footstats")
 
@@ -58,6 +62,7 @@ calculate_footstats.sf <- function(X, index=NULL, metrics='all',
                                    minArea=NULL,
                                    maxArea=NULL,
                                    controlUnits=NULL,
+                                   controlDist=NULL,
                                    zoneMethod='centroid',
                                    verbose=FALSE){
   
@@ -79,6 +84,7 @@ calculate_footstats.sfc <- function(X, index=NULL, metrics='all',
                                     minArea=NULL,
                                     maxArea=NULL,
                                     controlUnits=NULL,
+                                    controlDist=NULL,
                                     zoneMethod='centroid',
                                     verbose=FALSE){
   # cast to sf for consistency
@@ -87,6 +93,7 @@ calculate_footstats.sfc <- function(X, index=NULL, metrics='all',
   result <- calculate_footstats(X, index=index, metrics=metrics, 
                                 minArea=minArea, maxArea=maxArea,
                                 controlUnits=controlUnits,
+                                controlDist=controlDist,
                                 zoneMethod=zoneMethod,
                                 verbose=verbose)
   return(result)
@@ -99,6 +106,7 @@ calculate_footstats.sp <- function(X, index=NULL, metrics='all',
                                    minArea=NULL,
                                    maxArea=NULL,
                                    controlUnits=NULL,
+                                   controlDist=NULL,
                                    zoneMethod='centroid',
                                    verbose=FALSE){
   # convert to sf
@@ -106,6 +114,8 @@ calculate_footstats.sp <- function(X, index=NULL, metrics='all',
   
   result <- calculate_footstats(X, index=index, metrics=metrics, 
                                 minArea=minArea, maxArea=maxArea,
+                                controlUnits=controlUnits, 
+                                controlDist=controlDist,
                                 zoneMethod=zoneMethod,
                                 verbose=verbose)
   return(result)
@@ -118,6 +128,7 @@ calculate_footstats.character <- function(X, index=NULL, metrics='all',
                                           minArea=NULL,
                                           maxArea=NULL,
                                           controlUnits=NULL,
+                                          controlDist=NULL,
                                           zoneMethod='centroid',
                                           verbose=FALSE){
   # attempt to read in file
@@ -126,6 +137,7 @@ calculate_footstats.character <- function(X, index=NULL, metrics='all',
   result <- calculate_footstats(X, index=index, metrics=metrics, 
                                 minArea, maxArea,
                                 controlUnits=controlUnits,
+                                controlDist=controlDist,
                                 zoneMethod=zoneMethod,
                                 verbose=verbose)
   return(result)
@@ -138,6 +150,7 @@ calculate_footstats.list <- function(X, index=NULL, metrics='all',
                                      minArea=NULL,
                                      maxArea=NULL,
                                      controlUnits=NULL,
+                                     controlDist=NULL,
                                      zoneMethod='centroid',
                                      verbose=FALSE){
   
@@ -156,6 +169,8 @@ calculate_footstats.list <- function(X, index=NULL, metrics='all',
   # expand other arguments - recycling values
   args <- list(index=index, metrics=metrics, 
                minArea=minArea, maxArea=maxArea,
+               controlUnits=controlUnits, 
+               controlDist=controlDist,
                zoneMethod=zoneMethod,
                verbose=verbose)
   maxL <- max(lengths(args), length(X))
@@ -168,6 +183,7 @@ calculate_footstats.list <- function(X, index=NULL, metrics='all',
                         minArea=args$minArea[i],
                         maxArea=args$maxArea[i],
                         controlUnits=args$controlUnits[i],
+                        controlDist=args$controlDist[i],
                         zoneMethod=args$zoneMethod[i],
                         verbose=args$verbose[i])
   })
@@ -178,6 +194,9 @@ calculate_footstats.list <- function(X, index=NULL, metrics='all',
 
 calc_fs_internal <- function(X, index, metrics, 
                              minArea, maxArea,
+                             controlUnits, controlDist, zoneMethod,
+                             verbose){
+
   if(is.na(st_crs(X))){
     stop("Polygons must have a spatial reference.")
   }
@@ -236,6 +255,18 @@ calc_fs_internal <- function(X, index, metrics,
     controlUnits[names(controlUnits) %in% names(providedUnits)] <- providedUnits
   }
   
+  # get full set of distance calculation controls
+  providedDist <- controlDist
+  # set defaults
+  controlDist <- list(maxSearch=100,
+                      method='poly')
+  controlDist <- controlDist[order(names(controlDist))]
+  # update with provided control values
+  if(!is.null(providedDist)){
+    providedDist <- providedDist[order(names(providedDist))]
+    controlDist[names(controlDist) %in% names(providedDist)] <- providedDist
+  }
+  
   # select and expand list of metrics
   if(verbose){ cat("Selecting metrics \n") }
   metrics <- get_fs_metrics(short_names=metrics, group=metrics)
@@ -277,7 +308,10 @@ calc_fs_internal <- function(X, index, metrics,
   if(any(grepl("nndist", metrics, fixed=T))){
     if(!"fs_nndist" %in% names(X)){
       if(verbose){ cat("Pre-calculating nearest neighbour distances \n") }
-      X[["fs_nndist"]] <- fs_nndist(X, unit=controlUnits$distUnit)
+      X[["fs_nndist"]] <- fs_nndist(X, 
+                                    maxSearch=controlDist$maxSearch, 
+                                    method=controlDist$method, 
+                                    unit=controlUnits$distUnit)
     }
   }
   

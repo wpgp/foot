@@ -21,20 +21,28 @@ suggestUTMzone <- function(pt){
 #'
 #' @param X Spatial object of \code{sf} type, typically polygons or points.
 #' @param Y (Optional) Spatial object to measure distances to.
-#' @param maxSearch Maximum search radius around \code{X} to search. Distance in
-#'   meters. Default is 100. To ignore, set this to `NULL`.
+#' @param maxSearch Maximum radius around \code{X} to search. Distance in
+#'   meters. Default is 100. To ignore the search limit, set to `NULL`.
+#' @param method Either \code{'poly'} or \code{'centroid'} to assign a geometry
+#'   method. See details. Default is 'poly'.
 #' @param unit Character abbreviation for the units to return from the distance
 #'   calculation.
-#'
+
 #' @details If \code{Y} is omitted the nearest neighbour distances are found
 #'   within \code{X}. Otherwise, the distance for each object in \code{X} to its
 #'   nearest neighbour in \code{Y} is returned. 
+#'   
+#'   Use \code{method} to adjust which geometry of \code{X} and \code{Y} is used
+#'   for distance calculations. When \code{method='poly'} distances are measured
+#'   between polygon edges. When \code{method='centroid'}, the centroids of
+#'   building footprints are used instead. Centroid-based distance calculations
+#'   are faster.
 #'   
 #'   Providing a maximum search radius is strongly advised to speed up the
 #'   calculation.
 #'   
 #' @examples 
-#' data("kampala")
+#' data("kampala", package="foot")
 #' 
 #' # get sample of buildings
 #' buildings <- kampala$buildings
@@ -47,20 +55,32 @@ suggestUTMzone <- function(pt){
 #' # calculate unrestricted distance between buildings and points
 #' fs_nndist(buildings, sf::st_centroid(clusters), maxSearch=NULL)
 #' 
+#' # use footprint centroids
+#' fs_nndist(buildings, method='centroid', unit='m')
+#' 
 #' @name fs_nndist
 #' @export
-fs_nndist <- function(X, Y, maxSearch=100, unit="m"){
+fs_nndist <- function(X, Y, maxSearch=100, method='poly', unit="m"){
+  if(missing(X)) stop("Must provide building footrpints")
   # row index
   uid <- 1:nrow(X)
+  
+  if(method[1]=='centroid'){
+    X <- sf::st_centroid(X)
+  }
   
   if(missing(Y)){
     searchObj <- X
   } else{
     searchObj <- Y
+    
+    if(method[1]=='centroid'){
+      searchObj <- sf::st_centroid(searchObj)
+    }
   }
   
   if(sf::st_crs(X) != sf::st_crs(searchObj)){
-    stop("Coordinate reference systems do not match for zone indexing.")
+    stop("Coordinate reference systems do not match in distance calculation.")
   }
   
   # initial search of intersecting objects (distance = 0)
@@ -88,7 +108,6 @@ fs_nndist <- function(X, Y, maxSearch=100, unit="m"){
     DT[, intersects := lapply(intersects2, function(i) i)]
     
     DT[is.na(dist), 
-       # dist := sort(sf::st_distance(X$geometry[uid], searchObj$geometry[unlist(intersects)]))[2], #, tolerance=1
        dist := sort(sf::st_distance(sf::st_geometry(X)[uid], 
                                     sf::st_geometry(searchObj)[unlist(intersects)]))[2], #, tolerance=1
        by = uid]

@@ -3,6 +3,7 @@
 #' @description Calculate and summarise selected metrics of building 
 #' footprint polygons within zones.
 #' @inheritParams fs_area_mean
+#' @param ... Additional arguments to pass to \code{fs_nndist}.
 #' @return \code{data.table} of zonal indices and values.
 #' 
 #' @import data.table
@@ -14,22 +15,23 @@
 fs_nndist_median <- function(X, 
                              index=NULL, 
                              unit=NULL, 
-                             col=NULL) UseMethod("fs_nndist_median")
+                             col=NULL, ...) UseMethod("fs_nndist_median")
 
 
 #' @name fs_nndist_median
 #' @export
-fs_nndist_median.sp <- function(X, index=NULL, unit=NULL, col=NULL){
+fs_nndist_median.sp <- function(X, index=NULL, 
+                                unit=NULL, col=NULL, ...){
   X <- sf::st_as_sf(X)
   
-  result <- fs_nndist_median(X, index, unit, col)
+  result <- fs_nndist_median(X, index, unit, col, ...)
   return(result)
 }
 
 
 #' @name fs_nndist_median
 #' @export
-fs_nndist_median.sf <- function(X, index=NULL, unit=NULL, col=NULL){
+fs_nndist_median.sf <- function(X, index=NULL, unit=NULL, col=NULL, ...){
   if(!is.null(col)){
     if(!col %in% names(X)){
       message("Error: column name not found.")
@@ -49,16 +51,16 @@ fs_nndist_median.sf <- function(X, index=NULL, unit=NULL, col=NULL){
       }
     }
     
-    X[["fs_nndist"]] <- fs_nndist(X, unit=unit) # using default search radius
+    X[["fs_nndist"]] <- fs_nndist(X, unit=unit, ...) # using default search radius
     result <- fs_nndist_median_calc(X, index, unit)
   }
   return(result)
 }
 
 
-fs_nndist_median_calc <- function(X, index=NULL, unit=NULL){
+fs_nndist_median_calc <- function(X, index=NULL, unit=NULL, ...){
   if(!"fs_nndist" %in% names(X)){
-    X[["fs_nndist"]] <- fs_nndist(X, unit=unit) # default search radius
+    X[["fs_nndist"]] <- fs_nndist(X, unit=unit, ...) # default search radius
   }
   
   if(is.null(index)){
