@@ -18,13 +18,14 @@
 #'   hypothetical maximum of dispersed observations given the area of the zone.
 #'   Note that NNI is sensitive to changes in the zone area.
 #'   
-#'   \deqn{ NNI_z = \frac{\bar{NND_z}}{(0.5 * \sqrt{\frac{A_z}{n_z}}})}, 
-#'   where z is the zone, A is the area, NND is the mean nearest neighbour
-#'   distance, and n is the count.
+#'   \deqn{ NNI_z = \frac{\bar{NND_z}}{(0.5 * \sqrt{\frac{A_z}{n_z}}})}, where z
+#'   is the zone, A is the area, NND is the mean nearest neighbour distance, and
+#'   n is the count. The value of NNI can range from 0 (fully disperse) to 2.15
+#'   (clustered), with values of 1 indicating spatial randomness.
 #'   
-#'   If a pre-calculated neighbour distance is not supplied, the function uses
-#'   \code{fs_nndist} to calculate the distance between centroids of the
-#'   building footprints within the same spatial zone indicated by \code{index}.
+#'   The function uses \code{fs_nndist} to calculate the distance between
+#'   centroids of the building footprints within the same spatial zone indicated
+#'   by \code{index}.
 #' 
 #' @import data.table
 #' 
@@ -86,8 +87,7 @@ fs_nnindex_calc <- function(X, index, zoneField=NULL, unit=NULL){
       if(inherits(index, "Spatial")){
         index <- sf::st_as_sf(index)
       } else{
-        message("Invalid index. Spatial units requried.")
-        stop()
+        stop("Invalid index. Spatial units required")
       }
     }
     if(!zoneField %in% colnames(index)){
