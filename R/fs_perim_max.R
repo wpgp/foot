@@ -32,16 +32,14 @@ fs_perim_max.sp <- function(X, index=NULL, unit=NULL, col=NULL){
 fs_perim_max.sf <- function(X, index=NULL, unit=NULL, col=NULL){
   if(!is.null(col)){
     if(!col %in% names(X)){
-      message("Error: column name not found.")
-      stop()
+      stop("Error: column name not found.")
     } else{
       names(X)[which(names(X)==col)] <- "fs_perim"
       result <- fs_perim_max_calc(X, index, unit)
     }
   } else{
     if(any(!sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON") )){
-      message("Area requires polygon shapes.")
-      stop()
+      stop("Perimeter requires polygon shapes.")
     }
     
     if(is.na(sf::st_crs(X))){
@@ -64,30 +62,40 @@ fs_perim_max.sf <- function(X, index=NULL, unit=NULL, col=NULL){
 fs_perim_max_calc <- function(X, index=NULL, unit=NULL){
   if(!"fs_perim" %in% names(X)){
     X[["fs_perim"]] <- fs_perim(X, unit)
-  } else{
-    unit <- st_crs(X)$units
-  }
+  } 
+  
+  indexCol <- "index" # default
   
   if(is.null(index)){
-    warning("No index found, treating as one group.")
+    message("No index found, treating as one group.")
     index <- rep(1, nrow(X))
   } else{
-    if(length(index)==1){
-      if((is.numeric(index) & index <= ncol(X)) | 
-         (is.character(index) & index %in% names(X))){
-        index <- X[[index]]
+    if(is.character(index)){ 
+      if(length(index)==1){ 
+        if(nrow(X)>1){ # it must be a column name
+          if(!index %in% colnames(X)){
+            stop("Index column not found in footprints.")
+          } else{
+            indexCol <- index
+            index <- X[[indexCol]]
+          }
+        } # potential issue if 1 row X and 1 column name - won't affect calcs
+      } else if(length(index != nrow(X))){
+        stop("Invalid length of zonal index.")
+      } 
+    } else if(is.numeric(index)){
+      if(length(index) != nrow(X)){
+        stop("Invalid length of zonal index.")
       }
-    } else if(length(index) != nrow(X)){
-      message("Invalid index")
-      stop()
     }
-  }
+  } 
   
   colNam <- paste0("fs_perim_", unit, "_max")
-  DT <- data.table::data.table(index=index, 
+  DT <- data.table::data.table(idxCol=index, 
                                area_calc=X[["fs_perim"]])
-  data.table::setkey(DT, index)
-  result <- DT[, setNames(.(max(area_calc)), colNam), by=index]
+  data.table::setnames(DT, "idxCol", indexCol)
+  data.table::setkeyv(DT, indexCol)
+  result <- DT[, setNames(.(max(area_calc)), colNam), by=indexCol]
   
   return(result)
 }

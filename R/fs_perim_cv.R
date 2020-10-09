@@ -61,39 +61,50 @@ fs_perim_cv.sf <- function(X, index=NULL, unit=NULL, col=NULL){
 fs_perim_cv_calc <- function(X, index=NULL, unit=NULL){
   if(!"fs_perim" %in% names(X)){
     X[["fs_perim"]] <- fs_perimeter(X, unit)
-  } else{
-    unit <- st_crs(X)$units
-  }
+  } 
+  
+  indexCol <- "index" # default
   
   if(is.null(index)){
-    warning("No index found, treating as one group.")
+    message("No index found, treating as one group.")
     index <- rep(1, nrow(X))
+  } else{
+    if(is.character(index)){ 
+      if(length(index)==1){ 
+        if(nrow(X)>1){ # it must be a column name
+          if(!index %in% colnames(X)){
+            stop("Index column not found in footprints.")
+          } else{
+            indexCol <- index
+            index <- X[[indexCol]]
+          }
+        } # potential issue if 1 row X and 1 column name - won't affect calcs
+      } else if(length(index != nrow(X))){
+        stop("Invalid length of zonal index.")
+      } 
+    } else if(is.numeric(index)){
+      if(length(index) != nrow(X)){
+        stop("Invalid length of zonal index.")
+      }
+    }
   } 
-  # else{
-  #   if(length(index)==1){
-  #     if((is.numeric(index) & index <= ncol(X)) | 
-  #        (is.character(index) & index %in% names(X))){
-  #       index <- X[[index]]
-  #     }
-  #   } else if(length(index) != nrow(X)){
-  #     message("Invalid index")
-  #     stop()
-  #   }
-  # } 
   
-  meanDT <- fs_perim_mean(X, index=index, unit=unit, col="fs_perim")
-  sdDT <- fs_perim_sd(X, index=index, unit=unit, col="fs_perim")
+  X[[indexCol]] <- index
+  
+  meanDT <- fs_perim_mean(X, index=indexCol, unit=unit, col="fs_perim")
+  sdDT <- fs_perim_sd(X, index=indexCol, unit=unit, col="fs_perim")
   
   mCol <- paste0("fs_perim_", unit, "_mean")
   sdCol <- paste0("fs_perim_", unit, "_sd")
   
-  DT <- merge(meanDT, sdDT, by="index")
-  DT[, area_calc := get(sdCol) / get(mCol), by=index]
+  DT <- merge(meanDT, sdDT, by=indexCol)
+  DT[, area_calc := get(sdCol) / get(mCol), by=indexCol]
   DT[, area_calc := units::drop_units(area_calc)]
   
   colNam <- "fs_perim_cv"
-  data.table::setkey(DT, index)
+  data.table::setkeyv(DT, indexCol)
   data.table::setnames(DT, "area_calc", colNam)
   
-  return(DT[, list(index, fs_perim_cv)])
+  keep <- c(indexCol, colNam)
+  return(DT[, ..keep])
 }
