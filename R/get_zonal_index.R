@@ -72,7 +72,7 @@ zonalIndex.sf <- function(X, zone,
   }
   
   if(length(method) > 1){
-    warning("Using the first element of argument 'method'")
+    message("Using the first element of argument 'method'")
     method <- method[1]
   }
   
@@ -102,7 +102,7 @@ zonalIndex.sfc <- function(X, zone,
   }
   
   if(length(method) > 1){
-    warning("Using the first element of argument 'method'")
+    message("Using the first element of argument 'method'")
     method <- method[1]
   }
   
@@ -199,10 +199,11 @@ get_zonal_index <- function(X, zone,
     # keep backup
     polyGeo <- sf::st_geometry(X)
     X <- sf::st_centroid(X)
+    X$polyGeo <- polyGeo
   }
 
   # intersects - binary predicate
-  suppressMessages(ints <- sf::st_intersects(zone, X))
+  ints <- suppressMessages(sf::st_intersects(zone, X))
   hits <- which(lengths(ints)>0)
   
   if(length(hits) > 0){
@@ -247,7 +248,9 @@ get_zonal_index <- function(X, zone,
         result <- sf::st_as_sf(intDT)
         
         if(method=='centroid'){
-          sf::st_geometry(result) <- polyGeo
+          # sf::st_geometry(result) <- polyGeo
+          sf::st_geometry(result) <- result$polyGeo
+          result <- result[,!names(result) %in% "polyGeo"]
         }
       }
       

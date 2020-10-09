@@ -85,7 +85,7 @@ fs_nndist <- function(X, Y, maxSearch=100, method='poly', unit="m"){
   }
   
   # initial search of intersecting objects (distance = 0)
-  intersects1 <- sf::st_intersects(X, searchObj)
+  intersects1 <- suppressMessages(sf::st_intersects(X, searchObj))
   DT <- data.table::data.table(uid=uid, 
                                intersects=lapply(intersects1, function(i) uid[i]))
   
@@ -107,7 +107,7 @@ fs_nndist <- function(X, Y, maxSearch=100, method='poly', unit="m"){
       searchBuffer <- sf::st_buffer(searchObj, maxSearch)
     }
     # get objects within search buffer
-    intersects2 <- sf::st_intersects(X, searchBuffer)
+    intersects2 <- suppressMessages(sf::st_intersects(X, searchBuffer))
     # restricted distance calculation
     DT[, intersects := lapply(intersects2, function(i) i)]
     
