@@ -210,9 +210,10 @@ calc_fs_internal <- function(X, index, metrics,
     if(inherits(index, "sf")){
       if(any(sf::st_geometry_type(index) %in% c("POLYGON","MULTIPOLYGON"))){
         indexZones <- index # make copy
-        indexZones$index <- 1:nrow(indexZones)
+        indexZones$zoneID <- 1:nrow(indexZones)
         
-        X <- zonalIndex(X, zone=index, method=zoneMethod, returnObject=TRUE)
+        X <- zonalIndex(X, zone=indexZones, zoneField="zoneID", 
+                        method=zoneMethod, returnObject=TRUE)
         index <- "zoneID"
         # check for no intersecting
         if(is.null(X)){
@@ -285,12 +286,13 @@ calc_fs_internal <- function(X, index, metrics,
   nnIndex <- FALSE
   if(any(grepl("nnindex", metrics, fixed=T))){
     # calculated after the main processing loop
-    metrics <- metrics[!grepl("nnindex", metrics)]
+    # metrics <- metrics[!grepl("nnindex", metrics)]
     nnIndex <- TRUE
     # 
     if(!exists("indexZones")){
       warning("Nearest neighbour index requires zonal areas.")
       nnIndex <- FALSE
+      metrics <- metrics[!grepl("nnindex", metrics)]
     }
   } 
   
@@ -365,29 +367,36 @@ calc_fs_internal <- function(X, index, metrics,
     
     assign("unit", value=getUnit, envir=parent.env(environment()))
     arguments <- names(formals(func))
-
-    tryCatch(do.call(what=func,
-                     args=mget(arguments, 
-                               envir=parent.env(environment()), 
-                               ifnotfound=list(NULL))
-                    ),
-             error = function(e){
-               message("")
-               stop(e)
-             }
-            )  
-    })
+    
+    if(metrics[[current_metric]]=="fs_nnindex" & nnIndex){
+      fs_nnindex(X, 
+                 index=get("indexZones", envir=parent.env(environment())), 
+                 zoneField="zoneID", unit="m")
+    } else{
+      tryCatch(do.call(what=func,
+                       args=mget(arguments, 
+                                 envir=parent.env(environment()), 
+                                 ifnotfound=list(NULL))
+      ),
+      error = function(e){
+        message("")
+        stop(e)
+      }
+      )
+    }
+  })
   
   # merge all
   merged_result <- Reduce(function(...) merge(...), result)
 
-  if(nnIndex){
-    if(verbose){ cat("  Calculating nearest neighbour index... \n")}
-    nniDT <- fs_nnindex(X, index=indexZones, unit=controlUnits$distUnit)
-    merged_result <- merge(merged_result, 
-                           nniDT[, list(index, fs_nnindex)], 
-                           by="index")
-  }
+  # if(nnIndex){
+  #   if(verbose){ cat("  Calculating nearest neighbour index... \n")}
+  #   nniDT <- fs_nnindex(X, index=indexZones, unit=controlUnits$distUnit)
+  #   # merged_result <- merge(merged_result, 
+  #   #                        nniDT[, list(index, fs_nnindex)], 
+  #   #                        by="zoneID")
+  #   merged_result <- merged_result[nniDT, on="zoneID"]
+  # }
   if(verbose){ cat("Finished calculating metrics. \n") }
 
   return(merged_result)

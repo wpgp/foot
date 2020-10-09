@@ -599,5 +599,6 @@ write_tile <- function(outGrid, outName, tries=100, update=FALSE){
     tryCount <- tryCount + 1
     Sys.sleep(1) 
   }
-  if(tryCount > tryThreshold) stop(paste0("Writing failed after ", tries, " tries, exiting."))
+  if(tryCount > tryThreshold) stop(paste0("Writing failed after ", 
+                                          tries, " tries, exiting."))
 }
