@@ -202,7 +202,7 @@ get_zonal_index <- function(X, zone,
   }
 
   # intersects - binary predicate
-  ints <- sf::st_intersects(zone, X)
+  suppressMessages(ints <- sf::st_intersects(zone, X))
   hits <- which(lengths(ints)>0)
   
   if(length(hits) > 0){
@@ -235,9 +235,9 @@ get_zonal_index <- function(X, zone,
         # match up geometries
         intDT[, zGeom := sf::st_geometry(zone)[get(zoneField)]]
         # loop over
-        clipGeom <- purrr::map2(intDT[[xGeo]],
+        suppressMessages(clipGeom <- purrr::map2(intDT[[xGeo]],
                                 intDT[["zGeom"]],
-                                sf::st_intersection)
+                                sf::st_intersection))
         # update geometry field
         intDT[, (xGeo) := sf::st_sfc(clipGeom, crs=sf::st_crs(X))]
         
