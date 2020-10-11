@@ -14,35 +14,18 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-
-
-While remote sensing has long been used to monitor urbanisation patterns, in
-recent years there has been an increasing availability in finer resolution
-satellite data covering large areas of the globe. This very high resolution
-imagery (often <1 m spatial resolution), combined with increased computing power
-is producing new datasets on urban areas. In particular, machine learning
-algorithms are being applied to detect, automatically extract, and map full sets
-of building features in a scene. These automated methods add to the manually
-digitised information such as from [OpenStreetMap](http://www.openstreetmap.org)
-and the property datasets available from some city governments.
-
-Such building footprint datasets provide a new level of detail on urban areas,
-particularly in places which might otherwise lack detailed maps on cities and
-rapidly growing areas. Despite their spatial detail, building footprints
-typically lack any other attribute information to help differentiate land uses
-or other neighbourhood characteristics. However, the size, shape, orientation,
-and clustering of structures produces a spatial pattern that can suggest areas
-of different land use or activities.
-
+The `foot` package was developed by members of the WorldPop Research Group at
+the University of Southampton ([www.worldpop.org](https://www.worldpop.org)) to
+support geometric and morphological calculations from building footprint
+polygons. Two main wrapper functions provide standardised workflows for
+processing building polygons to summarise the metrics within polygons or on a
+gridded surface.
 
 ```r
 library(foot)
 ```
-
-The `foot` package was developed by WorldPop at the University of Southampton
-([www.worldpop.org](https://www.worldpop.org)) to support geometric calculations
-and zonal summaries of measures from building footprint polygons. This vignette
-will demonstrate some of the core functionality in the package, including:
+This vignette will demonstrate some of the core functionality in the package,
+including:
 
 * The available measurements and summary statistics
 * How to define different types of spatial zones for summaries
