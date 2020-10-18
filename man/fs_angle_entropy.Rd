@@ -15,10 +15,10 @@ fs_angle_entropy(X, index = NULL, col = NULL, normalize = TRUE)
 \arguments{
 \item{X}{Spatial object with building footprint polygons}
 
-\item{index}{A character or numeric value identifying a column within \code{X} 
-which provides a zonal index for summarising values. Alternatively a vector of 
-indices can be provided. If omitted all observations in \code{X} are assumed 
-to be within one zone.}
+\item{index}{A string identifying a column within \code{X} which provides a
+zonal index for summarising values. Alternatively a vector of indices can
+be provided. If omitted, all observations in \code{X} are assumed to be
+within one zone.}
 
 \item{col}{column name within \code{X} with pre-calculated area measures}
 
@@ -34,19 +34,26 @@ polygons within zones.
 }
 \details{
 This measure uses the angle of the minimum rotated rectangle
-  enclosing each footprint poygon. Entropy is an information criteria
+  enclosing each footprint polygon. Entropy is an information criteria
   measure. When summarising the angles of footprints, higher entropy values
   may suggest less formally planned or zoned areas. The entropy calculation
   uses the common Shannon's Entropy. The normalization step produces an
-  indicator for how much a zone departs from a grid.
+  indicator for how much a zone departs from a grid. This metric is based on
+  work by Boeing (2019).
 }
 \examples{
-data(kampala)
+data("kampala", package="foot")
 b <- kampala$buildings
+
 # assign random groups
 idx <- sample(1:10, nrow(b), replace=T)
 
 angles <- fs_angle_entropy(b, index=idx, normalize=F)
 angle_norm <- fs_angle_entropy(b, index=idx, normalize=T)
 
+}
+\references{
+Boeing, Geoff (2019). "Urban spatial order: Street network
+  orientation, configuration, and entropy." Applied Network Science, 4(67),
+  \url{https://doi.org/10.1007/s41109-019-0189-1}.
 }

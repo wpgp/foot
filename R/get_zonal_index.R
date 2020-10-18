@@ -71,9 +71,9 @@ zonalIndex.sf <- function(X, zone,
     stop("Object format not valid.")
   }
   
-  if(length(method) > 1){
+  if(is.list(method) & length(method) > 1){
     message("Using the first element of argument 'method'")
-    method <- method[1]
+    method <- method[[1]]
   }
   
   if(!method %in% c("centroid","intersect","clip")){
@@ -101,9 +101,9 @@ zonalIndex.sfc <- function(X, zone,
     stop("Object format not valid.")
   }
   
-  if(length(method) > 1){
+  if(is.list(method) & length(method) > 1){
     message("Using the first element of argument 'method'")
-    method <- method[1]
+    method <- method[[1]]
   }
   
   if(!method %in% c("centroid","intersect","clip")){

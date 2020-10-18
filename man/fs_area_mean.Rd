@@ -15,13 +15,13 @@ fs_area_mean(X, index = NULL, unit = NULL, col = NULL)
 \arguments{
 \item{X}{Spatial object with building footprint polygons}
 
-\item{index}{A character or numeric value identifying a column within \code{X} 
-which provides a zonal index for summarising values. Alternatively a vector of 
-indices can be provided. If omitted all observations in \code{X} are assumed 
-to be within one zone.}
+\item{index}{A string identifying a column within \code{X} which provides a
+zonal index for summarising values. Alternatively a vector of indices can
+be provided. If omitted, all observations in \code{X} are assumed to be
+within one zone.}
 
-\item{unit}{character or \code{units} object to define area. 
-Default is \code{NULL} which will use the units of the spatial reference system}
+\item{unit}{character or \code{units} object to define area. Default is
+\code{NULL} which will use the units of the spatial reference system}
 
 \item{col}{column name within \code{X} with pre-calculated area measures}
 }
