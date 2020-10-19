@@ -198,7 +198,7 @@ get_zonal_index <- function(X, zone,
   if(method=='centroid'){
     # keep backup
     polyGeo <- sf::st_geometry(X)
-    X <- sf::st_centroid(X)
+    suppressWarnings(X <- sf::st_centroid(X))
     X$polyGeo <- polyGeo
   }
 
