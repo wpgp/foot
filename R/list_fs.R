@@ -30,6 +30,8 @@
 #' @rdname list_fs
 #' @export
 list_fs <- function(what='all', how='all'){
+  if(is.null(what) & is.null(how)){ stop("Both argument cannot be NULL.")}
+  
   baseWhats <- c("area","perimeter")
   baseFuns <- c("sum","mean","median","sd","min","max","cv")
   shapeWhats <- c("shape","compact")
@@ -50,28 +52,66 @@ list_fs <- function(what='all', how='all'){
   )
   allMetrics <- do.call(rbind, allMetrics)
   
-  if(!'all' %in% tolower(what)){
-    if('nodist' %in% tolower(what)){
-      allMetrics <- allMetrics[allMetrics$cols != 'nndist', ]
-    } else{
-      allMetrics <- allMetrics[allMetrics$cols %in% what, ]
+  if(!is.null(what)){
+    if(what == "all"){
+      what <- c(baseWhats, shapeWhats, settWhats, angleWhats, distWhats)
+    } else if(what == "nodist"){
+      what <- c(baseWhats, shapeWhats, settWhats, angleWhats)
+    } 
+  }
+  
+  if(!is.null(how)){
+    if(how == "all"){
+      how <- c(baseFuns, shapeFuns, settFuns, angleFuns, distFuns)
+    } else if(how == "nodist"){
+      how <- c(baseFuns, shapeFuns, settFuns, angleFuns)
     }
   }
   
   if(is.null(how)){
-    allMetrics <- allMetrics$cols
+    allMetrics <- allMetrics[allMetrics$cols %in% what, "cols"] 
+  } else if(is.null(what)){
+    allMetrics <- allMetrics[allMetrics$funs %in% how, "cols"] 
   } else{
-    if(!'all' %in% tolower(how)){
-      allMetrics <- allMetrics[allMetrics$funs %in% how,]
-    }
+    allMetrics <- allMetrics[allMetrics$cols %in% what & 
+                               allMetrics$funs %in% how, ]
     
-    if(nrow(allMetrics)==0){
-      message("No built-in 'foot' metrics found.")
-      return(NULL)
-    }
     allMetrics <- allMetrics[order(allMetrics$cols, allMetrics$funs),]
     rownames(allMetrics) <- 1:nrow(allMetrics)
   }
+  
+  
+  
+  # if(!'all' %in% tolower(what) & !is.null(what)){
+  #   if('nodist' %in% tolower(what)){
+  #     allMetrics <- allMetrics[allMetrics$cols != 'nndist', ]
+  #   } else{
+  #     allMetrics <- allMetrics[allMetrics$cols %in% what, ]
+  #   }
+  # }
+  # 
+  # if(is.null(how)){
+  #   allMetrics <- allMetrics$cols
+  # } else{
+  #   if(!'all' %in% tolower(how)){
+  #     allMetrics <- allMetrics[allMetrics$funs %in% how,]
+  #     
+  #     if(nrow(allMetrics)==0){
+  #       message("No built-in 'foot' metrics found.")
+  #       return(NULL)
+  #     }
+  #     allMetrics <- allMetrics[order(allMetrics$cols, allMetrics$funs),]
+  #     rownames(allMetrics) <- 1:nrow(allMetrics)
+  #   } else{
+  #     if(is.null(what)){
+  #       allMetrics <- allMetrics$funs
+  #     } else{
+  #       message("No built-in 'foot' metrics found.")
+  #       return(NULL)
+  #     }
+  #   }
+
+  # }
   
   return(unique(allMetrics))
 }
