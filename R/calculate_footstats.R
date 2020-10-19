@@ -38,8 +38,8 @@
 #'   internal functions from \code{foot}. It can calculate various geometric
 #'   measures for each footprint polygon, including area, perimeter,
 #'   compactness, shape, angle of rotation, and nearest neighbour distance. To
-#'   conveniently find the list of built-in characteristics and summary metrics,
-#'   use \code{list_fs()}.
+#'   find the list of built-in characteristics and summary metrics, use
+#'   \code{list_fs()}.
 #'   
 #'   The \code{what} and \code{how} arguments are lists specifying the
 #'   characteristics and the summary metrics to calculated, respectively. Each
@@ -70,15 +70,15 @@
 #' # calculate multiple metrics - nested lists to group arguments
 #' calculate_footstats(buildings, adminzones, 
 #'                     what=list(list("area"), list("perimeter")), 
-#'                     how=list(list("mean","sum"), list("sd","cv)))
+#'                     how=list(list("mean","sum"), list("sd","cv")))
 #'                     
-#' @seealso zonalIndex, fs_nndist, list_fs
+#' @seealso [zonalIndex], [fs_nndist], [list_fs]
 #' 
 #' @aliases calculate_footstats
 #' @rdname calculate_footstats
 #' 
 #' @export
-calculate_footstats <- function(X, zone, what='all', how='all',
+calculate_footstats <- function(X, zone, what='all', how=NULL,
                                 controlZone=list(zoneName="zoneID", 
                                                  method="centroid"), 
                                 controlUnits=list(areaUnit="m^2", 
@@ -93,7 +93,7 @@ calculate_footstats <- function(X, zone, what='all', how='all',
 
 #' @name calculate_footstats
 #' @export
-calculate_footstats.sf <- function(X, zone, what='all', how='all',
+calculate_footstats.sf <- function(X, zone, what='all', how=NULL,
                                    controlZone=list(zoneName="zoneID", 
                                                     method="centroid"), 
                                    controlUnits=list(areaUnit="m^2", 
@@ -121,7 +121,7 @@ calculate_footstats.sf <- function(X, zone, what='all', how='all',
 
 #' @name calculate_footstats
 #' @export
-calculate_footstats.sfc <- function(X, zone, what='all', how='all',
+calculate_footstats.sfc <- function(X, zone, what='all', how=NULL,
                                     controlZone=list(zoneName="zoneID", 
                                                      method="centroid"), 
                                     controlUnits=list(areaUnit="m^2", 
@@ -148,7 +148,7 @@ calculate_footstats.sfc <- function(X, zone, what='all', how='all',
 
 #' @name calculate_footstats
 #' @export
-calculate_footstats.sp <- function(X, zone, what='all', how='all',
+calculate_footstats.sp <- function(X, zone, what='all', how=NULL,
                                    controlZone=list(zoneName="zoneID", 
                                                     method="centroid"), 
                                    controlUnits=list(areaUnit="m^2", 
@@ -172,7 +172,7 @@ calculate_footstats.sp <- function(X, zone, what='all', how='all',
 
 #' @name calculate_footstats
 #' @export
-calculate_footstats.character <- function(X, zone, what='all', how='all',
+calculate_footstats.character <- function(X, zone, what='all', how=NULL,
                                           controlZone=list(zoneName="zoneID", 
                                                            method="centroid"), 
                                           controlUnits=list(areaUnit="m^2", 

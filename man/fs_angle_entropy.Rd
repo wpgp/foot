@@ -4,6 +4,7 @@
 \alias{fs_angle_entropy}
 \alias{fs_angle_entropy.sp}
 \alias{fs_angle_entropy.sf}
+\alias{fs_angle_entropy.sfc}
 \title{Building angle calculation}
 \usage{
 fs_angle_entropy(X, index = NULL, col = NULL, normalize = TRUE)
@@ -11,6 +12,8 @@ fs_angle_entropy(X, index = NULL, col = NULL, normalize = TRUE)
 \method{fs_angle_entropy}{sp}(X, index = NULL, col = NULL, normalize = TRUE)
 
 \method{fs_angle_entropy}{sf}(X, index = NULL, col = NULL, normalize = TRUE)
+
+\method{fs_angle_entropy}{sfc}(X, index = NULL, col = NULL, normalize = TRUE)
 }
 \arguments{
 \item{X}{Spatial object with building footprint polygons}
@@ -24,6 +27,9 @@ within one zone.}
 
 \item{normalize}{A logical value indicating whether to normalize the entropy. 
 Default is \code{TRUE}.}
+
+\item{unit}{character or \code{units} object to define area. Default is
+\code{NULL} which will use the units of the spatial reference system}
 }
 \value{
 \code{data.table} of zonal indices and values.
@@ -48,8 +54,8 @@ b <- kampala$buildings
 # assign random groups
 idx <- sample(1:10, nrow(b), replace=T)
 
-angles <- fs_angle_entropy(b, index=idx, normalize=F)
-angle_norm <- fs_angle_entropy(b, index=idx, normalize=T)
+angles <- fs_angle_entropy(b, index=idx, normalize=FALSE)
+angle_norm <- fs_angle_entropy(b, index=idx, normalize=TRUE)
 
 }
 \references{

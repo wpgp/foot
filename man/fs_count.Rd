@@ -21,6 +21,9 @@ be provided. If omitted, all observations in \code{X} are assumed to be
 within one zone.}
 
 \item{col}{column name within \code{X} with pre-calculated area measures}
+
+\item{unit}{character or \code{units} object to define area. Default is
+\code{NULL} which will use the units of the spatial reference system}
 }
 \value{
 \code{data.table} of zonal indices and values.

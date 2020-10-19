@@ -12,7 +12,7 @@ calculate_footstats(
   X,
   zone,
   what = "all",
-  how = "all",
+  how = NULL,
   controlZone = list(zoneName = "zoneID", method = "centroid"),
   controlUnits = list(areaUnit = "m^2", perimUnit = "m", distUnit = "m"),
   controlDist = list(maxSearch = 100, method = "centroid", unit =
@@ -25,7 +25,7 @@ calculate_footstats(
   X,
   zone,
   what = "all",
-  how = "all",
+  how = NULL,
   controlZone = list(zoneName = "zoneID", method = "centroid"),
   controlUnits = list(areaUnit = "m^2", perimUnit = "m", distUnit = "m"),
   controlDist = list(maxSearch = 100, method = "centroid", unit =
@@ -38,7 +38,7 @@ calculate_footstats(
   X,
   zone,
   what = "all",
-  how = "all",
+  how = NULL,
   controlZone = list(zoneName = "zoneID", method = "centroid"),
   controlUnits = list(areaUnit = "m^2", perimUnit = "m", distUnit = "m"),
   controlDist = list(maxSearch = 100, method = "centroid", unit =
@@ -51,7 +51,7 @@ calculate_footstats(
   X,
   zone,
   what = "all",
-  how = "all",
+  how = NULL,
   controlZone = list(zoneName = "zoneID", method = "centroid"),
   controlUnits = list(areaUnit = "m^2", perimUnit = "m", distUnit = "m"),
   controlDist = list(maxSearch = 100, method = "centroid", unit =
@@ -64,7 +64,7 @@ calculate_footstats(
   X,
   zone,
   what = "all",
-  how = "all",
+  how = NULL,
   controlZone = list(zoneName = "zoneID", method = "centroid"),
   controlUnits = list(areaUnit = "m^2", perimUnit = "m", distUnit = "m"),
   controlDist = list(maxSearch = 100, method = "centroid", unit =
@@ -128,8 +128,8 @@ calculate_footstats
   internal functions from \code{foot}. It can calculate various geometric
   measures for each footprint polygon, including area, perimeter,
   compactness, shape, angle of rotation, and nearest neighbour distance. To
-  conveniently find the list of built-in characteristics and summary metrics,
-  use \code{list_fs()}.
+  find the list of built-in characteristics and summary metrics, use
+  \code{list_fs()}.
   
   The \code{what} and \code{how} arguments are lists specifying the
   characteristics and the summary metrics to calculated, respectively. Each
@@ -141,6 +141,25 @@ calculate_footstats
   pass on these parameters to other \code{foot} functions. These are
   optional.
 }
+\examples{
+data("kampala", package="foot")
+buildings <- kampala$buildings
+adminzones <- kampala$adminZones
+
+# no summary statistics, just geometry calculations
+calculate_footstats(buildings, adminzones, what=list("area","perimeter"))
+
+# average building footprint area
+calculate_footstats(buildings, 
+                    zone=adminzones, 
+                    what="area", how="mean")
+                    
+# calculate multiple metrics - nested lists to group arguments
+calculate_footstats(buildings, adminzones, 
+                    what=list(list("area"), list("perimeter")), 
+                    how=list(list("mean","sum"), list("sd","cv")))
+                    
+}
 \seealso{
-zonalIndex, fs_nndist, list_fs
+[zonalIndex], [fs_nndist], [list_fs]
 }

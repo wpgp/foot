@@ -4,18 +4,21 @@
 \alias{fs_nnindex}
 \alias{fs_nnindex.sp}
 \alias{fs_nnindex.sf}
+\alias{fs_nnindex.sfc}
 \title{Building Nearest Neighbour Index (NNI)}
 \usage{
-fs_nnindex(X, index = NULL, zoneField = NULL, unit = NULL)
+fs_nnindex(X, zone = NULL, zoneField = NULL, unit = NULL)
 
-\method{fs_nnindex}{sp}(X, index = NULL, zoneField = NULL, unit = NULL)
+\method{fs_nnindex}{sp}(X, zone = NULL, zoneField = NULL, unit = NULL)
 
-\method{fs_nnindex}{sf}(X, index = NULL, zoneField = NULL, unit = NULL)
+\method{fs_nnindex}{sf}(X, zone = NULL, zoneField = NULL, unit = NULL)
+
+\method{fs_nnindex}{sfc}(X, zone = NULL, zoneField = NULL, unit = NULL)
 }
 \arguments{
 \item{X}{Spatial object with building footprints or their centroid locations.}
 
-\item{index}{A spatial polygon object of \code{sf} or \code{sp} type. If
+\item{zone}{A spatial polygon object of \code{sf} or \code{sp} type. If
 omitted all observations in \code{X} are assumed to be within one zone and
 the area of the minimum bounding circle is used for the nearest neighbour
 index.}
@@ -23,8 +26,8 @@ index.}
 \item{zoneField}{(Optional) Column name of unique identifiers in \code{zone}
 to use. If omitted, the 'zoneID' will be numbered \code{1:nrow(zone)}.}
 
-\item{unit}{character or \code{units} object to define distance. Default is
-NULL}
+\item{unit}{character or \code{units} object to define distance. Default
+\code{NULL} will attempt to coerce units to meters.}
 }
 \value{
 \code{data.table} of zonal indices and values
@@ -46,5 +49,5 @@ The nearest neighbour index (NNI) is a measure of spatial
   
   The function uses \code{fs_nndist} to calculate the distance between
   centroids of the building footprints within the same spatial zone indicated
-  by \code{index}.
+  by \code{zone}.
 }
