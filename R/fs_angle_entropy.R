@@ -3,7 +3,14 @@
 #' @description Calculate the entropy of rotation angles for building footprint
 #' polygons within zones.
 #' 
-#' @inheritParams fs_area_mean
+#' @param X Spatial object with building footprint polygons
+#' @param index A string identifying a column within \code{X} which provides a
+#'   zonal index for summarising values. Alternatively a vector of indices can
+#'   be provided. If omitted, all observations in \code{X} are assumed to be
+#'   within one zone.
+#' @param unit character or \code{units} object to define area. Default is
+#'   \code{NULL} which will use the units of the spatial reference system
+#' @param col column name within \code{X} with pre-calculated area measures
 #' @param normalize A logical value indicating whether to normalize the entropy. 
 #' Default is \code{TRUE}.
 #' 
@@ -28,8 +35,8 @@
 #' # assign random groups
 #' idx <- sample(1:10, nrow(b), replace=T)
 #' 
-#' angles <- fs_angle_entropy(b, index=idx, normalize=F)
-#' angle_norm <- fs_angle_entropy(b, index=idx, normalize=T)
+#' angles <- fs_angle_entropy(b, index=idx, normalize=FALSE)
+#' angle_norm <- fs_angle_entropy(b, index=idx, normalize=TRUE)
 #' 
 #' @import data.table
 #' 
@@ -76,12 +83,20 @@ fs_angle_entropy.sf <- function(X, index=NULL, col=NULL, normalize=TRUE){
 }
 
 
+#' @name fs_angle_entropy
+#' @export
+fs_angle_entropy.sfc <- function(X, index=NULL, col=NULL, normalize=TRUE){
+  X <- sf::st_as_sf(X)
+  return(fs_angle_entropy(X, index, col, noramlize))
+}
+
+
 fs_angle_entropy_calc <- function(X, index, normalize=TRUE){
   if(!"fs_angle" %in% names(X)){
     X[["fs_angle"]] <- sapply(sf::st_geometry(X), fs_mbr)
   }
   
-  indexCol <- "index" # default
+  indexCol <- "zoneID" # default
   
   if(is.null(index)){
     message("No index found, treating as one group.")
