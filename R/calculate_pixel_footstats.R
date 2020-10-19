@@ -38,7 +38,7 @@
 #' @param nCores number of CPU cores to use if \code{parallel} is \code{TRUE}.
 #'   Default is 1 less than the available CPUs.
 #' @param tileSize number of pixels per side of a tile. Can be a vector of
-#'   length 2 (rows, column pixels). Ignored if n provided. Default is 1000.
+#'   length 2 (rows, column pixels). Default is \code{c(500, 500)}.
 #' @param outputPath (optional). When creating a gridded output, a path for the
 #'   location of the output. Default is the temp directory.
 #' @param outputTag (optional). A character string that will be added to the
@@ -264,7 +264,7 @@ calc_fs_px_internal <- function(X, what, how,
 
   # get full list of metrics
   if(is.null(how)) stop("Please provide a summary function name.")
-  if(verbose){ cat(paste0("Selecting metrics \n")) }
+  if(verbose){ cat("Selecting metrics \n") }
   if("all" %in% what){ 
     argsDF <- list_fs(what="all", how=how) 
   } else if("nodist" %in% what){ 
@@ -316,7 +316,7 @@ calc_fs_px_internal <- function(X, what, how,
                                            ncol=ncol(template)), 
                                     dimensions=stars::st_dimensions(template))
   
-  allOutPath <- vector("character", length=length(metrics))
+  allOutPath <- vector("character", length=length(nrow(argsDF)))
   for(i in 1:nrow(argsDF)){
     params <- unlist(argsDF[i, "cols"])
     calc_func <- unlist(argsDF[i, "funs"])
@@ -468,154 +468,101 @@ process_tile <- function(mgTile, mgBuffTile,
     Xsub <- sf::st_cast(Xsub, "POLYGON")
   }
   
-  # # check for records
-  # if(nrow(Xsub) > 0){
-  #   # if no clipping, speed up processing to avoid duplicated calculations after
-  #   # zone index which can duplicate features.
-  #   if(zoneControl$method %in% c("centroid","intersects")){
-  #     # pre-calculate unit geometry measures
-  #     if(any(grepl("area", metrics, fixed=T)) |
-  #        any(grepl("compact", metrics, fixed=T)) |
-  #        !is.null(minArea) | !is.null(maxArea)){
-  #       if(!"fs_area" %in% names(Xsub)){
-  #         if(verbose){ cat("Pre-calculating footprint areas \n") }
-  #         Xsub[["fs_area"]] <- fs_area(Xsub, unit=controlUnits$areaUnit)
-  #       }
-  #     }
-  # 
-  #     if(any(grepl("perim", metrics, fixed=T)) |
-  #        any(grepl("compact", metrics, fixed=T))){
-  #       if(!"fs_perim" %in% names(Xsub)){
-  #         if(verbose){ cat("Pre-calculating footprint perimeters \n")}
-  #         Xsub[["fs_perim"]] <- fs_perimeter(Xsub, unit=controlUnits$perimUnit)
-  #       }
-  #     }
-  # 
-  #     if(any(grepl("nndist", metrics, fixed=T))){
-  #       if(!"fs_nndist" %in% names(Xsub)){
-  #         if(verbose){ cat("Pre-calculating nearest neighbour distances \n") }
-  #         Xsub[["fs_nndist"]] <- fs_nndist(Xsub,
-  #                                          maxSearch=controlDist$maxSearch,
-  #                                          method=controlDist$method,
-  #                                          unit=controlUnits$distUnit)
-  #       }
-  #     }
-  # 
-  #     if(any(grepl("angle", metrics, fixed=T))){
-  #       if(!"fs_angle" %in% names(Xsub)){
-  #         if(verbose){ cat("Pre-calculating angles \n") }
-  #         Xsub[["fs_angle"]] <- fs_mbr(Xsub)
-  #       }
-  #     }
-  # 
-  #     # filter records
-  #     if(!is.null(minArea)){
-  #       if(verbose) { cat(paste0("Filtering features larger than ", minArea," \n")) }
-  #       Xsub <- subset(Xsub, fs_area > units::as_units(minArea,
-  #                                                      controlUnits$areaUnit))
-  #     }
-  #     if(!is.null(maxArea)){
-  #       if(verbose) { cat(paste0("Filtering features smaller than ", maxArea," \n")) }
-  #       Xsub <- subset(Xsub, fs_area < units::as_units(maxArea,
-  #                                                      controlUnits$areaUnit))
-  #     }
-  #     # no need to re-filter if not clipping
-  #     minArea <- maxArea <- NULL
-  #   }
-    
-    if(nrow(Xsub) > 0){
-      # read proxy to grid and convert to polygon object
-      if(verbose){ cat("Reading template grid \n") }
-      mgPoly <- sf::st_as_sf(stars::st_as_stars(mgTile))
-      # check for valid processing locations
-      if(nrow(mgPoly) > 0){ # NA pixels not converted
-        mgPoly$id <- 1:nrow(mgPoly)
-        # buffer for focal statistics
+  # processing
+  if(nrow(Xsub) > 0){
+    # read proxy to grid and convert to polygon object
+    if(verbose){ cat("Reading template grid \n") }
+    mgPoly <- sf::st_as_sf(stars::st_as_stars(mgTile))
+    # check for valid processing locations
+    if(nrow(mgPoly) > 0){ # NA pixels not converted
+      if(!controlZone$zoneName %in% colnames(mgPoly)){
+        mgPoly[[controlZone$zoneName]] <- 1:nrow(mgPoly)
+      }
+      # buffer for focal statistics
+      if(focalRadius > 0){
+        if(verbose){ cat("Buffering processing sites \n") }
+        if(sf::st_is_longlat(mgPoly)){
+          # find UTM zone of the tile's centroid
+          aoi <- sf::st_as_sfc(sf::st_bbox(mgPoly))
+          suppressWarnings(zn <- suggestUTMzone(sf::st_coordinates(sf::st_centroid(aoi))))
+          mgPolyArea <- sf::st_transform(mgPoly, crs=zn)
+          # circular buffer around centre point
+          suppressWarnings(mgPolyArea <- sf::st_buffer(sf::st_centroid(mgPolyArea), 
+                                                       dist=focalRadius))
+          mgPolyArea <- sf::st_transform(mgPolyArea, crs=sf::st_crs(mgPoly))
+        } else{
+          mgPolyArea <- sf::st_buffer(mgPoly, dist=focalRadius)
+        }
+      } else{ # pixel resolution
+        mgPolyArea <- mgPoly
+      }
+      
+      # footprint statistics within the tile
+      tileResults <- calculate_footstats(Xsub,
+                                         zone=mgPolyArea,
+                                         what=what,
+                                         how=how,
+                                         controlZone=controlZone,
+                                         controlUnits=controlUnits,
+                                         controlDist=controlDist,
+                                         filter=filter,
+                                         verbose=verbose)
+      # clean-up
+      rm(Xsub)
+      
+      # check for errors in the return
+      if(is.null(tileResults)){
+        return(NULL)
+      }
+      # store results tile calculations
+      mgPoly <- merge(mgPoly, 
+                      tileResults, 
+                      by=controlZone$zoneName)
+      # output loop
+      if(verbose){ cat("Writing output tiles \n") }
+      for(n in names(tileResults)[!names(tileResults) %in% "index"]){
+        units(mgPoly[[n]]) <- NULL
+        
+        tmpName <- paste0("tempRas_", Sys.getpid(),".tif")
+        resArea <- stars::st_rasterize(mgPoly[n], 
+                                       template=naTile,
+                                       file=file.path(tempdir(), 
+                                                      tmpName))
+        # update tile offset to nest in template
+        d <- stars::st_dimensions(resArea)
+        tD <- stars::st_dimensions(mgTile)
+        d[["x"]]$from <- tD[["x"]]$from  # job$xl
+        d[["x"]]$to <- tD[["x"]]$to  # job$xu
+        d[["y"]]$from <- tD[["y"]]$from  # job$yl
+        d[["y"]]$to <- tD[["y"]]$to  # job$yu
+        
+        resArea <- structure(resArea, dimensions=d)
+        
+        # get file name
+        n <- sub("fs_", "", n, fixed=T)
+        nsplit <- strsplit(n, "_", fixed=T)[[1]]
+        n <- ifelse(length(nsplit)==3, 
+                    paste(nsplit[1], nsplit[3], sep="_"), 
+                    paste(nsplit, collapse="_"))
         if(focalRadius > 0){
-          if(verbose){ cat("Buffering processing sites \n") }
-          if(sf::st_is_longlat(mgPoly)){
-            # find UTM zone of the tile's centroid
-            aoi <- sf::st_as_sfc(sf::st_bbox(mgPoly))
-            zn <- suggestUTMzone(sf::st_coordinates(sf::st_centroid(aoi)))
-            mgPolyArea <- sf::st_transform(mgPoly, crs=zn)
-            # circular buffer around centre point
-            mgPolyArea <- sf::st_buffer(sf::st_centroid(mgPolyArea), 
-                                        dist=focalRadius)
-            mgPolyArea <- sf::st_transform(mgPolyArea, crs=sf::st_crs(mgPoly))
-          } else{
-            mgPolyArea <- sf::st_buffer(mgPoly, dist=focalRadius)
-          }
-        } else{ # pixel resolution
-          mgPolyArea <- mgPoly
+          n <- paste(n, focalRadius, sep="_")
         }
         
-        # footprint statistics within the tile
-        tileResults <- calculate_footstats(Xsub,
-                                           zone=mgPolyArea,
-                                           what=what,
-                                           how=how,
-                                           controlZone=controlZone,
-                                           controlUnits=controlUnits,
-                                           controlDist=controlDist,
-                                           filter=filter,
-                                           verbose=verbose)
-        # clean-up
-        rm(Xsub)
-        
-        # check for errors in the return
-        if(is.null(tileResults)){
-          return(NULL)
+        path <- which(grepl(n, allOutPath, fixed=T))
+        # print(allOutPath[[path]])
+        if(length(path)==1){
+          lck <- filelock::lock(file.path(tempdir(), paste0(path, ".lock")))
+          write_tile(outGrid=resArea, 
+                     outName=allOutPath[[path]], 
+                     tries=tries, 
+                     update=TRUE)
+          filelock::unlock(lck)
         }
-        # store results tile calculations
-        mgPoly <- merge(mgPoly, 
-                        tileResults, 
-                        by.x="id", by.y="index")
-        # output loop
-        if(verbose){ cat("Writing output tiles \n") }
-        for(n in names(tileResults)[!names(tileResults) %in% "index"]){
-          units(mgPoly[[n]]) <- NULL
-          
-          tmpName <- paste0("tempRas_", Sys.getpid(),".tif")
-          resArea <- stars::st_rasterize(mgPoly[n], 
-                                         template=naTile,
-                                         file=file.path(tempdir(), 
-                                                        tmpName))
-          # update tile offset to nest in template
-          d <- stars::st_dimensions(resArea)
-          tD <- stars::st_dimensions(mgTile)
-          d[["x"]]$from <- tD[["x"]]$from  # job$xl
-          d[["x"]]$to <- tD[["x"]]$to  # job$xu
-          d[["y"]]$from <- tD[["y"]]$from  # job$yl
-          d[["y"]]$to <- tD[["y"]]$to  # job$yu
-          
-          resArea <- structure(resArea, dimensions=d)
-          
-          # get file name
-          n <- sub("fs_", "", n, fixed=T)
-          nsplit <- strsplit(n, "_", fixed=T)[[1]]
-          n <- ifelse(length(nsplit)==3, 
-                      paste(nsplit[1], nsplit[3], sep="_"), 
-                      paste(nsplit, collapse="_"))
-          if(focalRadius > 0){
-            n <- paste(n, focalRadius, sep="_")
-          }
-          
-          path <- which(grepl(n, allOutPath, fixed=T))
-          # print(allOutPath[[path]])
-          if(length(path)==1){
-            lck <- filelock::lock(file.path(tempdir(), paste0(path, ".lock")))
-            write_tile(outGrid=resArea, 
-                       outName=allOutPath[[path]], 
-                       tries=tries, 
-                       update=TRUE)
-            filelock::unlock(lck)
-          }
-        } # end output loop
-        if(verbose){ cat("Finished writing grids\n") }
-      } # end found mastergrid tiles
-    } # end if buildings found after filter
-  } # end if buildings found in tile
-# }
+      } # end output loop
+      if(verbose){ cat("Finished writing grids\n") }
+    } # end found mastergrid tiles
+  } # end if buildings found after filter
+} # end if buildings found in tile
 
 
 # helper function for writing tiles
