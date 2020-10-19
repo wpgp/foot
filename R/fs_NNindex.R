@@ -3,14 +3,14 @@
 #' @description Calculate and summarise selected metrics of building footprint
 #'   polygons within zones.
 #' @param X Spatial object with building footprints or their centroid locations.
-#' @param index A spatial polygon object of \code{sf} or \code{sp} type. If
+#' @param zone A spatial polygon object of \code{sf} or \code{sp} type. If
 #'   omitted all observations in \code{X} are assumed to be within one zone and
 #'   the area of the minimum bounding circle is used for the nearest neighbour
 #'   index.
 #' @param zoneField (Optional) Column name of unique identifiers in \code{zone}
 #'   to use. If omitted, the 'zoneID' will be numbered \code{1:nrow(zone)}.
-#' @param unit character or \code{units} object to define distance. Default is
-#'   NULL
+#' @param unit character or \code{units} object to define distance. Default
+#'   \code{NULL} will attempt to coerce units to meters.
 #' @return \code{data.table} of zonal indices and values
 #'
 #' @details The nearest neighbour index (NNI) is a measure of spatial
@@ -25,7 +25,7 @@
 #'   
 #'   The function uses \code{fs_nndist} to calculate the distance between
 #'   centroids of the building footprints within the same spatial zone indicated
-#'   by \code{index}.
+#'   by \code{zone}.
 #' 
 #' @import data.table
 #' 
@@ -33,24 +33,24 @@
 #' @rdname fs_nnindex
 #' 
 #' @export 
-fs_nnindex <- function(X, index=NULL, 
+fs_nnindex <- function(X, zone=NULL, 
                        zoneField=NULL, unit=NULL) UseMethod("fs_nnindex")
 
 
 #' @name fs_nnindex
 #' @export
-fs_nnindex.sp <- function(X, index=NULL, 
+fs_nnindex.sp <- function(X, zone=NULL, 
                           zoneField=NULL, unit=NULL){
   X <- sf::st_as_sf(X)
   
-  result <- fs_nnindex(X, index, zoneField, unit)
+  result <- fs_nnindex(X, zone, zoneField, unit)
   return(result)
 }
 
 
 #' @name fs_nnindex
 #' @export
-fs_nnindex.sf <- function(X, index=NULL, 
+fs_nnindex.sf <- function(X, zone=NULL, 
                           zoneField=NULL, unit=NULL){
 
   if(is.na(sf::st_crs(X))){
@@ -62,43 +62,68 @@ fs_nnindex.sf <- function(X, index=NULL,
     }
   }
 
-  result <- fs_nnindex_calc(X, index, zoneField, unit)
+  result <- fs_nnindex_calc(X, zone, zoneField, unit)
   return(result)
 }
 
 
-fs_nnindex_calc <- function(X, index, zoneField=NULL, unit=NULL){
+#' @name fs_nnindex
+#' @export
+fs_nnindex.sfc <- function(X, zone=NULL, 
+                           zoneField=NULL, unit=NULL){
+  
+  # conversion
+  X <- sf::st_as_sf(X)
+  
+  if(is.na(sf::st_crs(X))){
+    warning("Footprints have no spatial projection. Units ignored.")
+    unit <- NULL
+  } else{
+    if(is.null(unit)){
+      unit <- "m"
+    }
+  }
+  
+  result <- fs_nnindex(X, zone, zoneField, unit)
+  return(result)
+}
+
+
+fs_nnindex_calc <- function(X, zone, zoneField=NULL, unit=NULL){
   if(is.null(zoneField)){
     zoneField <- "zoneID"
   }
+  if(is.null(unit)){
+    unit <- "m"
+  }
   # need spatial zones
-  if(is.null(index)){
+  if(is.null(zone)){
     warning("No index found, treating as one group.")
-    index <- rep(1, nrow(X))
+    zone <- rep(1, nrow(X))
     indexZones <- sf::st_sf(index=1, 
                             geometry=sf::st_geometry(lwgeom::st_minimum_bounding_circle(X)),
                             crs=sf::st_crs(X))
     X[[zoneField]] <- 1
-    zonalArea <- data.table::data.table(index=indexZones$index, 
+    zonalArea <- data.table::data.table(idx=indexZones$index, 
                                         zoneArea=fs_area(indexZones, 
                                                          unit=paste0(unit, "^2")))
   } else{
-    if(!inherits(index, "sf")){
-      if(inherits(index, "Spatial")){
-        index <- sf::st_as_sf(index)
+    if(!inherits(zone, "sf")){
+      if(inherits(zone, "Spatial")){
+        zone <- sf::st_as_sf(zone)
       } else{
-        stop("Invalid index. Spatial units required")
+        stop("Invalid zone. Spatial units required")
       }
     }
-    if(!zoneField %in% colnames(index)){
-      index[[zoneField]] <- 1:nrow(index)
+    if(!zoneField %in% colnames(zone)){
+      zone[[zoneField]] <- 1:nrow(zone)
     }
     
-    X <- zonalIndex(X, zone=index, zoneField=zoneField, 
+    X <- zonalIndex(X, zone=zone, zoneField=zoneField, 
                     method="centroid", returnObject=TRUE)
     
-    zonalArea <- data.table::data.table(idx=index[[zoneField]], 
-                                        zoneArea=fs_area(index, 
+    zonalArea <- data.table::data.table(idx=zone[[zoneField]], 
+                                        zoneArea=fs_area(zone, 
                                                          unit=paste0(unit, "^2")))
   }
   data.table::setnames(zonalArea, "idx", zoneField)
