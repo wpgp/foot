@@ -55,7 +55,7 @@ majority <- function(x){
 #' Generate a nearest neighbour index function
 #' @description Creates a new instance of the \code{fs_nnindex} function and
 #'   initialises it with zone and unit information.
-#' @param z A spatial polygon object of \code{sf} or \code{sp} type. If
+#' @param zone A spatial polygon object of \code{sf} or \code{sp} type. If
 #'   omitted all observations in \code{X} are assumed to be within one zone and
 #'   the area of the minimum bounding circle is used for the nearest neighbour
 #'   index.
@@ -68,8 +68,8 @@ majority <- function(x){
 #'   \code{calculate_footstats}. This function will generally not be used on its
 #'   own.
 #' @name gen_nnindex
-gen_nnindex <- function(z, zoneField=NULL, unit="m"){
-  force(z)
+gen_nnindex <- function(zone, zoneField=NULL, unit="m"){
+  force(zone)
   force(zoneField)
   force(unit)
   
@@ -77,7 +77,7 @@ gen_nnindex <- function(z, zoneField=NULL, unit="m"){
     if(length(x) == 1){
       return(0)
     } else{
-      res <- fs_nnindex(sf::st_as_sf(x), z, zoneField, unit)
+      res <- fs_nnindex(sf::st_as_sf(x), zone, zoneField, unit)
       return(res[["fs_nnindex"]])
     }
   }
