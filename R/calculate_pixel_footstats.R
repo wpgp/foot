@@ -8,25 +8,29 @@
 #'   multiple spatial types, including \code{sf} and \code{sp}, or a filepath
 #'   string to a file, or a list where each member provides a spatial object or
 #'   a filepath string.
-#' @param metrics character vector. Names of footprint statistics in the form of
-#'   "fs_area_mean", etc. Other options include \code{ALL} or \code{NODIST} to
-#'   calculate all available metrics and all except nearest neighbour distances,
-#'   respectively.
+#' @param what list of strings naming the columns or built-in geometry measures to
+#'   calculate for each footprint. Other options include \code{'all'} or
+#'   \code{'nodist'} to calculate all available characteristics and all except
+#'   nearest-neighbour distance metrics.
+#' @param how list of strings naming functions to be used to calculate summary
+#'   statistics. The functions can be built-in functions (e.g. "mean","sd"), or
+#'   user-defined function names.
 #' @param focalRadius numeric. Distance in meters for a buffer around each
 #'   template pixel. Creates a focal processing window for metrics.
-#' @param minArea numeric. Minimum footprint area to filter \code{X}.
-#' @param maxArea numeric. Maximum footprint area to filter \code{X}.
-#' @param controlUnits (Optional) named list to control the units used in the
-#'   geometry functions. Elements can include \code{areaUnit}, \code{perimUnit},
-#'   and \code{distUnit}. The values for these items should be strings that can
-#'   be coerced into a \code{units} object.
-#' @param controlDist (Optional) named list to override default options for
-#'   distance calculations. Elements can include \code{maxSearch} and
-#'   \code{method}. Ignored if \code{metrics} does not include a distance
-#'   calculation. See \code{\link[foot]{fs_nndist}}.
-#' @param zoneMethod One of \code{'centroid', 'intersect', 'clip'}. How should
-#'   footprints which span pixel zones be allocated? Default is by its
-#'   \code{'centroid'}. See \code{\link[foot]{zonalIndex}} for details.
+#' @param controlZone (optional) named list. Setting controls passed on to 
+#'   \code{\link[foot]{zonalIndex}}. Elements can include \code{zoneName} and
+#'   \code{method}.
+#' @param controlUnits (optional) named list. Elements can include
+#'   \code{areaUnit}, \code{perimUnit}, and \code{distUnit}. The values for
+#'   these items should be strings that can be coerced into a \code{units}
+#'   object.
+#' @param controlDist (optional) named list to override default
+#'   options for distance calculations. Elements can include \code{maxSearch}
+#'   and \code{method}. Ignored if \code{metrics} does not include a distance
+#'   calculation. See \code{\link[foot]{fs_nndist}}. 
+#' @param filter (optional) named list with \code{minArea} and \code{maxArea}.
+#'   These are numeric values to filter footprints prior to processing. Default
+#'   values are \code{NULL} and do not filter any records.
 #' @param template (optional). When creating a gridded output, a supplied
 #'   \code{stars} or \code{raster} dataset to align the data.
 #' @param parallel logical. Should a parallel backend be used to process the
@@ -42,7 +46,7 @@
 #' @param tries (optional). The number of attempts to write a tile to the output
 #'   file. Default is 100.
 #' @param verbose logical. Should progress messages be printed. Default
-#'   \code{False}.
+#'   \code{TRUE}.
 #' 
 #' @details \code{calculate_bigfoot} provides a wrapper for a workflow to
 #'   process vector polygons of structures to create a gridded output summary of
@@ -64,9 +68,8 @@
 #' templateGrid <- kampala$mastergrid
 #' 
 #' calculate_bigfoot(X=buildings,
-#'                   metrics=c("shape_mean",
-#'                             "count",
-#'                             "perim_total"),  
+#'                   what=list(list("shape"), list("perimeter")),
+#'                   how=list(list("mean"), list("sum")),
 #'                   controlUnits=list(areaUnit="m^2"),
 #'                   minArea=50,  # footprints must be larger than 50 m^2
 #'                   maxArea=1000,  # footprints must be smaller than 1000 m^2
@@ -93,12 +96,18 @@
 #' 
 #' @export
 calculate_bigfoot <- function(X, 
-                              what='all', how=NULL,
+                              what='all', how='all',
                               focalRadius=0,
-                              controlZone=list(),
-                              controlUnits=list(),
-                              controlDist=list(),
-                              filter=list(),
+                              controlZone=list(zoneName="zoneID", 
+                                               method="centroid"), 
+                              controlUnits=list(areaUnit="m^2", 
+                                                perimUnit="m", 
+                                                distUnit="m"), 
+                              controlDist=list(maxSearch=100, 
+                                               method="centroid", 
+                                               unit=controlUnits$distUnit),
+                              filter=list(minArea=NULL, 
+                                          maxArea=NULL),
                               template=NULL,
                               tileSize=c(500, 500),
                               parallel=TRUE,
@@ -106,38 +115,45 @@ calculate_bigfoot <- function(X,
                               outputPath=getwd(),
                               outputTag=NULL,
                               tries=100,
-                              verbose=FALSE) UseMethod("calculate_bigfoot")
+                              verbose=TRUE) UseMethod("calculate_bigfoot")
 
 
 #' @name calculate_bigfoot
 #' @export
 calculate_bigfoot.sf <- function(X, 
-                                 metrics='all',
+                                 what='all', how='all',
                                  focalRadius=0,
-                                 minArea=NULL,
-                                 maxArea=NULL,
-                                 controlUnits=NULL,
-                                 controlDist=NULL,
-                                 zoneMethod='centroid',
+                                 controlZone=list(zoneName="zoneID", 
+                                                  method="centroid"), 
+                                 controlUnits=list(areaUnit="m^2", 
+                                                   perimUnit="m", 
+                                                   distUnit="m"), 
+                                 controlDist=list(maxSearch=100, 
+                                                  method="centroid", 
+                                                  unit=controlUnits$distUnit),
+                                 filter=list(minArea=NULL, 
+                                             maxArea=NULL),
                                  template=NULL,
                                  tileSize=c(500, 500),
                                  parallel=TRUE,
                                  nCores=max(1, parallel::detectCores()-1),
-                                 outputPath=tempdir(),
+                                 outputPath=getwd(),
                                  outputTag=NULL,
                                  tries=100,
-                                 verbose=FALSE){
+                                 verbose=TRUE){
 
   if(any(!sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON") )){
     message("Footprint statistics require polygon shapes.")
     stop()
   }
   
-  result <- calc_fs_px_internal(X, metrics, focalRadius, 
-                                minArea, maxArea, 
-                                controlUnits, controlDist, zoneMethod,
-                                template, tileSize, parallel, nCores,
-                                outputPath, outputTag, tries, verbose)
+  result <- calc_fs_px_internal(X, what, how,
+                                focalRadius, filter,
+                                controlZone, controlUnits, controlDist,
+                                template, tileSize,
+                                parallel, nCores,
+                                outputPath, outputTag,
+                                tries, verbose)
   
   invisible(result)
 }
@@ -146,21 +162,26 @@ calculate_bigfoot.sf <- function(X,
 #' @name calculate_bigfoot
 #' @export
 calculate_bigfoot.sp <- function(X, 
-                                 metrics='all',
+                                 what='all', how='all',
                                  focalRadius=0,
-                                 minArea=NULL,
-                                 maxArea=NULL,
-                                 controlUnits=NULL,
-                                 controlDist=NULL,
-                                 zoneMethod='centroid',
+                                 controlZone=list(zoneName="zoneID", 
+                                                  method="centroid"), 
+                                 controlUnits=list(areaUnit="m^2", 
+                                                   perimUnit="m", 
+                                                   distUnit="m"), 
+                                 controlDist=list(maxSearch=100, 
+                                                  method="centroid", 
+                                                  unit=controlUnits$distUnit),
+                                 filter=list(minArea=NULL, 
+                                             maxArea=NULL),
                                  template=NULL,
                                  tileSize=c(500, 500),
                                  parallel=TRUE,
                                  nCores=max(1, parallel::detectCores()-1),
-                                 outputPath=tempdir(),
+                                 outputPath=getwd(),
                                  outputTag=NULL,
                                  tries=100,
-                                 verbose=FALSE){
+                                 verbose=TRUE){
   
   # convert to sf
   X <- sf::st_as_sf(X)
@@ -170,11 +191,13 @@ calculate_bigfoot.sp <- function(X,
     stop()
   }
   
-  result <- calc_fs_px_internal(X, metrics, focalRadius, 
-                                minArea, maxArea, 
-                                controlUnits, controlDist, zoneMethod,
-                                template, tileSize, parallel, nCores,
-                                outputPath, outputTag, tries, verbose)
+  result <- calc_fs_px_internal(X, what, how,
+                                focalRadius, filter,
+                                controlZone, controlUnits, controlDist,
+                                template, tileSize,
+                                parallel, nCores,
+                                outputPath, outputTag,
+                                tries, verbose)
   
   invisible(result)
 }
@@ -183,48 +206,47 @@ calculate_bigfoot.sp <- function(X,
 #' @name calculate_bigfoot
 #' @export
 calculate_bigfoot.character <- function(X, 
-                                        metrics='all',
+                                        what='all', how='all',
                                         focalRadius=0,
-                                        minArea=NULL,
-                                        maxArea=NULL,
-                                        controlUnits=NULL,
-                                        controlDist=NULL,
-                                        zoneMethod='centroid',
+                                        controlZone=list(zoneName="zoneID", 
+                                                         method="centroid"), 
+                                        controlUnits=list(areaUnit="m^2", 
+                                                          perimUnit="m", 
+                                                          distUnit="m"), 
+                                        controlDist=list(maxSearch=100, 
+                                                         method="centroid", 
+                                                         unit=controlUnits$distUnit),
+                                        filter=list(minArea=NULL, 
+                                                    maxArea=NULL),
                                         template=NULL,
                                         tileSize=c(500, 500),
                                         parallel=TRUE,
                                         nCores=max(1, parallel::detectCores()-1),
-                                        outputPath=tempdir(),
+                                        outputPath=getwd(),
                                         outputTag=NULL,
                                         tries=100,
-                                        verbose=FALSE){
+                                        verbose=TRUE){
         
-  result <- calc_fs_px_internal(X, metrics, focalRadius, 
-                                minArea, maxArea, 
-                                controlUnits, controlDist, zoneMethod,
-                                template, tileSize, parallel, nCores,
-                                outputPath, outputTag, tries, verbose)
+  result <- calc_fs_px_internal(X, what, how,
+                                focalRadius, filter,
+                                controlZone, controlUnits, controlDist,
+                                template, tileSize,
+                                parallel, nCores,
+                                outputPath, outputTag,
+                                tries, verbose)
   
   invisible(result)
 }
 
 
 # internal function for managing processes
-calc_fs_px_internal <- function(X, 
-                                what, how,
-                                focalRadius,
-                                filter,
-                                controlZone,
-                                controlUnits,
-                                controlDist,
-                                template,
-                                tileSize,
-                                parallel,
-                                nCores,
-                                outputPath,
-                                outputTag,
-                                tries,
-                                verbose){
+calc_fs_px_internal <- function(X, what, how,
+                                focalRadius, filter,
+                                controlZone, controlUnits, controlDist,
+                                template, tileSize,
+                                parallel, nCores,
+                                outputPath, outputTag,
+                                tries, verbose){
 
   if(is.null(template)){
     stop("Template raster or grid required.")
@@ -239,20 +261,35 @@ calc_fs_px_internal <- function(X,
   } else{
     outputTag <- ""
   }
+
+  # get full list of metrics
+  if(is.null(how)) stop("Please provide a summary function name.")
+  if(verbose){ cat(paste0("Selecting metrics \n")) }
+  if("all" %in% what){ 
+    argsDF <- list_fs(what="all", how=how) 
+  } else if("nodist" %in% what){ 
+    argsDF <- list_fs(what="nodist", how=how) 
+  } else{
+    argsX <- crossargs(what, how)
+    argsDF <- do.call(rbind, argsX)
+    argsDF <- unique(argsDF)
+  } 
   
-  if(!zoneMethod %in% c("centroid","intersect","clip")){
-    stop("Zone method must be one of 'centroid', 'intersect', or 'clip'")
+  # set defaults for controls
+  if(verbose){ cat("Setting control values. \n") }
+  # defaults for zonal indexing
+  providedZone <- controlZone
+  controlZone <- list(zoneName="zoneID", method="centroid")
+  controlZone <- controlZone[order(names(controlZone))]
+  # update with provide values
+  if(!is.null(providedZone)){
+    providedZone <- providedZone[order(names(providedZone))]
+    controlZone[names(controlZone) %in% names(providedZone)] <- providedZone
   }
   
-  # get full list of metrics
-  metrics <- get_fs_metrics(short_names=metrics, group=metrics)
-  
-  # get full set of unit controls - sort alphabetically to make matches
+  # get full set of units - sort alphabetically to make matches
   providedUnits <- controlUnits
-  
-  controlUnits <- list(areaUnit=get_fs_units("fs_area_mean"),
-                       perimUnit=get_fs_units("fs_perim_mean"),
-                       distUnit=get_fs_units("fs_nndist_mean"))
+  controlUnits <- list(areaUnit="m^2", perimUnit="m", distUnit="m")
   controlUnits <- controlUnits[order(names(controlUnits))]
   # update with provide values
   if(!is.null(providedUnits)){
@@ -260,18 +297,19 @@ calc_fs_px_internal <- function(X,
     controlUnits[names(controlUnits) %in% names(providedUnits)] <- providedUnits
   }
   
-  # get full set of distance calculation controls
-  providedDist <- controlDist
-  # set defaults
-  controlDist <- list(maxSearch=100,
-                      method='poly')
+  # defaults for distance measures
+  providedDist <- controlUnits
+  controlDist=list(maxSearch=100, 
+                   method="centroid", 
+                   unit=controlUnits$distUnit)
   controlDist <- controlDist[order(names(controlDist))]
-  # update with provided control values
+  # update with provide values
   if(!is.null(providedDist)){
     providedDist <- providedDist[order(names(providedDist))]
     controlDist[names(controlDist) %in% names(providedDist)] <- providedDist
   }
   
+  if(verbose){ cat("Creating template output grids \n") }
   # create empty output grids to match template
   outTemplate <- stars::st_as_stars(matrix(NA, 
                                            nrow=nrow(template), 
@@ -279,9 +317,10 @@ calc_fs_px_internal <- function(X,
                                     dimensions=stars::st_dimensions(template))
   
   allOutPath <- vector("character", length=length(metrics))
-  for(i in seq_along(metrics)){
-    m <- metrics[[i]]
-    mTag <- sub("fs_", "", m, fixed=T) # drop function label
+  for(i in 1:nrow(argsDF)){
+    params <- unlist(argsDF[i, "cols"])
+    calc_func <- unlist(argsDF[i, "funs"])
+    mTag <- paste(paste(params, collapse="_"), calc_func, sep="_")
     if(focalRadius > 0){
       mTag <- paste(mTag, focalRadius, sep="_")
     }
@@ -295,6 +334,7 @@ calc_fs_px_internal <- function(X,
   # print(allOutPath)
 
   # tiles for processing
+  if(verbose){ cat("Creating list of processing tiles \n") }
   tiles <- gridTiles(template, px=tileSize)
   
   if(focalRadius > 0){
@@ -314,7 +354,7 @@ calc_fs_px_internal <- function(X,
   # processing loop
   if(parallel){
     # create cluster
-    if(verbose){ cat("Setting up cluster\n")}
+    if(verbose){ cat("Setting up cluster...\n")}
     if(.Platform$OS.type == "unix"){
       cl <- parallel::makeCluster(spec=nCores, type="FORK")
     } else{
@@ -432,7 +472,7 @@ process_tile <- function(mgTile, mgBuffTile,
   # if(nrow(Xsub) > 0){
   #   # if no clipping, speed up processing to avoid duplicated calculations after
   #   # zone index which can duplicate features.
-  #   if(zoneMethod %in% c("centroid","intersects")){ 
+  #   if(zoneControl$method %in% c("centroid","intersects")){
   #     # pre-calculate unit geometry measures
   #     if(any(grepl("area", metrics, fixed=T)) |
   #        any(grepl("compact", metrics, fixed=T)) |
@@ -454,9 +494,9 @@ process_tile <- function(mgTile, mgBuffTile,
   #     if(any(grepl("nndist", metrics, fixed=T))){
   #       if(!"fs_nndist" %in% names(Xsub)){
   #         if(verbose){ cat("Pre-calculating nearest neighbour distances \n") }
-  #         Xsub[["fs_nndist"]] <- fs_nndist(Xsub, 
-  #                                          maxSearch=controlDist$maxSearch, 
-  #                                          method=controlDist$method, 
+  #         Xsub[["fs_nndist"]] <- fs_nndist(Xsub,
+  #                                          maxSearch=controlDist$maxSearch,
+  #                                          method=controlDist$method,
   #                                          unit=controlUnits$distUnit)
   #       }
   #     }
@@ -575,7 +615,7 @@ process_tile <- function(mgTile, mgBuffTile,
       } # end found mastergrid tiles
     } # end if buildings found after filter
   } # end if buildings found in tile
-}
+# }
 
 
 # helper function for writing tiles

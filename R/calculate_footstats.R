@@ -204,7 +204,6 @@ calc_fs_internal <- function(X, zone, what, how,
   }
  
   # get characteristics and metrics
-  if(is.null(what)) stop("Missing list of 'what' characteristics.")
   if(verbose){ cat(paste0("Selecting metrics \n")) }
   if("all" %in% what){ 
     argsDF <- list_fs(what="all", how=how) 
