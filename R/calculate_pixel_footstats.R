@@ -93,18 +93,17 @@
 #' 
 #' @export
 calculate_bigfoot <- function(X, 
-                              metrics='all',
+                              what='all', how=NULL,
                               focalRadius=0,
-                              minArea=NULL,
-                              maxArea=NULL,
-                              controlUnits=NULL,
-                              controlDist=NULL,
-                              zoneMethod='centroid',
+                              controlZone=list(),
+                              controlUnits=list(),
+                              controlDist=list(),
+                              filter=list(),
                               template=NULL,
                               tileSize=c(500, 500),
                               parallel=TRUE,
                               nCores=max(1, parallel::detectCores()-1),
-                              outputPath=tempdir(),
+                              outputPath=getwd(),
                               outputTag=NULL,
                               tries=100,
                               verbose=FALSE) UseMethod("calculate_bigfoot")
@@ -212,13 +211,12 @@ calculate_bigfoot.character <- function(X,
 
 # internal function for managing processes
 calc_fs_px_internal <- function(X, 
-                                metrics,
+                                what, how,
                                 focalRadius,
-                                minArea,
-                                maxArea,
+                                filter,
+                                controlZone,
                                 controlUnits,
                                 controlDist,
-                                zoneMethod,
                                 template,
                                 tileSize,
                                 parallel,
@@ -324,13 +322,12 @@ calc_fs_px_internal <- function(X,
       parallel::clusterExport(cl, 
                               varlist=c("X",
                                         "template",
-                                        "metrics",
+                                        "what","how",
+                                        "controlZone",
                                         "controlUnits",
                                         "controlDist",
                                         "focalRadius",
-                                        "minArea",
-                                        "maxArea",
-                                        "zoneMethod",
+                                        "filter",
                                         "allOutPath",
                                         "tries"),
                               envir=environment())
@@ -351,12 +348,12 @@ calc_fs_px_internal <- function(X,
       mgBuffTile <- stars::st_as_stars(template[,jobBuff$xl:jobBuff$xu, 
                                                 jobBuff$yl:jobBuff$yu])
       process_tile(mgTile, mgBuffTile, 
-                   X, metrics, 
-                   focalRadius, minArea, maxArea,
-                   controlUnits, controlDist,
-                   zoneMethod,
+                   X, what, how, 
+                   focalRadius, 
+                   controlZone, controlUnits, constrolDist,
                    allOutPath,
                    tries,
+                   filter,
                    verbose=FALSE) 
       
       NULL
@@ -376,14 +373,12 @@ calc_fs_px_internal <- function(X,
                                                 jobBuff$yl:jobBuff$yu])
       
       process_tile(mgTile, mgBuffTile, 
-                   X, metrics, 
+                   X, what, how, 
                    focalRadius, 
-                   minArea, maxArea,
-                   controlUnits,
-                   controlDist,
-                   zoneMethod,
-                   allOutPath, 
+                   controlZone, controlUnits, constrolDist,
+                   allOutPath,
                    tries,
+                   filter,
                    verbose)
     } # end for loop on tiles
   }
@@ -396,12 +391,12 @@ calc_fs_px_internal <- function(X,
 
 # helper function for processing tiles
 process_tile <- function(mgTile, mgBuffTile, 
-                         X, metrics, 
+                         X, what, how, 
                          focalRadius, 
-                         minArea, maxArea, 
-                         controlUnits, constrolDist, zoneMethod,
+                         controlZone, controlUnits, constrolDist,
                          allOutPath,
                          tries,
+                         filter,
                          verbose=FALSE){
   
   # blank tile for the results
@@ -433,60 +428,60 @@ process_tile <- function(mgTile, mgBuffTile,
     Xsub <- sf::st_cast(Xsub, "POLYGON")
   }
   
-  # check for records
-  if(nrow(Xsub) > 0){
-    # if no clipping, speed up processing to avoid duplicated calculations after
-    # zone index which can duplicate features.
-    if(zoneMethod %in% c("centroid","intersects")){ 
-      # pre-calculate unit geometry measures
-      if(any(grepl("area", metrics, fixed=T)) |
-         any(grepl("compact", metrics, fixed=T)) |
-         !is.null(minArea) | !is.null(maxArea)){
-        if(!"fs_area" %in% names(Xsub)){
-          if(verbose){ cat("Pre-calculating footprint areas \n") }
-          Xsub[["fs_area"]] <- fs_area(Xsub, unit=controlUnits$areaUnit)
-        }
-      }
-  
-      if(any(grepl("perim", metrics, fixed=T)) |
-         any(grepl("compact", metrics, fixed=T))){
-        if(!"fs_perim" %in% names(Xsub)){
-          if(verbose){ cat("Pre-calculating footprint perimeters \n")}
-          Xsub[["fs_perim"]] <- fs_perimeter(Xsub, unit=controlUnits$perimUnit)
-        }
-      }
-  
-      if(any(grepl("nndist", metrics, fixed=T))){
-        if(!"fs_nndist" %in% names(Xsub)){
-          if(verbose){ cat("Pre-calculating nearest neighbour distances \n") }
-          Xsub[["fs_nndist"]] <- fs_nndist(Xsub, 
-                                           maxSearch=controlDist$maxSearch, 
-                                           method=controlDist$method, 
-                                           unit=controlUnits$distUnit)
-        }
-      }
-  
-      if(any(grepl("angle", metrics, fixed=T))){
-        if(!"fs_angle" %in% names(Xsub)){
-          if(verbose){ cat("Pre-calculating angles \n") }
-          Xsub[["fs_angle"]] <- fs_mbr(Xsub)
-        }
-      }
-  
-      # filter records
-      if(!is.null(minArea)){
-        if(verbose) { cat(paste0("Filtering features larger than ", minArea," \n")) }
-        Xsub <- subset(Xsub, fs_area > units::as_units(minArea,
-                                                       controlUnits$areaUnit))
-      }
-      if(!is.null(maxArea)){
-        if(verbose) { cat(paste0("Filtering features smaller than ", maxArea," \n")) }
-        Xsub <- subset(Xsub, fs_area < units::as_units(maxArea,
-                                                       controlUnits$areaUnit))
-      }
-      # no need to re-filter if not clipping
-      minArea <- maxArea <- NULL
-    }
+  # # check for records
+  # if(nrow(Xsub) > 0){
+  #   # if no clipping, speed up processing to avoid duplicated calculations after
+  #   # zone index which can duplicate features.
+  #   if(zoneMethod %in% c("centroid","intersects")){ 
+  #     # pre-calculate unit geometry measures
+  #     if(any(grepl("area", metrics, fixed=T)) |
+  #        any(grepl("compact", metrics, fixed=T)) |
+  #        !is.null(minArea) | !is.null(maxArea)){
+  #       if(!"fs_area" %in% names(Xsub)){
+  #         if(verbose){ cat("Pre-calculating footprint areas \n") }
+  #         Xsub[["fs_area"]] <- fs_area(Xsub, unit=controlUnits$areaUnit)
+  #       }
+  #     }
+  # 
+  #     if(any(grepl("perim", metrics, fixed=T)) |
+  #        any(grepl("compact", metrics, fixed=T))){
+  #       if(!"fs_perim" %in% names(Xsub)){
+  #         if(verbose){ cat("Pre-calculating footprint perimeters \n")}
+  #         Xsub[["fs_perim"]] <- fs_perimeter(Xsub, unit=controlUnits$perimUnit)
+  #       }
+  #     }
+  # 
+  #     if(any(grepl("nndist", metrics, fixed=T))){
+  #       if(!"fs_nndist" %in% names(Xsub)){
+  #         if(verbose){ cat("Pre-calculating nearest neighbour distances \n") }
+  #         Xsub[["fs_nndist"]] <- fs_nndist(Xsub, 
+  #                                          maxSearch=controlDist$maxSearch, 
+  #                                          method=controlDist$method, 
+  #                                          unit=controlUnits$distUnit)
+  #       }
+  #     }
+  # 
+  #     if(any(grepl("angle", metrics, fixed=T))){
+  #       if(!"fs_angle" %in% names(Xsub)){
+  #         if(verbose){ cat("Pre-calculating angles \n") }
+  #         Xsub[["fs_angle"]] <- fs_mbr(Xsub)
+  #       }
+  #     }
+  # 
+  #     # filter records
+  #     if(!is.null(minArea)){
+  #       if(verbose) { cat(paste0("Filtering features larger than ", minArea," \n")) }
+  #       Xsub <- subset(Xsub, fs_area > units::as_units(minArea,
+  #                                                      controlUnits$areaUnit))
+  #     }
+  #     if(!is.null(maxArea)){
+  #       if(verbose) { cat(paste0("Filtering features smaller than ", maxArea," \n")) }
+  #       Xsub <- subset(Xsub, fs_area < units::as_units(maxArea,
+  #                                                      controlUnits$areaUnit))
+  #     }
+  #     # no need to re-filter if not clipping
+  #     minArea <- maxArea <- NULL
+  #   }
     
     if(nrow(Xsub) > 0){
       # read proxy to grid and convert to polygon object
@@ -516,13 +511,13 @@ process_tile <- function(mgTile, mgBuffTile,
         
         # footprint statistics within the tile
         tileResults <- calculate_footstats(Xsub,
-                                           index=mgPolyArea,
-                                           metrics=metrics,
-                                           minArea=minArea,
-                                           maxArea=maxArea,
+                                           zone=mgPolyArea,
+                                           what=what,
+                                           how=how,
+                                           controlZone=controlZone,
                                            controlUnits=controlUnits,
                                            controlDist=controlDist,
-                                           zoneMethod=zoneMethod,
+                                           filter=filter,
                                            verbose=verbose)
         # clean-up
         rm(Xsub)
