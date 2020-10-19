@@ -53,17 +53,17 @@ list_fs <- function(what='all', how='all'){
   allMetrics <- do.call(rbind, allMetrics)
   
   if(!is.null(what)){
-    if(what == "all"){
+    if("all" %in% what){
       what <- c(baseWhats, shapeWhats, settWhats, angleWhats, distWhats)
-    } else if(what == "nodist"){
+    } else if("nodist" %in% what){
       what <- c(baseWhats, shapeWhats, settWhats, angleWhats)
     } 
   }
   
   if(!is.null(how)){
-    if(how == "all"){
+    if("all" %in% how){
       how <- c(baseFuns, shapeFuns, settFuns, angleFuns, distFuns)
-    } else if(how == "nodist"){
+    } else if("nodist" %in% how){
       how <- c(baseFuns, shapeFuns, settFuns, angleFuns)
     }
   }
@@ -79,39 +79,6 @@ list_fs <- function(what='all', how='all'){
     allMetrics <- allMetrics[order(allMetrics$cols, allMetrics$funs),]
     rownames(allMetrics) <- 1:nrow(allMetrics)
   }
-  
-  
-  
-  # if(!'all' %in% tolower(what) & !is.null(what)){
-  #   if('nodist' %in% tolower(what)){
-  #     allMetrics <- allMetrics[allMetrics$cols != 'nndist', ]
-  #   } else{
-  #     allMetrics <- allMetrics[allMetrics$cols %in% what, ]
-  #   }
-  # }
-  # 
-  # if(is.null(how)){
-  #   allMetrics <- allMetrics$cols
-  # } else{
-  #   if(!'all' %in% tolower(how)){
-  #     allMetrics <- allMetrics[allMetrics$funs %in% how,]
-  #     
-  #     if(nrow(allMetrics)==0){
-  #       message("No built-in 'foot' metrics found.")
-  #       return(NULL)
-  #     }
-  #     allMetrics <- allMetrics[order(allMetrics$cols, allMetrics$funs),]
-  #     rownames(allMetrics) <- 1:nrow(allMetrics)
-  #   } else{
-  #     if(is.null(what)){
-  #       allMetrics <- allMetrics$funs
-  #     } else{
-  #       message("No built-in 'foot' metrics found.")
-  #       return(NULL)
-  #     }
-  #   }
-
-  # }
   
   return(unique(allMetrics))
 }
