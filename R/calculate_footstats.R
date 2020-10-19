@@ -72,13 +72,13 @@
 #'                     what=list(list("area"), list("perimeter")), 
 #'                     how=list(list("mean","sum"), list("sd","cv")))
 #'                     
-#' @seealso [zonalIndex], [fs_nndist], [list_fs]
+#' @seealso \link[foot]{zonalIndex}, \link[foot]{fs_nndist}, \link[foot]{list_fs}
 #' 
 #' @aliases calculate_footstats
 #' @rdname calculate_footstats
 #' 
 #' @export
-calculate_footstats <- function(X, zone, what='all', how=NULL,
+calculate_footstats <- function(X, zone=NULL, what='all', how=NULL,
                                 controlZone=list(zoneName="zoneID", 
                                                  method="centroid"), 
                                 controlUnits=list(areaUnit="m^2", 
@@ -93,7 +93,7 @@ calculate_footstats <- function(X, zone, what='all', how=NULL,
 
 #' @name calculate_footstats
 #' @export
-calculate_footstats.sf <- function(X, zone, what='all', how=NULL,
+calculate_footstats.sf <- function(X, zone=NULL, what='all', how=NULL,
                                    controlZone=list(zoneName="zoneID", 
                                                     method="centroid"), 
                                    controlUnits=list(areaUnit="m^2", 
@@ -121,7 +121,7 @@ calculate_footstats.sf <- function(X, zone, what='all', how=NULL,
 
 #' @name calculate_footstats
 #' @export
-calculate_footstats.sfc <- function(X, zone, what='all', how=NULL,
+calculate_footstats.sfc <- function(X, zone=NULL, what='all', how=NULL,
                                     controlZone=list(zoneName="zoneID", 
                                                      method="centroid"), 
                                     controlUnits=list(areaUnit="m^2", 
@@ -148,7 +148,7 @@ calculate_footstats.sfc <- function(X, zone, what='all', how=NULL,
 
 #' @name calculate_footstats
 #' @export
-calculate_footstats.sp <- function(X, zone, what='all', how=NULL,
+calculate_footstats.sp <- function(X, zone=NULL, what='all', how=NULL,
                                    controlZone=list(zoneName="zoneID", 
                                                     method="centroid"), 
                                    controlUnits=list(areaUnit="m^2", 
@@ -172,7 +172,7 @@ calculate_footstats.sp <- function(X, zone, what='all', how=NULL,
 
 #' @name calculate_footstats
 #' @export
-calculate_footstats.character <- function(X, zone, what='all', how=NULL,
+calculate_footstats.character <- function(X, zone=NULL, what='all', how=NULL,
                                           controlZone=list(zoneName="zoneID", 
                                                            method="centroid"), 
                                           controlUnits=list(areaUnit="m^2", 
@@ -265,8 +265,8 @@ calc_fs_internal <- function(X, zone, what, how,
   }
   
   # create zonal index
-  if(verbose){ cat("Creating zonal index \n") }
   if(!is.null(zone)){
+    if(verbose){ cat("Creating zonal index \n") }
     if(inherits(zone, "Spatial")){
       zone <- sf::st_as_sf(zone)
     }
@@ -323,7 +323,7 @@ calc_fs_internal <- function(X, zone, what, how,
       }
     }
   } else{ # zone is null
-    if(verbose) cat("No zone index provided, treating as one group. \n")
+    # if(verbose) cat("No zone index provided, treating as one group. \n")
     X[[controlZone$zoneName]] <- rep(1, nrow(X))
   }
   
@@ -417,7 +417,7 @@ calc_fs_internal <- function(X, zone, what, how,
   
   if(is.null(how)){
     if(verbose){ cat("No summary functions found, returning metrics. \n\n") }
-    return(X)
+    return(sf::st_drop_geometry(X[, uchars]))
   }
   # check for invalid characteristic/function pairs
   # but need to exclude user-supplied columns

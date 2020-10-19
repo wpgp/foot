@@ -128,7 +128,7 @@ values are \code{NULL} and do not filter any records.}
 \code{stars} or \code{raster} dataset to align the data.}
 
 \item{tileSize}{number of pixels per side of a tile. Can be a vector of
-length 2 (rows, column pixels). Ignored if n provided. Default is 1000.}
+length 2 (rows, column pixels). Default is \code{c(500, 500)}.}
 
 \item{parallel}{logical. Should a parallel backend be used to process the
 tiles.}
@@ -191,4 +191,7 @@ calculate_bigfoot(X=buildings,
 outGrid <- raster::raster(file.path(tempdir(), "kampala_count.tif"))
 raster::plot(outGrid)
 
+}
+\seealso{
+\link[foot]{calculate_footstats}
 }

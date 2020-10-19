@@ -4,10 +4,10 @@
 \alias{gen_nnindex}
 \title{Generate a nearest neighbour index function}
 \usage{
-gen_nnindex(z, zoneField = NULL, unit = "m")
+gen_nnindex(zone, zoneField = NULL, unit = "m")
 }
 \arguments{
-\item{z}{A spatial polygon object of \code{sf} or \code{sp} type. If
+\item{zone}{A spatial polygon object of \code{sf} or \code{sp} type. If
 omitted all observations in \code{X} are assumed to be within one zone and
 the area of the minimum bounding circle is used for the nearest neighbour
 index.}

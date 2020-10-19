@@ -83,6 +83,8 @@
 #' outGrid <- raster::raster(file.path(tempdir(), "kampala_count.tif"))
 #' raster::plot(outGrid)
 #' 
+#' @seealso \link[foot]{calculate_footstats}
+#' 
 #' @import doParallel
 #' @import parallel
 #' @import foreach

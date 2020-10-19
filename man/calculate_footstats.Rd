@@ -10,7 +10,7 @@
 \usage{
 calculate_footstats(
   X,
-  zone,
+  zone = NULL,
   what = "all",
   how = NULL,
   controlZone = list(zoneName = "zoneID", method = "centroid"),
@@ -23,7 +23,7 @@ calculate_footstats(
 
 \method{calculate_footstats}{sf}(
   X,
-  zone,
+  zone = NULL,
   what = "all",
   how = NULL,
   controlZone = list(zoneName = "zoneID", method = "centroid"),
@@ -36,7 +36,7 @@ calculate_footstats(
 
 \method{calculate_footstats}{sfc}(
   X,
-  zone,
+  zone = NULL,
   what = "all",
   how = NULL,
   controlZone = list(zoneName = "zoneID", method = "centroid"),
@@ -49,7 +49,7 @@ calculate_footstats(
 
 \method{calculate_footstats}{sp}(
   X,
-  zone,
+  zone = NULL,
   what = "all",
   how = NULL,
   controlZone = list(zoneName = "zoneID", method = "centroid"),
@@ -62,7 +62,7 @@ calculate_footstats(
 
 \method{calculate_footstats}{character}(
   X,
-  zone,
+  zone = NULL,
   what = "all",
   how = NULL,
   controlZone = list(zoneName = "zoneID", method = "centroid"),
@@ -161,5 +161,5 @@ calculate_footstats(buildings, adminzones,
                     
 }
 \seealso{
-[zonalIndex], [fs_nndist], [list_fs]
+\link[foot]{zonalIndex}, \link[foot]{fs_nndist}, \link[foot]{list_fs}
 }
