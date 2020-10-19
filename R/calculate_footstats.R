@@ -219,8 +219,16 @@ calc_fs_internal <- function(X, zone, what, how,
   if(is.null(how)){
     argsDF <- list_fs(what, how=NULL)
     uchars <- unlist(unique(argsDF))
+    if("nndist" %in% argsDF){ 
+      calcD <- TRUE
+    } else{
+      calcD <- FALSE
+    }
   } else{
     uchars <- unlist(unique(argsDF$cols))
+    calcD <- ifelse(nrow(argsDF[argsDF$cols=="nndist" & 
+                                  argsDF$funs != "nnindex",])>0, 
+                    TRUE, FALSE)
   }
   
   # set defaults for controls
@@ -396,7 +404,7 @@ calc_fs_internal <- function(X, zone, what, how,
     } 
   }
   
-  if('nndist' %in% uchars){
+  if('nndist' %in% uchars & calcD){
     if(!'dist' %in% colnames(X)){
       if(verbose){ cat("Pre-calculating nearest neighbour distances \n") }
         X[['nndist']] <- fs_nndist(X, 
@@ -418,10 +426,10 @@ calc_fs_internal <- function(X, zone, what, how,
   if(is.null(zone)){ 
     argsDF <- argsDF[!argsDF$funs == "nnindex", ]
   }
-  # update parameters
-  argsDF$params <- argsDF$cols
-  argsDF[argsDF$funs=="nnindex" & 
-           argsDF$cols=="nndist", "params"] <- fs_varlist(geomField, zone)
+  # # update parameters
+  # argsDF$params <- argsDF$cols
+  # argsDF[argsDF$funs=="nnindex" & 
+  #          argsDF$cols=="nndist", "params"] <- fs_varlist(geomField, zone)
   
   # convert to data.frame
   DT <- data.table::data.table(X)
@@ -429,12 +437,17 @@ calc_fs_internal <- function(X, zone, what, how,
   
   # main processing loop -- working!
   if(verbose){ cat("\nCalculating ", nrow(argsDF)  ," metrics ... \n")}
-
+  
   result <- lapply(1:nrow(argsDF), function(i){
     params <- unlist(argsDF[i, "cols"])
     calc_func <- unlist(argsDF[i, "funs"])
-    if(verbose){ cat("  ", params, " ", calc_func, " \n") }
+    if(verbose){ cat("  ", params, calc_func, " \n") }
     newNm <- paste(paste(params, collapse="_"), calc_func, sep="_")
+    
+    if(calc_func == "nnindex"){
+      calc_func <- gen_nnindex(zone, controlZone$zoneName, controlUnits$distUnit)
+      params <- geomField
+    }  
 
     tryCatch(DT[, setNames(list(do.call(calc_func, unname(.SD))),
                            newNm),
@@ -446,6 +459,23 @@ calc_fs_internal <- function(X, zone, what, how,
              }
     )
   })
+  
+  # result <- lapply(1:nrow(argsDF), function(i){
+  #   params <- unlist(argsDF[i, "cols"])
+  #   calc_func <- unlist(argsDF[i, "funs"])
+  #   if(verbose){ cat("  ", params, " ", calc_func, " \n") }
+  #   newNm <- paste(paste(params, collapse="_"), calc_func, sep="_")
+  # 
+  #   tryCatch(DT[, setNames(list(do.call(calc_func, unname(.SD))),
+  #                          newNm),
+  #               by=eval(controlZone$zoneName),
+  #               .SDcols=params],
+  #            error = function(e){
+  #              message("")
+  #              stop(e)
+  #            }
+  #   )
+  # })
   
   # merge all
   merged_result <- Reduce(function(...) merge(...), result)
