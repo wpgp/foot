@@ -9,3 +9,4 @@ docs
 README.md.old
 README.Rmd
 .Rproj.user
+pkg_build.R

@@ -29,5 +29,5 @@ devtools::build()
 devtools::install()
 devtools::reload(devtools::inst('foot'))
 .rs.restartR()
-
+ 
 

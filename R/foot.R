@@ -23,11 +23,11 @@
 #' entropy measure for the angles. The output can be formatted as a data table
 #' or as a gridded dataset.
 #' 
-#' @section Helper functions:
-#' The \code{foot} package provides convenience functions
-#' (\code{\link[foot]{calculate_footstats}} and \code{\link[foot]{calculate_bigfoot}}) to wrap common
-#' analysis steps together, taking a list of measurements and parameters and
-#' returning a collected output.
+#' @section Helper functions: The \code{foot} package provides convenience
+#'   functions (\code{\link[foot]{calculate_footstats}} and
+#'   \code{\link[foot]{calculate_bigfoot}}) to wrap common analysis steps
+#'   together, taking a list of measurements and parameters and returning a
+#'   collected output.
 #' 
 #' In addition to bulk processing helper functions, there are additional 
 #' utility functions supplied with the package to support identifying
