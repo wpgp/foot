@@ -336,7 +336,7 @@ calc_fs_internal <- function(X, zone, what, how,
   }
 
   # pre-calculate 'whats'
-  if(any(c('area', 'compact') %in% uchars) |
+  if('area' %in% uchars |
      !is.null(filter$minArea) | !is.null(filter$maxArea)){
     if(!'area' %in% colnames(X)){
       if(verbose){ cat("Pre-calculating areas \n") }
@@ -345,26 +345,28 @@ calc_fs_internal <- function(X, zone, what, how,
       if(verbose){ cat("Area data column already exists \n") }
     }
   }
-  
+
   # filter records
   if(!is.null(filter$minArea)){
     if(verbose) { cat(paste0(" Filtering features larger than ", 
                              filter$minArea," \n")) }
-    X <- subset(X, 'area' > units::as_units(filter$minArea, 
-                                            controlUnits$areaUnit))
+    X <- subset(X, X[['area']] > units::set_units(filter$minArea, 
+                                                  controlUnits$areaUnit,
+                                                  mode="standard"))
   }
   if(!is.null(filter$maxArea)){
     if(verbose) { cat(paste0(" Filtering features smaller than ", 
                              filter$maxArea," \n")) }
-    X <- subset(X, 'area' < units::as_units(filter$maxArea, 
-                                             controlUnits$areaUnit))
+    X <- subset(X, X[['area']] < units::set_units(filter$maxArea, 
+                                                  controlUnits$areaUnit,
+                                                  mode="standard"))
   }
   if(nrow(X) == 0){ # filter removed all?
     if(verbose){ cat("No records found in zones. \n") }
     return(NULL)
   }
   
-  if(any(c('perimeter', 'compact') %in% uchars)){
+  if('perimeter' %in% uchars){
     if(!'perimeter' %in% colnames(X)){
       if(verbose){ cat("Pre-calculating perimeters \n") }
       X[['perimeter']] <- fs_perimeter(X, unit=controlUnits$perimUnit)
