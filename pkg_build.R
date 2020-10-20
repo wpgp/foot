@@ -31,3 +31,5 @@ devtools::reload(devtools::inst('foot'))
 .rs.restartR()
  
 
+pkgdown::build_site()
+

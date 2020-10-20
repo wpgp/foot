@@ -1,0 +1,9 @@
+pandoc: 2.7.3
+pkgdown: 1.6.1
+pkgdown_sha: ~
+articles:
+  bigfoot: bigfoot.html
+  cobbler: cobbler.html
+  footsteps: footsteps.html
+last_built: 2020-10-20T17:38Z
+
