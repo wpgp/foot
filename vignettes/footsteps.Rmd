@@ -24,7 +24,7 @@ knitr::opts_chunk$set(
 ```
 
 The `foot` package was developed by WorldPop at the University of Southampton
-([www.worldpop.org](https://www.worldpop.org)) to  provide a set of consistent
+([www.worldpop.org](https://www.worldpop.org)) to provide a set of consistent
 and flexible tools for processing 2D vector representations of buildings (e.g.
 "footprints") and calculating urban morphology measurements. The functionality
 includes basic geometry and morphology characteristics, distance and clustering

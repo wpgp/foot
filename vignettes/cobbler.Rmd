@@ -1,0 +1,232 @@
+---
+title: "Using custom summary functions in `foot`"
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+description: >
+  Building footprints or polygons representing the outline shape of structures
+  can provide a unique data source for studying urban areas at high spatial
+  resolutions. This vignette will demonstrate how to supply custom functions to
+  the `foot` package to extend the range of potential summary metrics.
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Gridded footprint calculation layers}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  tidy.opts=list(width.cutoff=80), 
+  tidy=TRUE
+)
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+The `foot` package was developed by WorldPop at the University of Southampton
+([www.worldpop.org](https://www.worldpop.org)) to support geometric calculations
+and summaries of measures from building footprint polygons. This vignette
+demonstrates how users can extend the basic functionality of
+`calculate_footstats` and `calculate_bigfoot` by making and supplying their own
+functions to summarise footprint characteristics. For an introduction to the
+package, see `vignette("footsteps")`.
+
+```{r setup}
+library(foot)
+```
+
+## Calculations with `foot`
+
+As noted in the introductory vignettes, `foot` primarily uses `calculate_foots`
+to calculate and summarise metrics. Internally this function uses `data.table`
+in order to handle large sets of building footprints and efficiently summarise
+them. The attributes to be summarised (`what`) are supplied to function names
+(`how`). These internal structures also allow for user-defined functions to be
+specified.
+
+### Data preparation
+
+To demonstrate using custom functions, we will first add some additional "data"
+to the footprints which we will use.
+
+```{r}
+data("kampala", package="foot")
+
+buildings <- kampala$buildings
+adminzones <- kampala$adminZones
+
+# Adding random data
+# categorical variable
+buildings$category <- sample(LETTERS[1:5], size=nrow(buildings), replace=T)
+# continuous variable
+buildings$mult <- sample(rnorm(nrow(buildings), mean=10, sd=2))
+```
+
+We can use any attributes of the footprints within `calculate_footstats` and
+`calculate_bigfoot`, not only the built-in morphology measures listed by
+`list_fs(what='all')`.
+
+```{r, tidy=F}
+# summarising a new data value
+calculate_footstats(buildings,
+                    adminzones,
+                    what="mult", # new attribute to summarise
+                    how="mean",
+                    verbose=F)
+```
+
+### Additional built-in functions
+
+The internal `foot` functions are documented in `?fs_functions`; however, these
+functions are intended to be used within the wrapper functions of `foot` and are
+rarely intended to be used as standalone functions. One built-in summary
+function, not applied by default to any characteristics, is `majority`. It is
+designed to summarise categorical data. This function is available for users in
+the same manner of specifying the `how` argument.
+
+```{r, tidy=FALSE}
+# get the majority category in each zone
+calculate_footstats(buildings, 
+                    adminzones, 
+                    what="category", 
+                    how="majority", 
+                    verbose=F)
+```
+
+The `majority` function is similar to the idea of supplying a user-defined
+function which is demonstrated in the next section.
+
+## User-defined summary functions
+
+Creating functions for use with `foot` follows the same procedures and syntax
+for functions in `R` in general. They must be declared with `<- function()` and
+they must be available within the environment where `foot` functions are being
+used. They should return a single, summary value since the function will be
+applied to footprints by zone.
+
+The name of the function is what is passed to `foot` as an argument to `how`.
+The argument(s) to the custom function can be named anything, but they will
+typically be values within the footprints to be summarised.
+
+The example below shows a simple function that calculates the sum of the square
+root of the values. We will apply it to 'area', and `foot` will automatically
+pre-calculate this characteristic since it is not present in the column names of
+the footprints.
+
+```{r, tidy=FALSE}
+# simple function example 1
+f1 <- function(v){
+  units(v) <- NULL # ignore units in our function
+  return(sum(sqrt(v)))
+}
+
+# applying custom summary function to area
+calculate_footstats(buildings,
+                    adminzones,
+                    what="area", how="f1",
+                    verbose=F)
+```
+
+Although this function was just used to process area, the function can be used
+for any continuous value. It can also be used on multiple characteristics or
+combined with other lists of functions, just like any other built-in function in
+`foot`.
+
+```{r, tidy=FALSE}
+calculate_footstats(buildings,
+                    adminzones,
+                    what=list("area","perimeter"), how="f1",
+                    verbose=F)
+```
+
+## Functions with multiple arguments
+
+In some instances, a custom function may need to make use of two or more
+characteristics from within the building footprint datasets. The built-in
+functions in `foot` are primarily designed to work with a single value (e.g.
+area or perimeter).
+
+While it may often be quicker to pre-calculate the combination, it could be
+advantageous to use a function. To make sure multiple attributes are supplied to
+the summary function, the arguments in `what` should be specified using a
+special type (`fs_varlist`). The `fs_varlist` creates a nested list within the
+processing to keep the argument together. Keep in mind that the arguments are
+passed by **position** not be name, so the order must match what the function is
+expecting.
+
+### Creating a Perimeter/Area ratio
+
+An example of a custom function using two characteristics is the average
+perimeter-area ratio. We can compare this to the built-in function which uses a
+Polsby-Popper metric (`fs_compact`).
+
+```{r, tidy=FALSE}
+# average perimeter-area ratio
+pa <- function(p, a){
+  return(mean(p / a))
+}
+
+# used to summarise within zones
+# note that fs_varlist is still within a list
+calculate_footstats(buildings,
+                    adminzones,
+                    what=list(list("compact"), fs_varlist("area","perimeter")),
+                    how=list(list("mean"), list("pa")),
+                    verbose=T
+                   )
+```
+
+## Accessing `R` objects other than the footprints
+
+A more complicated scenario exists when a user-defined function needs to access
+data which is not an attribute of the footprints dataset. In order to access the
+non-footprint data, a partial function must be created and supplied.
+
+In the example below, a simple constant value is supplied to a summary function;
+however, the idea extends to any object. This process is how the nearest
+neighbour index is calculated in `foot` by drawing on the spatial zones object
+as well as the footprints.
+```{r, tidy=F}
+# external "data"
+d1 <- 0.001
+
+# This will NOT work because argument 'd' is missing
+# f2 <- function(x, d){
+#   return(sum(d * x))
+# }
+# 
+# calculate_footstats(buildings, adminzones, what="area", how="f2", verbose=T)
+
+# Instead...
+# example of creating a partial function
+gen_f3 <- function(d){
+  force(d) # must include
+  function(x){
+    return(sum(d * x))
+  }
+}
+
+# generate the function and initialise it with `d1` from above.
+f3 <- gen_f3(d1)
+
+# this now uses the generated function, and `d` is found
+calculate_footstats(buildings, 
+                    adminzones, 
+                    what="area", 
+                    how="f3", 
+                    verbose=F)
+```
+
+In this vignette, the `foot` package has been extended to incorporate
+user-defined functions. These functions can use one or more values from within
+the footprints, or even access other objects in the environment. While the
+examples used `calculate_footstats`, the same approaches can be used to create
+new gridded summary metrics with `calculate_bigfoot`.
+
+***
+```{r}
+sessionInfo()
+```

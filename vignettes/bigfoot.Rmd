@@ -262,6 +262,15 @@ calculate_bigfoot(X=bldgPath,
                   parallel=FALSE,
                   verbose=TRUE)
 ```
+## Next steps
+
+This vignette has provided an overview of how to create gridded outputs layers
+summarising building footprint morphology measures. This workflow uses
+`calculate_bigfoot` and is designed to work for large sets of data through tiled
+read/writing and processing these tiles in parallel. The `bigfoot` functionality
+extends and makes use of `footstats`. Both of these functions can take
+use-supplied and custom summary functions. This advanced usage is demonstrated
+in `vignette("cobbler", package="foot")`.
 
 ***
 ```{r}
