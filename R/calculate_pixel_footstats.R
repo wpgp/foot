@@ -34,7 +34,7 @@
 #' @param template (optional). When creating a gridded output, a supplied
 #'   \code{stars} or \code{raster} dataset to align the data.
 #' @param parallel logical. Should a parallel backend be used to process the
-#'   tiles.
+#'   tiles. Default is \code{TRUE}.
 #' @param nCores number of CPU cores to use if \code{parallel} is \code{TRUE}.
 #'   Default is 1 less than the available CPUs.
 #' @param tileSize number of pixels per side of a tile. Can be a vector of
@@ -467,7 +467,7 @@ process_tile <- function(mgTile, mgBuffTile,
   Xsub <- Xsub[!sf::st_is_empty(Xsub), , drop=F]
   # simplify
   if(any(sf::st_geometry_type(Xsub) %in% c("MULTIPOLYGON"))){
-    Xsub <- sf::st_cast(Xsub, "POLYGON")
+    suppressWarnings(Xsub <- sf::st_cast(Xsub, "POLYGON"))
   }
   
   # processing

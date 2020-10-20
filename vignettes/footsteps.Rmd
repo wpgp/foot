@@ -23,12 +23,13 @@ knitr::opts_chunk$set(
 )
 ```
 
-The `foot` package is designed to provide a set of consistent and flexible tools
-for processing 2D vector representations of buildings (e.g. "footprints") and
-calculating urban morphology measurements. The functionality includes basic
-geometry and morphology characteristics, distance and clustering metrics. These
-calculations are supported with helper functions for spatial intersections and
-tiled reading/writing of data.
+The `foot` package was developed by WorldPop at the University of Southampton
+([www.worldpop.org](https://www.worldpop.org)) to  provide a set of consistent
+and flexible tools for processing 2D vector representations of buildings (e.g.
+"footprints") and calculating urban morphology measurements. The functionality
+includes basic geometry and morphology characteristics, distance and clustering
+metrics. These calculations are supported with helper functions for spatial
+intersections and tiled reading/writing of data.
 
 ```{r setup}
 library(foot)

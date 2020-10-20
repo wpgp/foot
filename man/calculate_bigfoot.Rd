@@ -131,7 +131,7 @@ values are \code{NULL} and do not filter any records.}
 length 2 (rows, column pixels). Default is \code{c(500, 500)}.}
 
 \item{parallel}{logical. Should a parallel backend be used to process the
-tiles.}
+tiles. Default is \code{TRUE}.}
 
 \item{nCores}{number of CPU cores to use if \code{parallel} is \code{TRUE}.
 Default is 1 less than the available CPUs.}
