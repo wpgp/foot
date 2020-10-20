@@ -32,7 +32,8 @@ In addition to generic \code{R} functions (e.g. 'mean', 'max',
 }
 \details{
 These functions are designed to be used within
-  \code{calculate_footstats} which processes a \code{data.table} by group ID.
-  Therefore all functions take a vector of values and return a single summary
-  statistic. These functions are not likely to be used on their own.
+  \code{\link[foot]{calculate_footstats}} which processes a \code{data.table}
+  by group ID. Therefore all functions take a vector of values and return a
+  single summary statistic. These functions are not likely to be used on
+  their own.
 }

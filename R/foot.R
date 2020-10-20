@@ -35,7 +35,8 @@
 #' spatial data and providing efficient I/O and parallel processing.
 #' 
 #' @section Credits:
-#' This work was undertaken by members of the [WorldPop Research Group at the University of Southampton](https://www.worldpop.org/).
+#' This work was undertaken by members of the WorldPop Research Group at the
+#' University of Southampton(\url{https://www.worldpop.org/}).
 #' 
 #' @docType package
 #' @name foot

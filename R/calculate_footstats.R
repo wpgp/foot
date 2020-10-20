@@ -320,13 +320,16 @@ calc_fs_internal <- function(X, zone, what, how,
     } else if(is.numeric(zone)){
       if(length(zone) != nrow(X)){
         stop("Invalid length of zonal index.")
+      } else{
+        X[[controlZone$zoneName]] <- zone
+        zone <- NULL
       }
     }
   } else{ # zone is null
     # if(verbose) cat("No zone index provided, treating as one group. \n")
     X[[controlZone$zoneName]] <- rep(1, nrow(X))
   }
-  
+
   # check for empty zone intersection
   if(is.null(X) | nrow(X) == 0){
     return(NULL)
@@ -417,7 +420,7 @@ calc_fs_internal <- function(X, zone, what, how,
   
   if(is.null(how)){
     if(verbose){ cat("No summary functions found, returning metrics. \n\n") }
-    return(sf::st_drop_geometry(X[, uchars]))
+    return(data.table::data.table(sf::st_drop_geometry(X[, uchars])))
   }
   # check for invalid characteristic/function pairs
   # but need to exclude user-supplied columns

@@ -5,9 +5,10 @@
 #' @param x numeric vector of values to summarize.
 #' @return numeric value
 #' @details These functions are designed to be used within
-#'   \code{calculate_footstats} which processes a \code{data.table} by group ID.
-#'   Therefore all functions take a vector of values and return a single summary
-#'   statistic. These functions are not likely to be used on their own.
+#'   \code{\link[foot]{calculate_footstats}} which processes a \code{data.table}
+#'   by group ID. Therefore all functions take a vector of values and return a
+#'   single summary statistic. These functions are not likely to be used on
+#'   their own.
 #' @name fs_functions
 NULL
 #> NULL
@@ -26,7 +27,8 @@ count <- function(x){
 
 #' @rdname fs_functions
 cv <- function(x){
-  return(sd(x) / mean(x))
+  res <- sd(x) / mean(x)
+  return(units::drop_units(res))
 }
 
 

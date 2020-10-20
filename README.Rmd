@@ -149,7 +149,7 @@ citation("foot")
 ```
 
 This work was undertaken by members of the WorldPop Research Group at the
-University of Southampton (Chris Jochem, Edith Darin, Claire Dooley, Doug
+University of Southampton (Chris Jochem, Edith Darín, Claire Dooley, Doug
 Leasure) with support from Andy Tatem and Attila Lazar. Funding support comes
 from the Bill and Melinda Gates Foundation and the United Kingdom Foreign,
 Commonwealth & Development Office as part of the Geo-Referenced Infrastructure
