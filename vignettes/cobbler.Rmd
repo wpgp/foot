@@ -1,6 +1,6 @@
 ---
 title: "Using custom summary functions in `foot`"
-date: '`r format(Sys.Date(), "%B %d, %Y")`'
+date: 'October 20, 2020'
 description: >
   Building footprints or polygons representing the outline shape of structures
   can provide a unique data source for studying urban areas at high spatial
@@ -13,18 +13,9 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  tidy.opts=list(width.cutoff=80), 
-  tidy=TRUE
-)
-```
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+
+
 
 The `foot` package was developed by WorldPop at the University of Southampton
 ([www.worldpop.org](https://www.worldpop.org)) to support geometric calculations
@@ -34,7 +25,8 @@ demonstrates how users can extend the basic functionality of
 functions to summarise footprint characteristics. For an introduction to the
 package, see `vignette("footsteps")`.
 
-```{r setup}
+
+```r
 library(foot)
 ```
 
@@ -52,30 +44,66 @@ specified.
 To demonstrate using custom functions, we will first add some additional "data"
 to the footprints which we will use.
 
-```{r}
-data("kampala", package="foot")
+
+```r
+data("kampala", package = "foot")
 
 buildings <- kampala$buildings
 adminzones <- kampala$adminZones
 
-# Adding random data
-# categorical variable
-buildings$category <- sample(LETTERS[1:5], size=nrow(buildings), replace=T)
+# Adding random data categorical variable
+buildings$category <- sample(LETTERS[1:5], size = nrow(buildings), replace = T)
 # continuous variable
-buildings$mult <- sample(rnorm(nrow(buildings), mean=10, sd=2))
+buildings$mult <- sample(rnorm(nrow(buildings), mean = 10, sd = 2))
 ```
 
 We can use any attributes of the footprints within `calculate_footstats` and
 `calculate_bigfoot`, not only the built-in morphology measures listed by
 `list_fs(what='all')`.
 
-```{r, tidy=F}
+
+```r
 # summarising a new data value
 calculate_footstats(buildings,
                     adminzones,
                     what="mult", # new attribute to summarise
                     how="mean",
                     verbose=F)
+#>     zoneID mult_mean
+#>  1:      1  9.328028
+#>  2:      2  9.908259
+#>  3:      3  9.274380
+#>  4:      4 10.159917
+#>  5:      5 10.379966
+#>  6:      6 10.355270
+#>  7:      7 10.137706
+#>  8:      8 10.201882
+#>  9:      9  9.746266
+#> 10:     10 10.120935
+#> 11:     11 10.273452
+#> 12:     12 10.757861
+#> 13:     13 10.479714
+#> 14:     14 10.304273
+#> 15:     15 10.234946
+#> 16:     16 10.193032
+#> 17:     17 10.034467
+#> 18:     18  9.965617
+#> 19:     19 10.030033
+#> 20:     20 10.006252
+#> 21:     21 10.318436
+#> 22:     22 10.081454
+#> 23:     23  9.961850
+#> 24:     24 10.045254
+#> 25:     25  9.996373
+#> 26:     26 10.240990
+#> 27:     27 10.040331
+#> 28:     29 10.084728
+#> 29:     30 10.099218
+#> 30:     31 11.513632
+#> 31:     32 10.032379
+#> 32:     33  9.587724
+#> 33:     34 10.026075
+#>     zoneID mult_mean
 ```
 
 ### Additional built-in functions
@@ -87,13 +115,49 @@ function, not applied by default to any characteristics, is `majority`. It is
 designed to summarise categorical data. This function is available for users in
 the same manner of specifying the `how` argument.
 
-```{r, tidy=FALSE}
+
+```r
 # get the majority category in each zone
 calculate_footstats(buildings, 
                     adminzones, 
                     what="category", 
                     how="majority", 
                     verbose=F)
+#>     zoneID category_majority
+#>  1:      1                 A
+#>  2:      2                 A
+#>  3:      3                 A
+#>  4:      4                 B
+#>  5:      5                 D
+#>  6:      6                 C
+#>  7:      7                 E
+#>  8:      8                 A
+#>  9:      9                 D
+#> 10:     10                 B
+#> 11:     11                 A
+#> 12:     12                 C
+#> 13:     13                 D
+#> 14:     14                 D
+#> 15:     15                 A
+#> 16:     16                 A
+#> 17:     17                 E
+#> 18:     18                 A
+#> 19:     19                 A
+#> 20:     20                 E
+#> 21:     21                 A
+#> 22:     22                 A
+#> 23:     23                 A
+#> 24:     24                 A
+#> 25:     25                 E
+#> 26:     26                 B
+#> 27:     27                 A
+#> 28:     29                 B
+#> 29:     30                 C
+#> 30:     31                 B
+#> 31:     32                 E
+#> 32:     33                 C
+#> 33:     34                 E
+#>     zoneID category_majority
 ```
 
 The `majority` function is similar to the idea of supplying a user-defined
@@ -116,7 +180,8 @@ root of the values. We will apply it to 'area', and `foot` will automatically
 pre-calculate this characteristic since it is not present in the column names of
 the footprints.
 
-```{r, tidy=FALSE}
+
+```r
 # simple function example 1
 f1 <- function(v){
   units(v) <- NULL # ignore units in our function
@@ -128,6 +193,41 @@ calculate_footstats(buildings,
                     adminzones,
                     what="area", how="f1",
                     verbose=F)
+#>     zoneID    area_f1
+#>  1:      1  364.18909
+#>  2:      2 1823.23957
+#>  3:      3  871.63637
+#>  4:      4 1966.54994
+#>  5:      5  867.92154
+#>  6:      6  822.51869
+#>  7:      7  485.66087
+#>  8:      8 1194.46899
+#>  9:      9 3048.19689
+#> 10:     10  385.24272
+#> 11:     11 1404.13211
+#> 12:     12  294.77870
+#> 13:     13   73.79837
+#> 14:     14  730.25610
+#> 15:     15 2014.66636
+#> 16:     16 1154.35602
+#> 17:     17 1133.49662
+#> 18:     18 3472.56857
+#> 19:     19 5905.48635
+#> 20:     20 5262.66216
+#> 21:     21  998.62900
+#> 22:     22  722.37587
+#> 23:     23 3441.00032
+#> 24:     24 3882.17755
+#> 25:     25  435.66830
+#> 26:     26 3426.43477
+#> 27:     27 2283.48433
+#> 28:     29 1910.57791
+#> 29:     30  989.77450
+#> 30:     31   11.92210
+#> 31:     32 1913.14204
+#> 32:     33  309.58519
+#> 33:     34 9839.29584
+#>     zoneID    area_f1
 ```
 
 Although this function was just used to process area, the function can be used
@@ -135,11 +235,47 @@ for any continuous value. It can also be used on multiple characteristics or
 combined with other lists of functions, just like any other built-in function in
 `foot`.
 
-```{r, tidy=FALSE}
+
+```r
 calculate_footstats(buildings,
                     adminzones,
                     what=list("area","perimeter"), how="f1",
                     verbose=F)
+#>     zoneID    area_f1 perimeter_f1
+#>  1:      1  364.18909   183.488651
+#>  2:      2 1823.23957  1048.879091
+#>  3:      3  871.63637   426.068457
+#>  4:      4 1966.54994   968.615609
+#>  5:      5  867.92154   412.069737
+#>  6:      6  822.51869   337.518569
+#>  7:      7  485.66087   171.066602
+#>  8:      8 1194.46899   515.464525
+#>  9:      9 3048.19689  1911.775834
+#> 10:     10  385.24272   226.579855
+#> 11:     11 1404.13211   857.273283
+#> 12:     12  294.77870   214.216882
+#> 13:     13   73.79837    35.239420
+#> 14:     14  730.25610   500.492421
+#> 15:     15 2014.66636  1407.986177
+#> 16:     16 1154.35602   835.883724
+#> 17:     17 1133.49662   716.240827
+#> 18:     18 3472.56857  2477.699320
+#> 19:     19 5905.48635  3199.202606
+#> 20:     20 5262.66216  2994.324208
+#> 21:     21  998.62900   552.056838
+#> 22:     22  722.37587   400.124081
+#> 23:     23 3441.00032  1548.754569
+#> 24:     24 3882.17755  2167.419552
+#> 25:     25  435.66830   207.129346
+#> 26:     26 3426.43477  1360.146927
+#> 27:     27 2283.48433  1300.818322
+#> 28:     29 1910.57791  1117.788513
+#> 29:     30  989.77450   569.928890
+#> 30:     31   11.92210     6.938055
+#> 31:     32 1913.14204  1042.133260
+#> 32:     33  309.58519   155.175160
+#> 33:     34 9839.29584  6005.424628
+#>     zoneID    area_f1 perimeter_f1
 ```
 
 ## Functions with multiple arguments
@@ -163,7 +299,8 @@ An example of a custom function using two characteristics is the average
 perimeter-area ratio. We can compare this to the built-in function which uses a
 Polsby-Popper metric (`fs_compact`).
 
-```{r, tidy=FALSE}
+
+```r
 # average perimeter-area ratio
 pa <- function(p, a){
   return(mean(p / a))
@@ -177,6 +314,52 @@ calculate_footstats(buildings,
                     how=list(list("mean"), list("pa")),
                     verbose=T
                    )
+#> Selecting metrics 
+#> Setting control values. 
+#> Creating zonal index 
+#> Pre-calculating areas 
+#> Pre-calculating perimeters 
+#> Pre-calculating compactness 
+#> 
+#> Calculating  2  metrics ... 
+#>    compact mean  
+#>    area perimeter pa  
+#> Finished calculating metrics.
+#>     zoneID compact_mean area_perimeter_pa
+#>  1:      1    0.5991569      3.610827 [m]
+#>  2:      2    0.6575220      2.821102 [m]
+#>  3:      3    0.6126862      3.640346 [m]
+#>  4:      4    0.6272569      3.572513 [m]
+#>  5:      5    0.6053632      3.772161 [m]
+#>  6:      6    0.6255586      5.090459 [m]
+#>  7:      7    0.5447738      6.750857 [m]
+#>  8:      8    0.5516914      4.786082 [m]
+#>  9:      9    0.6113972      2.338425 [m]
+#> 10:     10    0.6219757      2.535005 [m]
+#> 11:     11    0.5777758      2.484360 [m]
+#> 12:     12    0.6591031      1.771451 [m]
+#> 13:     13    0.5629929      3.321843 [m]
+#> 14:     14    0.7122782      2.109547 [m]
+#> 15:     15    0.7247100      1.988679 [m]
+#> 16:     16    0.6982459      1.869702 [m]
+#> 17:     17    0.6518730      2.353175 [m]
+#> 18:     18    0.6869924      1.842260 [m]
+#> 19:     19    0.6686708      3.282259 [m]
+#> 20:     20    0.6810544      2.956515 [m]
+#> 21:     21    0.6926037      3.095947 [m]
+#> 22:     22    0.7113827      3.226212 [m]
+#> 23:     23    0.6151105      4.069236 [m]
+#> 24:     24    0.6682211      3.074468 [m]
+#> 25:     25    0.6304162      4.012065 [m]
+#> 26:     26    0.6118970      5.404871 [m]
+#> 27:     27    0.6831782      2.964538 [m]
+#> 28:     29    0.6616867      2.660880 [m]
+#> 29:     30    0.6448110      2.882803 [m]
+#> 30:     31    0.7708405      2.952773 [m]
+#> 31:     32    0.6358119      3.116430 [m]
+#> 32:     33    0.5847305      3.728961 [m]
+#> 33:     34    0.6413189      2.529615 [m]
+#>     zoneID compact_mean area_perimeter_pa
 ```
 
 ## Accessing `R` objects other than the footprints
@@ -189,7 +372,8 @@ In the example below, a simple constant value is supplied to a summary function;
 however, the idea extends to any object. This process is how the nearest
 neighbour index is calculated in `foot` by drawing on the spatial zones object
 as well as the footprints.
-```{r, tidy=F}
+
+```r
 # external "data"
 d1 <- 0.001
 
@@ -218,6 +402,41 @@ calculate_footstats(buildings,
                     what="area", 
                     how="f3", 
                     verbose=F)
+#>     zoneID           area_f3
+#>  1:      1   8.4545661 [m^2]
+#>  2:      2  29.7585314 [m^2]
+#>  3:      3  25.7286600 [m^2]
+#>  4:      4  63.8357113 [m^2]
+#>  5:      5  26.7296259 [m^2]
+#>  6:      6  35.7683531 [m^2]
+#>  7:      7  28.3878563 [m^2]
+#>  8:      8  44.5041537 [m^2]
+#>  9:      9  48.1457825 [m^2]
+#> 10:     10   7.5599164 [m^2]
+#> 11:     11  24.2123780 [m^2]
+#> 12:     12   3.1098042 [m^2]
+#> 13:     13   2.6464756 [m^2]
+#> 14:     14   6.7120641 [m^2]
+#> 15:     15  19.2269062 [m^2]
+#> 16:     16   9.9002318 [m^2]
+#> 17:     17  14.7525754 [m^2]
+#> 18:     18  36.8954355 [m^2]
+#> 19:     19  96.4900399 [m^2]
+#> 20:     20  80.3556287 [m^2]
+#> 21:     21  18.0633304 [m^2]
+#> 22:     22  10.1969657 [m^2]
+#> 23:     23 132.6730618 [m^2]
+#> 24:     24  61.8347854 [m^2]
+#> 25:     25  11.6430956 [m^2]
+#> 26:     26 150.2087190 [m^2]
+#> 27:     27  33.8168355 [m^2]
+#> 28:     29  37.0078380 [m^2]
+#> 29:     30  15.2761021 [m^2]
+#> 30:     31   0.1421365 [m^2]
+#> 31:     32  35.7328487 [m^2]
+#> 32:     33   7.1172864 [m^2]
+#> 33:     34 146.9351905 [m^2]
+#>     zoneID           area_f3
 ```
 
 In this vignette, the `foot` package has been extended to incorporate
@@ -227,6 +446,33 @@ examples used `calculate_footstats`, the same approaches can be used to create
 new gridded summary metrics with `calculate_bigfoot`.
 
 ***
-```{r}
+
+```r
 sessionInfo()
+#> R version 3.6.3 (2020-02-29)
+#> Platform: x86_64-pc-linux-gnu (64-bit)
+#> Running under: Ubuntu 20.04.1 LTS
+#> 
+#> Matrix products: default
+#> BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.9.0
+#> LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.9.0
+#> 
+#> locale:
+#>  [1] LC_CTYPE=en_GB.UTF-8       LC_NUMERIC=C               LC_TIME=en_GB.UTF-8        LC_COLLATE=en_GB.UTF-8     LC_MONETARY=en_GB.UTF-8    LC_MESSAGES=en_GB.UTF-8    LC_PAPER=en_GB.UTF-8      
+#>  [8] LC_NAME=C                  LC_ADDRESS=C               LC_TELEPHONE=C             LC_MEASUREMENT=en_GB.UTF-8 LC_IDENTIFICATION=C       
+#> 
+#> attached base packages:
+#> [1] stats     graphics  grDevices utils     datasets  methods   base     
+#> 
+#> other attached packages:
+#> [1] knitr_1.28   foot_0.5     sf_0.9-2     raster_3.1-5 sp_1.4-1    
+#> 
+#> loaded via a namespace (and not attached):
+#>  [1] Rcpp_1.0.4.6       lattice_0.20-40    prettyunits_1.1.1  class_7.3-16       ps_1.3.2           assertthat_0.2.1   rprojroot_1.3-2    packrat_0.5.0      digest_0.6.25      foreach_1.4.8     
+#> [11] R6_2.4.1           backports_1.1.5    evaluate_0.14      e1071_1.7-3        highr_0.8          pillar_1.4.3       rlang_0.4.5        rstudioapi_0.11    data.table_1.12.8  callr_3.4.3       
+#> [21] rmarkdown_2.1      desc_1.2.0         devtools_2.3.0     rgdal_1.4-8        stringr_1.4.0      compiler_3.6.3     xfun_0.12          pkgconfig_2.0.3    pkgbuild_1.0.6     htmltools_0.4.0   
+#> [31] tidyselect_1.0.0   tibble_3.0.1       codetools_0.2-16   fansi_0.4.1        crayon_1.3.4       dplyr_0.8.5        withr_2.1.2        grid_3.6.3         lwgeom_0.2-3       lifecycle_0.2.0   
+#> [41] DBI_1.1.0          formatR_1.7        magrittr_1.5       units_0.6-6        KernSmooth_2.23-16 cli_2.0.2          stringi_1.4.6      fs_1.3.1           remotes_2.1.1      doParallel_1.0.15 
+#> [51] testthat_2.3.2     ellipsis_0.3.0     filelock_1.0.2     vctrs_0.2.4        iterators_1.0.12   tools_3.6.3        glue_1.4.0         purrr_0.3.3        processx_3.4.2     abind_1.4-5       
+#> [61] pkgload_1.0.2      parallel_3.6.3     yaml_2.2.1         sessioninfo_1.1.1  stars_0.4-1        classInt_0.4-3     memoise_1.1.0      usethis_1.6.1
 ```
