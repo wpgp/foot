@@ -140,7 +140,6 @@ Rasters in GeoTiff format or data tables:
 A full list of characteristics and summary function names can be retrieved with
 `foot::list_fs()`.
 
-
 ## Contributions
 
 Contributions are welcome. Raise or respond to an issue, or create a new branch
@@ -149,7 +148,7 @@ to develop a feature/modification and submit a pull request.
 
 ## Acknowledgements
 
-```{r }
+```{r}
 citation("foot")
 ```
 

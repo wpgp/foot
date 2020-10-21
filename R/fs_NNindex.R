@@ -26,6 +26,10 @@
 #'   The function uses \code{fs_nndist} to calculate the distance between
 #'   centroids of the building footprints within the same spatial zone indicated
 #'   by \code{zone}.
+#'   
+#'   Note that this function is provided as a standalone calculation. The
+#'   summary measure can be executed from within \code{calculate_footstats} by
+#'   specifying \code{what='nndist'} and \code{how='nnindex'}.
 #' 
 #' @import data.table
 #' 

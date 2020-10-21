@@ -62,7 +62,7 @@
   <body data-spy="scroll" data-target="#toc">
     <div class="container template-reference-topic">
       <header>
-      <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
@@ -81,7 +81,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fa fa-home"></span>
      
   </a>
 </li>
@@ -96,13 +96,13 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/bigfoot.html">Gridded footprint calculation layers</a>
+      <a href="../articles/footsteps.html">footsteps: Getting started</a>
     </li>
     <li>
-      <a href="../articles/cobbler.html">Using custom summary functions in `foot`</a>
+      <a href="../articles/bigfoot.html">bigfoot: Gridded footprint calculations</a>
     </li>
     <li>
-      <a href="../articles/footsteps.html">Basic building footprint calculations</a>
+      <a href="../articles/cobbler.html">cobbler: Using custom summary functions</a>
     </li>
   </ul>
 </li>
@@ -189,7 +189,10 @@ to use. If omitted, the 'zoneID' will be numbered <code>1:nrow(zone)</code>.</p>
   (clustered), with values of 1 indicating spatial randomness.</p>  
 <p>The function uses <code>fs_nndist</code> to calculate the distance between
   centroids of the building footprints within the same spatial zone indicated
-  by <code>zone</code>.</p>
+  by <code>zone</code>.</p>  
+<p>Note that this function is provided as a standalone calculation. The
+  summary measure can be executed from within <code>calculate_footstats</code> by
+  specifying <code>what='nndist'</code> and <code>how='nnindex'</code>.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

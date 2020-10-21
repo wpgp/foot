@@ -60,7 +60,7 @@
   <body data-spy="scroll" data-target="#toc">
     <div class="container template-reference-index">
       <header>
-      <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
@@ -79,7 +79,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fa fa-home"></span>
      
   </a>
 </li>
@@ -94,13 +94,13 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/bigfoot.html">Gridded footprint calculation layers</a>
+      <a href="../articles/footsteps.html">footsteps: Getting started</a>
     </li>
     <li>
-      <a href="../articles/cobbler.html">Using custom summary functions in `foot`</a>
+      <a href="../articles/bigfoot.html">bigfoot: Gridded footprint calculations</a>
     </li>
     <li>
-      <a href="../articles/footsteps.html">Basic building footprint calculations</a>
+      <a href="../articles/cobbler.html">cobbler: Using custom summary functions</a>
     </li>
   </ul>
 </li>
@@ -139,7 +139,7 @@
     <tbody>
       <tr>
         <th colspan="2">
-          <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
+          <h2 id="section-workflow-wrapper-functions" class="hasAnchor"><a href="#section-workflow-wrapper-functions" class="anchor"></a>Workflow wrapper functions</h2>
           <p class="section-desc"></p>
         </th>
       </tr>
@@ -151,29 +151,30 @@
       <tr>
         
         <td>
-          <p><code><a href="calculate_bigfoot.html">calculate_bigfoot()</a></code> </p>
-        </td>
-        <td><p>calculate_bigfoot: Gridded feature statistics for large sets of
-  building footprint polygons</p></td>
-      </tr><tr>
-        
-        <td>
           <p><code><a href="calculate_footstats.html">calculate_footstats()</a></code> </p>
         </td>
         <td><p>calculate_footstats: Feature statistics of building footprints</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="foot.html">foot</a></code> </p>
+          <p><code><a href="calculate_bigfoot.html">calculate_bigfoot()</a></code> </p>
         </td>
-        <td><p>foot: An R package for calculating building footprint shape metrics</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="fs_angle_entropy.html">fs_angle_entropy()</a></code> </p>
-        </td>
-        <td><p>Building angle calculation</p></td>
-      </tr><tr>
+        <td><p>calculate_bigfoot: Gridded feature statistics for large sets of
+  building footprint polygons</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-built-in-morphology-metrics" class="hasAnchor"><a href="#section-built-in-morphology-metrics" class="anchor"></a>Built-in morphology metrics</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      
+      
+    </tbody><tbody>
+      
+      
+      <tr>
         
         <td>
           <p><code><a href="fs_area.html">fs_area()</a></code> </p>
@@ -185,12 +186,6 @@
           <p><code><a href="fs_count.html">fs_count()</a></code> </p>
         </td>
         <td><p>Count of footprint locations per zone</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="fs_functions.html">binary()</a></code> <code><a href="fs_functions.html">count()</a></code> <code><a href="fs_functions.html">cv()</a></code> <code><a href="fs_functions.html">entropy()</a></code> <code><a href="fs_functions.html">majority()</a></code> </p>
-        </td>
-        <td><p>Built-in 'foot' functions</p></td>
       </tr><tr>
         
         <td>
@@ -212,12 +207,6 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="fs_nnindex.html">fs_nnindex()</a></code> </p>
-        </td>
-        <td><p>Building Nearest Neighbour Index (NNI)</p></td>
-      </tr><tr>
-        
-        <td>
           <p><code><a href="fs_perimeter.html">fs_perimeter()</a></code> </p>
         </td>
         <td><p>Perimeter</p></td>
@@ -227,6 +216,56 @@
           <p><code><a href="fs_shape.html">fs_compact()</a></code> <code><a href="fs_shape.html">fs_shape()</a></code> </p>
         </td>
         <td><p>Compactness index</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-built-in-summary-functions" class="hasAnchor"><a href="#section-built-in-summary-functions" class="anchor"></a>Built-in summary functions</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      
+      
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="fs_angle_entropy.html">fs_angle_entropy()</a></code> </p>
+        </td>
+        <td><p>Building angle calculation</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="fs_functions.html">binary()</a></code> <code><a href="fs_functions.html">count()</a></code> <code><a href="fs_functions.html">cv()</a></code> <code><a href="fs_functions.html">entropy()</a></code> <code><a href="fs_functions.html">majority()</a></code> </p>
+        </td>
+        <td><p>Built-in 'foot' functions</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="fs_nnindex.html">fs_nnindex()</a></code> </p>
+        </td>
+        <td><p>Building Nearest Neighbour Index (NNI)</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-utility-functions" class="hasAnchor"><a href="#section-utility-functions" class="anchor"></a>Utility functions</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      
+      
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="list_fs.html">list_fs()</a></code> </p>
+        </td>
+        <td><p>List footprint summary metrics</p></td>
       </tr><tr>
         
         <td>
@@ -236,33 +275,46 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="gen_nnindex.html">gen_nnindex()</a></code> </p>
-        </td>
-        <td><p>Generate a nearest neighbour index function</p></td>
-      </tr><tr>
-        
-        <td>
           <p><code><a href="gridTiles.html">gridTiles()</a></code> </p>
         </td>
         <td><p>gridTiles</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="kampala.html">kampala</a></code> </p>
-        </td>
-        <td><p>Kampala building footprint sample</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="list_fs.html">list_fs()</a></code> </p>
-        </td>
-        <td><p>List footprint summary metrics</p></td>
-      </tr><tr>
-        
-        <td>
           <p><code><a href="zonalIndex.html">zonalIndex()</a></code> </p>
         </td>
         <td><p>Index buildings footprints to 'zones'</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="gen_nnindex.html">gen_nnindex()</a></code> </p>
+        </td>
+        <td><p>Generate a nearest neighbour index function</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-package-files" class="hasAnchor"><a href="#section-package-files" class="anchor"></a>Package files</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      
+      
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="foot.html">foot</a></code> </p>
+        </td>
+        <td><p>foot: An R package for calculating building footprint shape metrics</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="kampala.html">kampala</a></code> </p>
+        </td>
+        <td><p>Kampala building footprint sample</p></td>
       </tr>
     </tbody>
     </table>

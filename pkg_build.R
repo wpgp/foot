@@ -30,6 +30,6 @@ devtools::install()
 devtools::reload(devtools::inst('foot'))
 .rs.restartR()
  
-
+rmarkdown::render("README.Rmd")
 pkgdown::build_site()
 

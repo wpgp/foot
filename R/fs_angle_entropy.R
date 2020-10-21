@@ -21,6 +21,11 @@
 #'   uses the common Shannon's Entropy. The normalization step produces an
 #'   indicator for how much a zone departs from a grid. This metric is based on
 #'   work by Boeing (2019).
+#'   
+#'   Note that this function is provided as a standalone calculation for
+#'   convenience. The same summary measure can be executed within
+#'   \code{calculate_footstats} by specifying \code{what='angle'} and
+#'   \code{how='entropy'}.
 #'
 #' @return \code{data.table} of zonal indices and values.
 #' 

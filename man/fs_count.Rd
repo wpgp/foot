@@ -32,3 +32,9 @@ within one zone.}
 Calculate and summarise selected metrics of building 
 footprints within zones.
 }
+\details{
+Note that this function is provided as a standalone calculation for
+  convenience. The same summary measure can be executed within
+  \code{calculate_footstats} by specifying \code{what='settled'} and
+  \code{how='count'}.
+}

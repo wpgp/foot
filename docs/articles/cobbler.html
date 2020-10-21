@@ -21,7 +21,7 @@
 </head>
 <body data-spy="scroll" data-target="#toc">
     <div class="container template-article">
-      <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <header><div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
@@ -40,7 +40,7 @@
       <ul class="nav navbar-nav">
 <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fa fa-home"></span>
      
   </a>
 </li>
@@ -55,13 +55,13 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="../articles/bigfoot.html">Gridded footprint calculation layers</a>
+      <a href="../articles/footsteps.html">footsteps: Getting started</a>
     </li>
     <li>
-      <a href="../articles/cobbler.html">Using custom summary functions in `foot`</a>
+      <a href="../articles/bigfoot.html">bigfoot: Gridded footprint calculations</a>
     </li>
     <li>
-      <a href="../articles/footsteps.html">Basic building footprint calculations</a>
+      <a href="../articles/cobbler.html">cobbler: Using custom summary functions</a>
     </li>
   </ul>
 </li>
@@ -89,7 +89,7 @@
       <h1 data-toc-skip>Using custom summary functions in <code>foot</code>
 </h1>
             
-            <h4 class="date">October 20, 2020</h4>
+            <h4 class="date">October 21, 2020</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/wpgp/foot/blob/master/vignettes/cobbler.Rmd"><code>vignettes/cobbler.Rmd</code></a></small>
       <div class="hidden name"><code>cobbler.Rmd</code></div>
@@ -105,11 +105,11 @@
 <h2 class="hasAnchor">
 <a href="#calculations-with-foot" class="anchor"></a>Calculations with <code>foot</code>
 </h2>
-<p>As noted in the introductory vignettes, <code>foot</code> primarily uses <code>calculate_foots</code> to calculate and summarise metrics. Internally this function uses <code>data.table</code> in order to handle large sets of building footprints and efficiently summarise them. The attributes to be summarised (<code>what</code>) are supplied to function names (<code>how</code>). These internal structures also allow for user-defined functions to be specified.</p>
+<p>As noted in the introductory vignettes, <code>foot</code> primarily uses <code>calculate_footstats</code> to calculate and summarise metrics. Internally this function uses <code>data.table</code> in order to handle large sets of building footprints and efficiently summarise them. The attributes to be summarised (<code>what</code>) are supplied to function names (<code>how</code>). These internal structures also allow for user-defined functions to be specified.</p>
 <div id="data-preparation" class="section level3">
 <h3 class="hasAnchor">
 <a href="#data-preparation" class="anchor"></a>Data preparation</h3>
-<p>To demonstrate using custom functions, we will first add some additional “data” to the footprints which we will use.</p>
+<p>To demonstrate using custom functions, we will first add some additional attribute “data” to the footprints which we will use.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit">
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"kampala"</span>, package <span class="op">=</span> <span class="st">"foot"</span><span class="op">)</span>
 
@@ -129,45 +129,45 @@
                     how<span class="op">=</span><span class="st">"mean"</span>,
                     verbose<span class="op">=</span><span class="cn">F</span><span class="op">)</span>
 <span class="co">#&gt;     zoneID mult_mean</span>
-<span class="co">#&gt;  1:      1  9.328028</span>
-<span class="co">#&gt;  2:      2  9.908259</span>
-<span class="co">#&gt;  3:      3  9.274380</span>
-<span class="co">#&gt;  4:      4 10.159917</span>
-<span class="co">#&gt;  5:      5 10.379966</span>
-<span class="co">#&gt;  6:      6 10.355270</span>
-<span class="co">#&gt;  7:      7 10.137706</span>
-<span class="co">#&gt;  8:      8 10.201882</span>
-<span class="co">#&gt;  9:      9  9.746266</span>
-<span class="co">#&gt; 10:     10 10.120935</span>
-<span class="co">#&gt; 11:     11 10.273452</span>
-<span class="co">#&gt; 12:     12 10.757861</span>
-<span class="co">#&gt; 13:     13 10.479714</span>
-<span class="co">#&gt; 14:     14 10.304273</span>
-<span class="co">#&gt; 15:     15 10.234946</span>
-<span class="co">#&gt; 16:     16 10.193032</span>
-<span class="co">#&gt; 17:     17 10.034467</span>
-<span class="co">#&gt; 18:     18  9.965617</span>
-<span class="co">#&gt; 19:     19 10.030033</span>
-<span class="co">#&gt; 20:     20 10.006252</span>
-<span class="co">#&gt; 21:     21 10.318436</span>
-<span class="co">#&gt; 22:     22 10.081454</span>
-<span class="co">#&gt; 23:     23  9.961850</span>
-<span class="co">#&gt; 24:     24 10.045254</span>
-<span class="co">#&gt; 25:     25  9.996373</span>
-<span class="co">#&gt; 26:     26 10.240990</span>
-<span class="co">#&gt; 27:     27 10.040331</span>
-<span class="co">#&gt; 28:     29 10.084728</span>
-<span class="co">#&gt; 29:     30 10.099218</span>
-<span class="co">#&gt; 30:     31 11.513632</span>
-<span class="co">#&gt; 31:     32 10.032379</span>
-<span class="co">#&gt; 32:     33  9.587724</span>
-<span class="co">#&gt; 33:     34 10.026075</span>
+<span class="co">#&gt;  1:      1  9.666786</span>
+<span class="co">#&gt;  2:      2  9.841946</span>
+<span class="co">#&gt;  3:      3  9.817887</span>
+<span class="co">#&gt;  4:      4  9.896108</span>
+<span class="co">#&gt;  5:      5  9.585723</span>
+<span class="co">#&gt;  6:      6 10.399327</span>
+<span class="co">#&gt;  7:      7  9.822931</span>
+<span class="co">#&gt;  8:      8  9.948185</span>
+<span class="co">#&gt;  9:      9  9.839114</span>
+<span class="co">#&gt; 10:     10  9.390817</span>
+<span class="co">#&gt; 11:     11 10.084299</span>
+<span class="co">#&gt; 12:     12  9.656353</span>
+<span class="co">#&gt; 13:     13  9.065091</span>
+<span class="co">#&gt; 14:     14  9.806507</span>
+<span class="co">#&gt; 15:     15  9.826152</span>
+<span class="co">#&gt; 16:     16 10.183840</span>
+<span class="co">#&gt; 17:     17 10.153940</span>
+<span class="co">#&gt; 18:     18  9.956768</span>
+<span class="co">#&gt; 19:     19  9.881288</span>
+<span class="co">#&gt; 20:     20 10.051673</span>
+<span class="co">#&gt; 21:     21 10.196925</span>
+<span class="co">#&gt; 22:     22  9.773030</span>
+<span class="co">#&gt; 23:     23  9.867830</span>
+<span class="co">#&gt; 24:     24  9.995201</span>
+<span class="co">#&gt; 25:     25 10.134532</span>
+<span class="co">#&gt; 26:     26 10.009279</span>
+<span class="co">#&gt; 27:     27  9.989495</span>
+<span class="co">#&gt; 28:     29  9.839616</span>
+<span class="co">#&gt; 29:     30 10.492154</span>
+<span class="co">#&gt; 30:     31 10.385578</span>
+<span class="co">#&gt; 31:     32 10.004733</span>
+<span class="co">#&gt; 32:     33  9.674933</span>
+<span class="co">#&gt; 33:     34 10.031255</span>
 <span class="co">#&gt;     zoneID mult_mean</span></pre></div>
 </div>
 <div id="additional-built-in-functions" class="section level3">
 <h3 class="hasAnchor">
 <a href="#additional-built-in-functions" class="anchor"></a>Additional built-in functions</h3>
-<p>The internal <code>foot</code> functions are documented in <code><a href="../reference/fs_functions.html">?fs_functions</a></code>; however, these functions are intended to be used within the wrapper functions of <code>foot</code> and are rarely intended to be used as standalone functions. One built-in summary function, not applied by default to any characteristics, is <code>majority</code>. It is designed to summarise categorical data. This function is available for users in the same manner of specifying the <code>how</code> argument.</p>
+<p>The internal <code>foot</code> functions are documented in <code><a href="../reference/fs_functions.html">?fs_functions</a></code>; however, these functions are intended to be used within the wrapper functions of <code>foot</code> and are rarely intended to be used as standalone functions. One built-in summary function, not applied by default, is <code>majority</code>. It is designed to summarise categorical data. This function is available for users in the same manner of specifying the <code>how</code> argument.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit">
 <span class="co"># get the majority category in each zone</span>
 <span class="fu"><a href="../reference/calculate_footstats.html">calculate_footstats</a></span><span class="op">(</span><span class="va">buildings</span>, 
@@ -177,38 +177,38 @@
                     verbose<span class="op">=</span><span class="cn">F</span><span class="op">)</span>
 <span class="co">#&gt;     zoneID category_majority</span>
 <span class="co">#&gt;  1:      1                 A</span>
-<span class="co">#&gt;  2:      2                 A</span>
+<span class="co">#&gt;  2:      2                 B</span>
 <span class="co">#&gt;  3:      3                 A</span>
-<span class="co">#&gt;  4:      4                 B</span>
-<span class="co">#&gt;  5:      5                 D</span>
+<span class="co">#&gt;  4:      4                 A</span>
+<span class="co">#&gt;  5:      5                 C</span>
 <span class="co">#&gt;  6:      6                 C</span>
-<span class="co">#&gt;  7:      7                 E</span>
+<span class="co">#&gt;  7:      7                 C</span>
 <span class="co">#&gt;  8:      8                 A</span>
-<span class="co">#&gt;  9:      9                 D</span>
-<span class="co">#&gt; 10:     10                 B</span>
-<span class="co">#&gt; 11:     11                 A</span>
+<span class="co">#&gt;  9:      9                 C</span>
+<span class="co">#&gt; 10:     10                 D</span>
+<span class="co">#&gt; 11:     11                 B</span>
 <span class="co">#&gt; 12:     12                 C</span>
-<span class="co">#&gt; 13:     13                 D</span>
-<span class="co">#&gt; 14:     14                 D</span>
-<span class="co">#&gt; 15:     15                 A</span>
-<span class="co">#&gt; 16:     16                 A</span>
-<span class="co">#&gt; 17:     17                 E</span>
-<span class="co">#&gt; 18:     18                 A</span>
+<span class="co">#&gt; 13:     13                 E</span>
+<span class="co">#&gt; 14:     14                 A</span>
+<span class="co">#&gt; 15:     15                 C</span>
+<span class="co">#&gt; 16:     16                 B</span>
+<span class="co">#&gt; 17:     17                 A</span>
+<span class="co">#&gt; 18:     18                 D</span>
 <span class="co">#&gt; 19:     19                 A</span>
-<span class="co">#&gt; 20:     20                 E</span>
-<span class="co">#&gt; 21:     21                 A</span>
+<span class="co">#&gt; 20:     20                 D</span>
+<span class="co">#&gt; 21:     21                 B</span>
 <span class="co">#&gt; 22:     22                 A</span>
 <span class="co">#&gt; 23:     23                 A</span>
-<span class="co">#&gt; 24:     24                 A</span>
-<span class="co">#&gt; 25:     25                 E</span>
-<span class="co">#&gt; 26:     26                 B</span>
+<span class="co">#&gt; 24:     24                 B</span>
+<span class="co">#&gt; 25:     25                 A</span>
+<span class="co">#&gt; 26:     26                 C</span>
 <span class="co">#&gt; 27:     27                 A</span>
-<span class="co">#&gt; 28:     29                 B</span>
-<span class="co">#&gt; 29:     30                 C</span>
+<span class="co">#&gt; 28:     29                 E</span>
+<span class="co">#&gt; 29:     30                 B</span>
 <span class="co">#&gt; 30:     31                 B</span>
-<span class="co">#&gt; 31:     32                 E</span>
-<span class="co">#&gt; 32:     33                 C</span>
-<span class="co">#&gt; 33:     34                 E</span>
+<span class="co">#&gt; 31:     32                 D</span>
+<span class="co">#&gt; 32:     33                 B</span>
+<span class="co">#&gt; 33:     34                 C</span>
 <span class="co">#&gt;     zoneID category_majority</span></pre></div>
 <p>The <code>majority</code> function is similar to the idea of supplying a user-defined function which is demonstrated in the next section.</p>
 </div>
@@ -216,8 +216,8 @@
 <div id="user-defined-summary-functions" class="section level2">
 <h2 class="hasAnchor">
 <a href="#user-defined-summary-functions" class="anchor"></a>User-defined summary functions</h2>
-<p>Creating functions for use with <code>foot</code> follows the same procedures and syntax for functions in <code>R</code> in general. They must be declared with <code>&lt;- function()</code> and they must be available within the environment where <code>foot</code> functions are being used. They should return a single, summary value since the function will be applied to footprints by zone.</p>
-<p>The name of the function is what is passed to <code>foot</code> as an argument to <code>how</code>. The argument(s) to the custom function can be named anything, but they will typically be values within the footprints to be summarised.</p>
+<p>Creating functions for use with <code>foot</code> follows the same procedures and syntax for functions in <code>R</code> in general. They must be declared with <code>&lt;- function()</code> and they must be available within the environment where <code>foot</code> functions are being used. When the functions are used internally by <code>calculate_footstats</code>, they are applied to footprints by zone index. Therefore they should return a single, summary value since the function for that group of footprints in the zone.</p>
+<p>The name of the function is what is passed to <code>foot</code> as an argument to <code>how</code>. The argument(s) to the custom function can be named anything, but they will typically be values present within the footprint attributes to be summarised.</p>
 <p>The example below shows a simple function that calculates the sum of the square root of the values. We will apply it to ‘area’, and <code>foot</code> will automatically pre-calculate this characteristic since it is not present in the column names of the footprints.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit">
 <span class="co"># simple function example 1</span>
@@ -312,7 +312,7 @@
 <h2 class="hasAnchor">
 <a href="#functions-with-multiple-arguments" class="anchor"></a>Functions with multiple arguments</h2>
 <p>In some instances, a custom function may need to make use of two or more characteristics from within the building footprint datasets. The built-in functions in <code>foot</code> are primarily designed to work with a single value (e.g. area or perimeter).</p>
-<p>While it may often be quicker to pre-calculate the combination, it could be advantageous to use a function. To make sure multiple attributes are supplied to the summary function, the arguments in <code>what</code> should be specified using a special type (<code>fs_varlist</code>). The <code>fs_varlist</code> creates a nested list within the processing to keep the argument together. Keep in mind that the arguments are passed by <strong>position</strong> not be name, so the order must match what the function is expecting.</p>
+<p>While it may sometimes be quicker to pre-calculate the combination, it could be advantageous to use a function, particularly in <code>calculate_bigfoot</code> where smaller subsets of a large building footprint dataset are processed. To make sure multiple attributes are supplied to the summary function, the arguments in <code>what</code> should be specified using a special type (<code>fs_varlist</code>). The <code>fs_varlist</code> creates a nested list within the internal processing to keep the argument together. Keep in mind that the arguments are passed to the summary function by <strong>position</strong>, not be name, so the order within <code>fs_varlist</code> must match the order of parameters that the function is expecting.</p>
 <div id="creating-a-perimeterarea-ratio" class="section level3">
 <h3 class="hasAnchor">
 <a href="#creating-a-perimeterarea-ratio" class="anchor"></a>Creating a Perimeter/Area ratio</h3>
@@ -382,13 +382,13 @@
 <div id="accessing-r-objects-other-than-the-footprints" class="section level2">
 <h2 class="hasAnchor">
 <a href="#accessing-r-objects-other-than-the-footprints" class="anchor"></a>Accessing <code>R</code> objects other than the footprints</h2>
-<p>A more complicated scenario exists when a user-defined function needs to access data which is not an attribute of the footprints dataset. In order to access the non-footprint data, a partial function must be created and supplied.</p>
-<p>In the example below, a simple constant value is supplied to a summary function; however, the idea extends to any object. This process is how the nearest neighbour index is calculated in <code>foot</code> by drawing on the spatial zones object as well as the footprints.</p>
+<p>A more complicated scenario exists when a user-defined function needs to access data which is not an attribute of the footprints dataset. In order to access the non-footprint data, a partial function must be created first and then supplied to calculation function.</p>
+<p>In the example below, a simple constant value is supplied to a summary function; however, the idea extends to any object in the <code>R</code> environment. This process is how the nearest neighbour index is calculated in <code>foot</code> by drawing on the spatial zones object as well as the footprints.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit">
 <span class="co"># external "data"</span>
 <span class="va">d1</span> <span class="op">&lt;-</span> <span class="fl">0.001</span>
 
-<span class="co"># This will NOT work because argument 'd' is missing</span>
+<span class="co"># This will NOT work because argument 'd' is not found</span>
 <span class="co"># f2 &lt;- function(x, d){</span>
 <span class="co">#   return(sum(d * x))</span>
 <span class="co"># }</span>
@@ -412,7 +412,8 @@
                     <span class="va">adminzones</span>, 
                     what<span class="op">=</span><span class="st">"area"</span>, 
                     how<span class="op">=</span><span class="st">"f3"</span>, 
-                    verbose<span class="op">=</span><span class="cn">F</span><span class="op">)</span>
+                    verbose<span class="op">=</span><span class="cn">F</span>
+                   <span class="op">)</span>
 <span class="co">#&gt;     zoneID           area_f3</span>
 <span class="co">#&gt;  1:      1   8.4545661 [m^2]</span>
 <span class="co">#&gt;  2:      2  29.7585314 [m^2]</span>
@@ -468,16 +469,18 @@
 <span class="co">#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; other attached packages:</span>
-<span class="co">#&gt; [1] knitr_1.28   foot_0.5     sf_0.9-2     raster_3.1-5 sp_1.4-1    </span>
+<span class="co">#&gt; [1] stars_0.4-1  abind_1.4-5  foot_0.5     knitr_1.28   sf_0.9-2     raster_3.1-5 sp_1.4-1    </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; loaded via a namespace (and not attached):</span>
-<span class="co">#&gt;  [1] Rcpp_1.0.4.6       lattice_0.20-40    prettyunits_1.1.1  class_7.3-16       ps_1.3.2           assertthat_0.2.1   rprojroot_1.3-2    packrat_0.5.0      digest_0.6.25      foreach_1.4.8     </span>
-<span class="co">#&gt; [11] R6_2.4.1           backports_1.1.5    evaluate_0.14      e1071_1.7-3        highr_0.8          pillar_1.4.3       rlang_0.4.5        rstudioapi_0.11    data.table_1.12.8  callr_3.4.3       </span>
-<span class="co">#&gt; [21] rmarkdown_2.1      desc_1.2.0         devtools_2.3.0     rgdal_1.4-8        stringr_1.4.0      compiler_3.6.3     xfun_0.12          pkgconfig_2.0.3    pkgbuild_1.0.6     htmltools_0.4.0   </span>
-<span class="co">#&gt; [31] tidyselect_1.0.0   tibble_3.0.1       codetools_0.2-16   fansi_0.4.1        crayon_1.3.4       dplyr_0.8.5        withr_2.1.2        grid_3.6.3         lwgeom_0.2-3       lifecycle_0.2.0   </span>
-<span class="co">#&gt; [41] DBI_1.1.0          formatR_1.7        magrittr_1.5       units_0.6-6        KernSmooth_2.23-16 cli_2.0.2          stringi_1.4.6      fs_1.3.1           remotes_2.1.1      doParallel_1.0.15 </span>
-<span class="co">#&gt; [51] testthat_2.3.2     ellipsis_0.3.0     filelock_1.0.2     vctrs_0.2.4        iterators_1.0.12   tools_3.6.3        glue_1.4.0         purrr_0.3.3        processx_3.4.2     abind_1.4-5       </span>
-<span class="co">#&gt; [61] pkgload_1.0.2      parallel_3.6.3     yaml_2.2.1         sessioninfo_1.1.1  stars_0.4-1        classInt_0.4-3     memoise_1.1.0      usethis_1.6.1</span></pre></div>
+<span class="co">#&gt;  [1] pkgload_1.0.2      foreach_1.4.8      StanHeaders_2.19.2 assertthat_0.2.1   highr_0.8          stats4_3.6.3       yaml_2.2.1         remotes_2.1.1      sessioninfo_1.1.1  pillar_1.4.3      </span>
+<span class="co">#&gt; [11] backports_1.1.5    lattice_0.20-40    glue_1.4.0         digest_0.6.25      colorspace_1.4-1   htmltools_0.4.0    pkgconfig_2.0.3    devtools_2.3.0     rstan_2.19.3       purrr_0.3.3       </span>
+<span class="co">#&gt; [21] scales_1.1.0       processx_3.4.2     whisker_0.4        downlit_0.2.0      tibble_3.0.1       ggplot2_3.3.0      usethis_1.6.1      ellipsis_0.3.0     withr_2.1.2        cli_2.0.2         </span>
+<span class="co">#&gt; [31] magrittr_1.5       crayon_1.3.4       memoise_1.1.0      evaluate_0.14      ps_1.3.2           fs_1.3.1           fansi_0.4.1        doParallel_1.0.15  xml2_1.3.1         lwgeom_0.2-3      </span>
+<span class="co">#&gt; [41] class_7.3-16       pkgbuild_1.0.6     loo_2.2.0          tools_3.6.3        data.table_1.12.8  prettyunits_1.1.1  matrixStats_0.56.0 formatR_1.7        lifecycle_0.2.0    stringr_1.4.0     </span>
+<span class="co">#&gt; [51] munsell_0.5.0      callr_3.4.3        packrat_0.5.0      compiler_3.6.3     pkgdown_1.6.1      e1071_1.7-3        rlang_0.4.5        classInt_0.4-3     units_0.6-6        grid_3.6.3        </span>
+<span class="co">#&gt; [61] iterators_1.0.12   rstudioapi_0.11    rmarkdown_2.1      testthat_2.3.2     gtable_0.3.0       codetools_0.2-16   inline_0.3.15      DBI_1.1.0          rematch2_2.1.1     R6_2.4.1          </span>
+<span class="co">#&gt; [71] gridExtra_2.3      dplyr_0.8.5        rgdal_1.4-8        filelock_1.0.2     rprojroot_1.3-2    KernSmooth_2.23-16 desc_1.2.0         stringi_1.4.6      parallel_3.6.3     Rcpp_1.0.4.6      </span>
+<span class="co">#&gt; [81] vctrs_0.2.4        tidyselect_1.0.0   xfun_0.12</span></pre></div>
 </div>
   </div>
 

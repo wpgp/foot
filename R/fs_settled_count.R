@@ -12,6 +12,11 @@
 #' @param col column name within \code{X} with pre-calculated area measures
 #' @return \code{data.table} of zonal indices and values.
 #' 
+#' @details Note that this function is provided as a standalone calculation for
+#'   convenience. The same summary measure can be executed within
+#'   \code{calculate_footstats} by specifying \code{what='settled'} and
+#'   \code{how='count'}.
+#' 
 #' @import data.table
 #' 
 #' @aliases fs_count

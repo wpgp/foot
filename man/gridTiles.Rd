@@ -47,8 +47,6 @@ columns)}
 Split gridded data extents into subsets for parallel processing.
 }
 \details{
-gridTiles
-
 \code{gridTiles} provides a convenient way for splitting a gridded
   dataset into sub-datasets for cropping or processing individually. The
   splitting uses the extent of the total grid, potentially including noData

@@ -27,6 +27,7 @@ Imports:
     purrr,
     sf,
     stars,
+    abind,
     lwgeom,
     doParallel,
     parallel,

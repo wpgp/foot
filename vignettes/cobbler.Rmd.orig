@@ -40,17 +40,17 @@ library(foot)
 
 ## Calculations with `foot`
 
-As noted in the introductory vignettes, `foot` primarily uses `calculate_foots`
-to calculate and summarise metrics. Internally this function uses `data.table`
-in order to handle large sets of building footprints and efficiently summarise
-them. The attributes to be summarised (`what`) are supplied to function names
-(`how`). These internal structures also allow for user-defined functions to be
-specified.
+As noted in the introductory vignettes, `foot` primarily uses
+`calculate_footstats` to calculate and summarise metrics. Internally this
+function uses `data.table` in order to handle large sets of building footprints
+and efficiently summarise them. The attributes to be summarised (`what`) are
+supplied to function names (`how`). These internal structures also allow for
+user-defined functions to be specified.
 
 ### Data preparation
 
-To demonstrate using custom functions, we will first add some additional "data"
-to the footprints which we will use.
+To demonstrate using custom functions, we will first add some additional
+attribute "data" to the footprints which we will use.
 
 ```{r}
 data("kampala", package="foot")
@@ -83,9 +83,9 @@ calculate_footstats(buildings,
 The internal `foot` functions are documented in `?fs_functions`; however, these
 functions are intended to be used within the wrapper functions of `foot` and are
 rarely intended to be used as standalone functions. One built-in summary
-function, not applied by default to any characteristics, is `majority`. It is
-designed to summarise categorical data. This function is available for users in
-the same manner of specifying the `how` argument.
+function, not applied by default, is `majority`. It is designed to summarise
+categorical data. This function is available for users in the same manner of
+specifying the `how` argument.
 
 ```{r, tidy=FALSE}
 # get the majority category in each zone
@@ -104,12 +104,13 @@ function which is demonstrated in the next section.
 Creating functions for use with `foot` follows the same procedures and syntax
 for functions in `R` in general. They must be declared with `<- function()` and
 they must be available within the environment where `foot` functions are being
-used. They should return a single, summary value since the function will be
-applied to footprints by zone.
+used. When the functions are used internally by `calculate_footstats`, they are
+applied to footprints by zone index. Therefore they should return a single,
+summary value since the function for that group of footprints in the zone.
 
 The name of the function is what is passed to `foot` as an argument to `how`.
 The argument(s) to the custom function can be named anything, but they will
-typically be values within the footprints to be summarised.
+typically be values present within the footprint attributes to be summarised.
 
 The example below shows a simple function that calculates the sum of the square
 root of the values. We will apply it to 'area', and `foot` will automatically
@@ -149,13 +150,15 @@ characteristics from within the building footprint datasets. The built-in
 functions in `foot` are primarily designed to work with a single value (e.g.
 area or perimeter).
 
-While it may often be quicker to pre-calculate the combination, it could be
-advantageous to use a function. To make sure multiple attributes are supplied to
-the summary function, the arguments in `what` should be specified using a
-special type (`fs_varlist`). The `fs_varlist` creates a nested list within the
-processing to keep the argument together. Keep in mind that the arguments are
-passed by **position** not be name, so the order must match what the function is
-expecting.
+While it may sometimes be quicker to pre-calculate the combination, it could be
+advantageous to use a function, particularly in `calculate_bigfoot` where
+smaller subsets of a large building footprint dataset are processed. To make
+sure multiple attributes are supplied to the summary function, the arguments in
+`what` should be specified using a special type (`fs_varlist`). The `fs_varlist`
+creates a nested list within the internal processing to keep the argument
+together. Keep in mind that the arguments are passed to the summary function by
+**position**, not be name, so the order within `fs_varlist` must match the order
+of parameters that the function is expecting.
 
 ### Creating a Perimeter/Area ratio
 
@@ -183,17 +186,19 @@ calculate_footstats(buildings,
 
 A more complicated scenario exists when a user-defined function needs to access
 data which is not an attribute of the footprints dataset. In order to access the
-non-footprint data, a partial function must be created and supplied.
+non-footprint data, a partial function must be created first and then supplied
+to calculation function.
 
 In the example below, a simple constant value is supplied to a summary function;
-however, the idea extends to any object. This process is how the nearest
-neighbour index is calculated in `foot` by drawing on the spatial zones object
-as well as the footprints.
+however, the idea extends to any object in the `R` environment. This process is
+how the nearest neighbour index is calculated in `foot` by drawing on the
+spatial zones object as well as the footprints.
+
 ```{r, tidy=F}
 # external "data"
 d1 <- 0.001
 
-# This will NOT work because argument 'd' is missing
+# This will NOT work because argument 'd' is not found
 # f2 <- function(x, d){
 #   return(sum(d * x))
 # }
@@ -217,7 +222,8 @@ calculate_footstats(buildings,
                     adminzones, 
                     what="area", 
                     how="f3", 
-                    verbose=F)
+                    verbose=F
+                   )
 ```
 
 In this vignette, the `foot` package has been extended to incorporate

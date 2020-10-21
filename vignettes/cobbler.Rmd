@@ -1,6 +1,6 @@
 ---
 title: "Using custom summary functions in `foot`"
-date: 'October 20, 2020'
+date: 'October 21, 2020'
 description: >
   Building footprints or polygons representing the outline shape of structures
   can provide a unique data source for studying urban areas at high spatial
@@ -32,17 +32,17 @@ library(foot)
 
 ## Calculations with `foot`
 
-As noted in the introductory vignettes, `foot` primarily uses `calculate_foots`
-to calculate and summarise metrics. Internally this function uses `data.table`
-in order to handle large sets of building footprints and efficiently summarise
-them. The attributes to be summarised (`what`) are supplied to function names
-(`how`). These internal structures also allow for user-defined functions to be
-specified.
+As noted in the introductory vignettes, `foot` primarily uses
+`calculate_footstats` to calculate and summarise metrics. Internally this
+function uses `data.table` in order to handle large sets of building footprints
+and efficiently summarise them. The attributes to be summarised (`what`) are
+supplied to function names (`how`). These internal structures also allow for
+user-defined functions to be specified.
 
 ### Data preparation
 
-To demonstrate using custom functions, we will first add some additional "data"
-to the footprints which we will use.
+To demonstrate using custom functions, we will first add some additional
+attribute "data" to the footprints which we will use.
 
 
 ```r
@@ -70,39 +70,39 @@ calculate_footstats(buildings,
                     how="mean",
                     verbose=F)
 #>     zoneID mult_mean
-#>  1:      1  9.328028
-#>  2:      2  9.908259
-#>  3:      3  9.274380
-#>  4:      4 10.159917
-#>  5:      5 10.379966
-#>  6:      6 10.355270
-#>  7:      7 10.137706
-#>  8:      8 10.201882
-#>  9:      9  9.746266
-#> 10:     10 10.120935
-#> 11:     11 10.273452
-#> 12:     12 10.757861
-#> 13:     13 10.479714
-#> 14:     14 10.304273
-#> 15:     15 10.234946
-#> 16:     16 10.193032
-#> 17:     17 10.034467
-#> 18:     18  9.965617
-#> 19:     19 10.030033
-#> 20:     20 10.006252
-#> 21:     21 10.318436
-#> 22:     22 10.081454
-#> 23:     23  9.961850
-#> 24:     24 10.045254
-#> 25:     25  9.996373
-#> 26:     26 10.240990
-#> 27:     27 10.040331
-#> 28:     29 10.084728
-#> 29:     30 10.099218
-#> 30:     31 11.513632
-#> 31:     32 10.032379
-#> 32:     33  9.587724
-#> 33:     34 10.026075
+#>  1:      1  9.666786
+#>  2:      2  9.841946
+#>  3:      3  9.817887
+#>  4:      4  9.896108
+#>  5:      5  9.585723
+#>  6:      6 10.399327
+#>  7:      7  9.822931
+#>  8:      8  9.948185
+#>  9:      9  9.839114
+#> 10:     10  9.390817
+#> 11:     11 10.084299
+#> 12:     12  9.656353
+#> 13:     13  9.065091
+#> 14:     14  9.806507
+#> 15:     15  9.826152
+#> 16:     16 10.183840
+#> 17:     17 10.153940
+#> 18:     18  9.956768
+#> 19:     19  9.881288
+#> 20:     20 10.051673
+#> 21:     21 10.196925
+#> 22:     22  9.773030
+#> 23:     23  9.867830
+#> 24:     24  9.995201
+#> 25:     25 10.134532
+#> 26:     26 10.009279
+#> 27:     27  9.989495
+#> 28:     29  9.839616
+#> 29:     30 10.492154
+#> 30:     31 10.385578
+#> 31:     32 10.004733
+#> 32:     33  9.674933
+#> 33:     34 10.031255
 #>     zoneID mult_mean
 ```
 
@@ -111,9 +111,9 @@ calculate_footstats(buildings,
 The internal `foot` functions are documented in `?fs_functions`; however, these
 functions are intended to be used within the wrapper functions of `foot` and are
 rarely intended to be used as standalone functions. One built-in summary
-function, not applied by default to any characteristics, is `majority`. It is
-designed to summarise categorical data. This function is available for users in
-the same manner of specifying the `how` argument.
+function, not applied by default, is `majority`. It is designed to summarise
+categorical data. This function is available for users in the same manner of
+specifying the `how` argument.
 
 
 ```r
@@ -125,38 +125,38 @@ calculate_footstats(buildings,
                     verbose=F)
 #>     zoneID category_majority
 #>  1:      1                 A
-#>  2:      2                 A
+#>  2:      2                 B
 #>  3:      3                 A
-#>  4:      4                 B
-#>  5:      5                 D
+#>  4:      4                 A
+#>  5:      5                 C
 #>  6:      6                 C
-#>  7:      7                 E
+#>  7:      7                 C
 #>  8:      8                 A
-#>  9:      9                 D
-#> 10:     10                 B
-#> 11:     11                 A
+#>  9:      9                 C
+#> 10:     10                 D
+#> 11:     11                 B
 #> 12:     12                 C
-#> 13:     13                 D
-#> 14:     14                 D
-#> 15:     15                 A
-#> 16:     16                 A
-#> 17:     17                 E
-#> 18:     18                 A
+#> 13:     13                 E
+#> 14:     14                 A
+#> 15:     15                 C
+#> 16:     16                 B
+#> 17:     17                 A
+#> 18:     18                 D
 #> 19:     19                 A
-#> 20:     20                 E
-#> 21:     21                 A
+#> 20:     20                 D
+#> 21:     21                 B
 #> 22:     22                 A
 #> 23:     23                 A
-#> 24:     24                 A
-#> 25:     25                 E
-#> 26:     26                 B
+#> 24:     24                 B
+#> 25:     25                 A
+#> 26:     26                 C
 #> 27:     27                 A
-#> 28:     29                 B
-#> 29:     30                 C
+#> 28:     29                 E
+#> 29:     30                 B
 #> 30:     31                 B
-#> 31:     32                 E
-#> 32:     33                 C
-#> 33:     34                 E
+#> 31:     32                 D
+#> 32:     33                 B
+#> 33:     34                 C
 #>     zoneID category_majority
 ```
 
@@ -168,12 +168,13 @@ function which is demonstrated in the next section.
 Creating functions for use with `foot` follows the same procedures and syntax
 for functions in `R` in general. They must be declared with `<- function()` and
 they must be available within the environment where `foot` functions are being
-used. They should return a single, summary value since the function will be
-applied to footprints by zone.
+used. When the functions are used internally by `calculate_footstats`, they are
+applied to footprints by zone index. Therefore they should return a single,
+summary value since the function for that group of footprints in the zone.
 
 The name of the function is what is passed to `foot` as an argument to `how`.
 The argument(s) to the custom function can be named anything, but they will
-typically be values within the footprints to be summarised.
+typically be values present within the footprint attributes to be summarised.
 
 The example below shows a simple function that calculates the sum of the square
 root of the values. We will apply it to 'area', and `foot` will automatically
@@ -285,13 +286,15 @@ characteristics from within the building footprint datasets. The built-in
 functions in `foot` are primarily designed to work with a single value (e.g.
 area or perimeter).
 
-While it may often be quicker to pre-calculate the combination, it could be
-advantageous to use a function. To make sure multiple attributes are supplied to
-the summary function, the arguments in `what` should be specified using a
-special type (`fs_varlist`). The `fs_varlist` creates a nested list within the
-processing to keep the argument together. Keep in mind that the arguments are
-passed by **position** not be name, so the order must match what the function is
-expecting.
+While it may sometimes be quicker to pre-calculate the combination, it could be
+advantageous to use a function, particularly in `calculate_bigfoot` where
+smaller subsets of a large building footprint dataset are processed. To make
+sure multiple attributes are supplied to the summary function, the arguments in
+`what` should be specified using a special type (`fs_varlist`). The `fs_varlist`
+creates a nested list within the internal processing to keep the argument
+together. Keep in mind that the arguments are passed to the summary function by
+**position**, not be name, so the order within `fs_varlist` must match the order
+of parameters that the function is expecting.
 
 ### Creating a Perimeter/Area ratio
 
@@ -366,18 +369,20 @@ calculate_footstats(buildings,
 
 A more complicated scenario exists when a user-defined function needs to access
 data which is not an attribute of the footprints dataset. In order to access the
-non-footprint data, a partial function must be created and supplied.
+non-footprint data, a partial function must be created first and then supplied
+to calculation function.
 
 In the example below, a simple constant value is supplied to a summary function;
-however, the idea extends to any object. This process is how the nearest
-neighbour index is calculated in `foot` by drawing on the spatial zones object
-as well as the footprints.
+however, the idea extends to any object in the `R` environment. This process is
+how the nearest neighbour index is calculated in `foot` by drawing on the
+spatial zones object as well as the footprints.
+
 
 ```r
 # external "data"
 d1 <- 0.001
 
-# This will NOT work because argument 'd' is missing
+# This will NOT work because argument 'd' is not found
 # f2 <- function(x, d){
 #   return(sum(d * x))
 # }
@@ -401,7 +406,8 @@ calculate_footstats(buildings,
                     adminzones, 
                     what="area", 
                     how="f3", 
-                    verbose=F)
+                    verbose=F
+                   )
 #>     zoneID           area_f3
 #>  1:      1   8.4545661 [m^2]
 #>  2:      2  29.7585314 [m^2]
@@ -465,14 +471,16 @@ sessionInfo()
 #> [1] stats     graphics  grDevices utils     datasets  methods   base     
 #> 
 #> other attached packages:
-#> [1] knitr_1.28   foot_0.5     sf_0.9-2     raster_3.1-5 sp_1.4-1    
+#> [1] stars_0.4-1  abind_1.4-5  foot_0.5     knitr_1.28   sf_0.9-2     raster_3.1-5 sp_1.4-1    
 #> 
 #> loaded via a namespace (and not attached):
-#>  [1] Rcpp_1.0.4.6       lattice_0.20-40    prettyunits_1.1.1  class_7.3-16       ps_1.3.2           assertthat_0.2.1   rprojroot_1.3-2    packrat_0.5.0      digest_0.6.25      foreach_1.4.8     
-#> [11] R6_2.4.1           backports_1.1.5    evaluate_0.14      e1071_1.7-3        highr_0.8          pillar_1.4.3       rlang_0.4.5        rstudioapi_0.11    data.table_1.12.8  callr_3.4.3       
-#> [21] rmarkdown_2.1      desc_1.2.0         devtools_2.3.0     rgdal_1.4-8        stringr_1.4.0      compiler_3.6.3     xfun_0.12          pkgconfig_2.0.3    pkgbuild_1.0.6     htmltools_0.4.0   
-#> [31] tidyselect_1.0.0   tibble_3.0.1       codetools_0.2-16   fansi_0.4.1        crayon_1.3.4       dplyr_0.8.5        withr_2.1.2        grid_3.6.3         lwgeom_0.2-3       lifecycle_0.2.0   
-#> [41] DBI_1.1.0          formatR_1.7        magrittr_1.5       units_0.6-6        KernSmooth_2.23-16 cli_2.0.2          stringi_1.4.6      fs_1.3.1           remotes_2.1.1      doParallel_1.0.15 
-#> [51] testthat_2.3.2     ellipsis_0.3.0     filelock_1.0.2     vctrs_0.2.4        iterators_1.0.12   tools_3.6.3        glue_1.4.0         purrr_0.3.3        processx_3.4.2     abind_1.4-5       
-#> [61] pkgload_1.0.2      parallel_3.6.3     yaml_2.2.1         sessioninfo_1.1.1  stars_0.4-1        classInt_0.4-3     memoise_1.1.0      usethis_1.6.1
+#>  [1] pkgload_1.0.2      foreach_1.4.8      StanHeaders_2.19.2 assertthat_0.2.1   highr_0.8          stats4_3.6.3       yaml_2.2.1         remotes_2.1.1      sessioninfo_1.1.1  pillar_1.4.3      
+#> [11] backports_1.1.5    lattice_0.20-40    glue_1.4.0         digest_0.6.25      colorspace_1.4-1   htmltools_0.4.0    pkgconfig_2.0.3    devtools_2.3.0     rstan_2.19.3       purrr_0.3.3       
+#> [21] scales_1.1.0       processx_3.4.2     whisker_0.4        downlit_0.2.0      tibble_3.0.1       ggplot2_3.3.0      usethis_1.6.1      ellipsis_0.3.0     withr_2.1.2        cli_2.0.2         
+#> [31] magrittr_1.5       crayon_1.3.4       memoise_1.1.0      evaluate_0.14      ps_1.3.2           fs_1.3.1           fansi_0.4.1        doParallel_1.0.15  xml2_1.3.1         lwgeom_0.2-3      
+#> [41] class_7.3-16       pkgbuild_1.0.6     loo_2.2.0          tools_3.6.3        data.table_1.12.8  prettyunits_1.1.1  matrixStats_0.56.0 formatR_1.7        lifecycle_0.2.0    stringr_1.4.0     
+#> [51] munsell_0.5.0      callr_3.4.3        packrat_0.5.0      compiler_3.6.3     pkgdown_1.6.1      e1071_1.7-3        rlang_0.4.5        classInt_0.4-3     units_0.6-6        grid_3.6.3        
+#> [61] iterators_1.0.12   rstudioapi_0.11    rmarkdown_2.1      testthat_2.3.2     gtable_0.3.0       codetools_0.2-16   inline_0.3.15      DBI_1.1.0          rematch2_2.1.1     R6_2.4.1          
+#> [71] gridExtra_2.3      dplyr_0.8.5        rgdal_1.4-8        filelock_1.0.2     rprojroot_1.3-2    KernSmooth_2.23-16 desc_1.2.0         stringi_1.4.6      parallel_3.6.3     Rcpp_1.0.4.6      
+#> [81] vctrs_0.2.4        tidyselect_1.0.0   xfun_0.12
 ```

@@ -62,7 +62,7 @@ polygons within zones." />
   <body data-spy="scroll" data-target="#toc">
     <div class="container template-reference-topic">
       <header>
-      <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
@@ -81,7 +81,7 @@ polygons within zones." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fa fa-home"></span>
      
   </a>
 </li>
@@ -96,13 +96,13 @@ polygons within zones." />
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/bigfoot.html">Gridded footprint calculation layers</a>
+      <a href="../articles/footsteps.html">footsteps: Getting started</a>
     </li>
     <li>
-      <a href="../articles/cobbler.html">Using custom summary functions in `foot`</a>
+      <a href="../articles/bigfoot.html">bigfoot: Gridded footprint calculations</a>
     </li>
     <li>
-      <a href="../articles/footsteps.html">Basic building footprint calculations</a>
+      <a href="../articles/cobbler.html">cobbler: Using custom summary functions</a>
     </li>
   </ul>
 </li>
@@ -189,7 +189,11 @@ Default is <code>TRUE</code>.</p></td>
   may suggest less formally planned or zoned areas. The entropy calculation
   uses the common Shannon's Entropy. The normalization step produces an
   indicator for how much a zone departs from a grid. This metric is based on
-  work by Boeing (2019).</p>
+  work by Boeing (2019).</p>  
+<p>Note that this function is provided as a standalone calculation for
+  convenience. The same summary measure can be executed within
+  <code>calculate_footstats</code> by specifying <code>what='angle'</code> and
+  <code>how='entropy'</code>.</p>
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
     <p>Boeing, Geoff (2019). "Urban spatial order: Street network

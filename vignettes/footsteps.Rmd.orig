@@ -164,9 +164,9 @@ done with a `data.table` to benefit from multi-threading capabilities.
 ### Rotation angles
 
 A less conventional geometric measure is derived from the rotated bounding
-rectangle. This is the rectangle enclosing a footprint polygon which
-has been rotated to minimise the area. In contrast, a "bounding box" for a shape
-is always oriented along the x and y axes.
+rectangle. This is the rectangle enclosing a footprint polygon which has been
+rotated to minimise the area. In contrast, a "bounding box" for a polygon is
+always oriented along the x and y axes.
 
 ```{r}
 # To obtain the rotated rectangle as a spatial object
@@ -214,7 +214,7 @@ calculate_footstats(buildings, idx, what="settled", how="count", verbose=FALSE)
 calculate_footstats(buildings, zone=adminzones, what="angle", how="entropy", verbose=FALSE)
 ```
 
-### Index by shape
+### Index by zone shapes
 
 Rather than supplying a pre-calculated column or vector of zonal indices,
 buildings can be assigned a zone based on a spatial join. When the index is
@@ -222,7 +222,7 @@ created in the building footprints, it will be named "zoneID" or a
 user-specified name. 
 
 ```{r message=FALSE, warning=FALSE}
-# examine the other objects
+# examine the other objects loaded from supplied data
 head(adminzones)
 head(clusters)
 
@@ -252,7 +252,9 @@ clusters <- merge(clusters, zarea, by="Id")
 ```
 
 The `zonalIndex` function works by spatial intersection. This produces some
-(potentially useful) side effects that users need to be aware of.
+(potentially useful) side effects that users need to be aware of. Specifically,
+note that if a building footprint intersects more than 1 zone it will be
+duplicated and associated to all intersecting zones.
 
 The default behaviour (see `method`) is to assign a building to a zone based on
 its **centroid**.
@@ -266,7 +268,7 @@ plot(sf::st_geometry(sf::st_centroid(zObj[zObj$Id==6,])), pch=16, add=T)
 
 Alternatively, an intersection can be used to assign footprints to any zones
 which are intersected. The whole footprint is associated, even if the shape is
-not "contained" by the zone.
+not "contained" by the zone. 
 ```{r warning=FALSE}
 # Note the selected structures extend beyond the cluster boundary
 zInt <- zonalIndex(buildings, clusters, zoneField="Id", method="intersect")
@@ -335,11 +337,16 @@ results <- calculate_footstats(buildings,
   results
 ```
 
-Multiple metrics can be applied to different groups of characteristics by
+Multiple metrics can be applied to specific groups of characteristics by
 providing nested lists of metrics and summary functions. The argument `what`
 will accept a string or a list of strings for specific metric names. Users may
 also supply `"all"` or `"nodist"` to calculate all available metrics or all bar
-the nearest neighbour distance-related ones, respectively.
+the nearest neighbour distance-related ones, respectively. Excluding the
+distance-related metrics can speed up the calculations due to the long-running.
+Other performance improvements can be to set
+`controlDistance=list("method"="centroid")`, which uses centroid-to-centroid
+nearest neighbour distances rather than polygon edge-to-edge. See also,
+`?fs_nndist`.
 
 ```{r, tidy=F}
 # Use nested lists to group characteristics and summary functions
@@ -353,6 +360,26 @@ results <- calculate_footstats(buildings,
                                verbose=F
                               )
   results
+```
+
+### Filtering buildings
+
+In some settings it may be preferable to exclude very small and/or very large
+building footprint polygons. The lower and upper bounds for filtering can be
+specified with `minArea` and `maxArea` in the `filter` argument. The values for
+these filters are in the same units specified by `controlUnits` or the default
+value for area calculations. Note that an "area" footprint statistic does not
+need to be requested as this characteristic is automatically calculated to
+enable filtering.
+
+```{r, tidy=FALSE}
+# Filtering: # footprints must be larger than 50 m^2 and smaller than 1000 m^2
+calculate_footstats(buildings,
+                    what="perimeter",
+                    how=list("mean", "sum"),
+                    controlUnits=list(areaUnit="m^2"),
+                    filter=list(minArea=50, maxArea=1000),
+                    verbose=FALSE)  
 ```
 
 ## Next steps

@@ -150,9 +150,9 @@ gridded <- calculate_bigfoot(buildings,
 #> Creating template output grids 
 #> Creating list of processing tiles 
 #> Setting up cluster...
-#> Begin parallel tile processing: 2020-10-20 18:28:25
+#> Begin parallel tile processing: 2020-10-21 16:14:52
 #> 
-#> Finished processing all tiles: 2020-10-20 18:28:30
+#> Finished processing all tiles: 2020-10-21 16:14:56
 
   raster::plot(raster::raster(gridded))
   plot(sf::st_geometry(buildings), add=TRUE)
