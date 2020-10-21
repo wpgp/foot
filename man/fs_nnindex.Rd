@@ -4,27 +4,30 @@
 \alias{fs_nnindex}
 \alias{fs_nnindex.sp}
 \alias{fs_nnindex.sf}
+\alias{fs_nnindex.sfc}
 \title{Building Nearest Neighbour Index (NNI)}
 \usage{
-fs_nnindex(X, index = NULL, unit = NULL, col = NULL)
+fs_nnindex(X, zone = NULL, zoneField = NULL, unit = NULL)
 
-\method{fs_nnindex}{sp}(X, index = NULL, unit = NULL, col = NULL)
+\method{fs_nnindex}{sp}(X, zone = NULL, zoneField = NULL, unit = NULL)
 
-\method{fs_nnindex}{sf}(X, index = NULL, unit = NULL, col = NULL)
+\method{fs_nnindex}{sf}(X, zone = NULL, zoneField = NULL, unit = NULL)
+
+\method{fs_nnindex}{sfc}(X, zone = NULL, zoneField = NULL, unit = NULL)
 }
 \arguments{
 \item{X}{Spatial object with building footprints or their centroid locations.}
 
-\item{index}{A spatial polygon object of \code{sf} or \code{sp} type. If
+\item{zone}{A spatial polygon object of \code{sf} or \code{sp} type. If
 omitted all observations in \code{X} are assumed to be within one zone and
 the area of the minimum bounding circle is used for the nearest neighbour
 index.}
 
-\item{unit}{character or \code{units} object to define distance. Default is
-NULL}
+\item{zoneField}{(Optional) Column name of unique identifiers in \code{zone}
+to use. If omitted, the 'zoneID' will be numbered \code{1:nrow(zone)}.}
 
-\item{col}{column name or index within \code{X} with pre-calculated distance
-measures.}
+\item{unit}{character or \code{units} object to define distance. Default
+\code{NULL} will attempt to coerce units to meters.}
 }
 \value{
 \code{data.table} of zonal indices and values
@@ -34,16 +37,21 @@ Calculate and summarise selected metrics of building footprint
   polygons within zones.
 }
 \details{
-The nearest neighbour index (NNI) is a measure of spatial clustering. It
-  compares the observed mean neighbour distances with a hypothetical maximum
-  of dispersed observations given the area of the zone. Note that NNI is
-  sensitive to changes in the zone area.
+The nearest neighbour index (NNI) is a measure of spatial
+  clustering. It compares the observed mean neighbour distances with a
+  hypothetical maximum of dispersed observations given the area of the zone.
+  Note that NNI is sensitive to changes in the zone area.
   
-  \deqn{ NNI_z = \frac{\bar{NND_z}}{(0.5 * \sqrt{\frac{A_z}{n_z}}})}, 
-  where z is the zone, A is the area, NND is the mean nearest neighbour
-  distance, and n is the count.
+  \deqn{ NNI_z = \frac{\bar{NND_z}}{(0.5 * \sqrt{\frac{A_z}{n_z}}})}, where z
+  is the zone, A is the area, NND is the mean nearest neighbour distance, and
+  n is the count. The value of NNI can range from 0 (fully disperse) to 2.15
+  (clustered), with values of 1 indicating spatial randomness.
   
-  If a pre-calculated neighbour distance is not supplied, the function uses
-  \code{fs_nndist} to calculate the distance between centroids of the
-  building footprints within the same spatial zone indicated by \code{index}.
+  The function uses \code{fs_nndist} to calculate the distance between
+  centroids of the building footprints within the same spatial zone indicated
+  by \code{zone}.
+  
+  Note that this function is provided as a standalone calculation. The
+  summary measure can be executed from within \code{calculate_footstats} by
+  specifying \code{what='nndist'} and \code{how='nnindex'}.
 }

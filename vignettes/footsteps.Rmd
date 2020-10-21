@@ -1,6 +1,6 @@
 ---
 title: "Basic building footprint calculations"
-date: 'October 01, 2020'
+date: 'October 21, 2020'
 description: >
   Building footprints or polygons representing the outline shape of structures
   can provide a unique data source for studying urban areas at high spatial
@@ -16,37 +16,26 @@ vignette: >
 
 
 
-While remote sensing has long been used to monitor urbanisation patterns, in
-recent years there has been an increasing availability in finer resolution
-satellite data covering large areas of the globe. This very high resolution
-imagery (often <1 m spatial resolution), combined with increased computing power
-is producing new datasets on urban areas. In particular, machine learning
-algorithms are being applied to detect, automatically extract, and map full sets
-of building features in a scene. These automated methods add to the manually
-digitised information such as from [OpenStreetMap](http://www.openstreetmap.org)
-and the property datasets available from some city governments.
-
-Such building footprint datasets provide a new level of detail on urban areas,
-particularly in places which might otherwise lack detailed maps on cities and
-rapidly growing areas. Despite their spatial detail, building footprints
-typically lack any other attribute information to help differentiate land uses
-or other neighbourhood characteristics. However, the size, shape, orientation,
-and clustering of structures produces a spatial pattern that can suggest areas
-of different land use or activities.
+The `foot` package was developed by WorldPop at the University of Southampton
+([www.worldpop.org](https://www.worldpop.org)) to provide a set of consistent
+and flexible tools for processing 2D vector representations of buildings (e.g.
+"footprints") and calculating urban morphology measurements. The functionality
+includes basic geometry and morphology characteristics, distance and clustering
+metrics. These calculations are supported with helper functions for spatial
+intersections and tiled reading/writing of data.
 
 
 ```r
 library(foot)
 ```
 
-The `foot` package was developed by WorldPop at the University of Southampton
-([www.worldpop.org](https://www.worldpop.org)) to support geometric calculations
-and zonal summaries of measures from building footprint polygons. This vignette
-will demonstrate some of the core functionality in the package, including:
+This vignette will demonstrate some of the core functionality in the package,
+including:
 
 * The available measurements and summary statistics
-* How to define different types of spatial zones for summaries
-* Example workflows to produce tabular and gridded output
+* How to define different types of spatial zones for area-level summaries
+* Calculating multiple summary metrics for a set of spatial areas
+* Example workflows to produce outputs using `foot::calculate_footstats()`.
 
 To demonstrate the package, this vignette will use a supplied sample of building
 footprint polygons produced by Microsoft Bing Maps
@@ -56,8 +45,9 @@ spatial data format which can be read with `sf`.
 
 ## Load the sample dataset
 
+
 ```r
-data("kampala")
+data("kampala", package = "foot")
 
 buildings <- kampala$buildings
 adminzones <- kampala$adminZones
@@ -78,303 +68,401 @@ created for demonstration purposes only.
 
 For more information, see `?kampala`.
 
-![Sample buildings and zones in Kampala](figure/unnamed-chunk-3-1.png)
+<img src="man/figures/REAsDME-unnamed-chunk-3-1.png" title="Sample buildings and zones in Kampala" alt="Sample buildings and zones in Kampala" width="100%" />
 
 ## Calculations with `foot`
-All function names for calculating metrics begin with `fs_` (short for
-"footprint statistic"). The second part of the name includes the group of
-measures (e.g. area or perimeter), and finally an abbreviation for the summary
-statistic (e.g. 'cv' for coefficient of variation or 'sd' for standard
-deviation).
 
-### Available metrics and summary measures
-Currently implemented are measures for:
-
-* presence (binary and count)
-* area
-* perimeter
-* Euclidean nearest neighbour distance
-* nearest neighbour index
-* angle of rotation
-* compactness and shape indices
-
-A table of metrics is available in the package `foot::fs_footprint_metrics`.
-Helper functions are also available to look up function names, groupings, and
-units. See `?get_fs_metrics`.
-
-
-## Basic usage
-The simplest usage of `foot` involves supplying a set of building footprints to
-the desired metric and summary function.
+The core functions of `foot` are provided by `calculate_footstats()`. The
+operations include: 1) calculating geometry measures for each footprint, 2)
+summarising one or more geometry measures of footprints within zones. The
+simplest usage involves supplying a set of building footprint polygons and the
+desired characteristics to calculate. All operations return the same format - a
+`data.table`, optionally with a column for the index and the named column for
+the summarised footprint metric(s).
 
 
 ```r
-# mean of all footprint areas
-built_area <- fs_area_mean(buildings)
-#> Warning in fs_area_mean_calc(X, index, unit): No index found, treating as one group.
+# the area and perimeter of each building footprint
+built_area <- calculate_footstats(buildings, what = list("area", "perimeter"))
+#> Selecting metrics 
+#> Setting control values. 
+#> Pre-calculating areas 
+#> Pre-calculating perimeters 
+#> No summary functions found, returning metrics.
 
-built_area
-#>    index fs_area_ha_mean
-#> 1:     1 0.02631865 [ha]
+head(built_area)
+#>               area    perimeter
+#> 1:  22.00824 [m^2] 19.26045 [m]
+#> 2: 220.39011 [m^2] 67.95023 [m]
+#> 3:  38.95750 [m^2] 25.37269 [m]
+#> 4: 386.74429 [m^2] 98.55654 [m]
+#> 5: 349.57765 [m^2] 82.22555 [m]
+#> 6: 164.00931 [m^2] 55.87172 [m]
+```
 
-# standard deviation of perimeters
-perim_sd <- fs_perim_sd(buildings)
-#> Warning in fs_perim_sd_calc(X, index, unit): No index found, treating as one group.
+To summarise the footprint characteristics over all building polygons, the name
+of a summary function, or a list of multiple functions can be supplied.
 
-perim_sd
-#>    index fs_perim__sd
-#> 1:     1     58.46233
 
-# median of areas
-area_med <- fs_area_median(buildings, unit = "m^2")
-#> Warning in fs_area_median_calc(X, index, unit): No index found, treating as one group.
-area_med
-#>    index fs_area_m^2_median
-#> 1:     1     118.3406 [m^2]
+```r
+# the average and standard deviation of all building areas
+calculate_footstats(buildings, what = "area", how = list("mean", "sd"))
+#> Selecting metrics 
+#> Setting control values. 
+#> Pre-calculating areas 
+#> 
+#> Calculating  2  metrics ... 
+#>    area mean  
+#>    area sd  
+#> Finished calculating metrics.
+#>    zoneID      area_mean area_sd
+#> 1:      1 263.1865 [m^2]  715.28
+```
+
+### Available metrics and summary measures
+
+Currently implemented are measures for:
+
+* building presence
+* area
+* perimeter
+* nearest neighbour distance
+* angle of rotation
+* compactness and shape
+
+A table of metrics and other packaged summary function names available for each
+is available using `list_fs()`. The results of this function provide "cols" and
+"funs" which can be passed as `what` and `how` arguments, respectively, to
+`calculate_footstats`.
+
+
+```r
+# get all available built-in functions for perimeter calculations
+argsList <- list_fs(what = "perimeter")
+
+calculate_footstats(buildings, what = argsList$cols, how = argsList$funs)
+#> Selecting metrics 
+#> Setting control values. 
+#> Pre-calculating perimeters 
+#> 
+#> Calculating  7  metrics ... 
+#>    perimeter cv  
+#>    perimeter max  
+#>    perimeter mean  
+#>    perimeter median  
+#>    perimeter min  
+#>    perimeter sd  
+#>    perimeter sum  
+#> Finished calculating metrics.
+#>    zoneID perimeter_cv perimeter_max perimeter_mean perimeter_median perimeter_min perimeter_sd perimeter_sum
+#> 1:      1    0.9396027  1089.097 [m]   62.22027 [m]     46.68314 [m]  14.88332 [m]     58.46233  301146.1 [m]
 ```
 
 With no other argument supplied, all the footprints are treated as coming from
-the same zone for the summary. Default unit values are used for geometry
-measurements, unless otherwise specified (see third example). All functions
-return the same format - a `data.table` with a column for the index and the
-named column for the summarised footprint metric.
+the same spatial zone for any summary function. A later section describes the
+process for identifying zones.
 
-There is also an option to supply pre-calculated column to each function with
-the `col=` argument. If a pre-calculated geometry value exists, that field can
-be used or, if it is absent, the appropriate geometries needed for the metric
-will be calculated.
+## Additional characteristics and geometry measures
 
-All functions follow the same parameter template, and, because the first
-argument is always data, all the functions allow for "piping" syntax.
-
-
-```r
-# random sample of buildings
-result <- buildings %>%
-          dplyr::filter(FID_1 %in% sample(FID_1, 1000)) %>%
-          fs_area_mean()
-#> Warning in fs_area_mean_calc(X, index, unit): No index found, treating as one group.
-
-# show the resulting table
-result
-#>    index fs_area_ha_mean
-#> 1:     1 0.02476811 [ha]
-```
-
-Most low-level geometry calculations rely on `sf` and `lwgeom` and users need to
-have recent versions of these packages installed.
+Whenever possible, `foot` makes use of generic functions within `R`. Most
+low-level geometry calculations rely on `sf` and `lwgeom` and users need to have
+recent versions of these packages installed. There are other stand-alone
+functions within `foot` to support more complex or less-common measurements.
 
 ### Nearest neighbour distances
-Distances can be calculated between footprints (represented as points or as
-polygons), between footprints and other objects, and/or within a maximum search
-distance.
+
+Distances can be calculated between footprints, or between footprints and other
+spatial objects. The distances can be measured edge-to-edge (`method="poly"`) or
+the centroids of the building footprints can be used (`method="centroid"`).
 
 
 ```r
 # nearest distance for the first 10 buildings to any other building measured
 # between polygon edges
 fs_nndist(buildings[1:10, ], buildings, maxSearch = 200, unit = "m")
-#> although coordinates are longitude/latitude, st_intersects assumes that they are planar
-#> Warning in st_centroid.sfc(sf::st_as_sfc(sf::st_bbox(X))): st_centroid does not give correct centroids for longitude/latitude data
-#> although coordinates are longitude/latitude, st_intersects assumes that they are planar
 #> Units: [m]
 #>  [1]  3.961359  7.894813  1.019971 22.306277  2.484471 16.257603  0.951225  1.864305  2.607113  2.291474
 
-# omitting 'Y' measures distance among the footprints supplied
-fs_nndist(buildings[1:10, ], maxSearch = NULL)  # unrestricted distance
-#> although coordinates are longitude/latitude, st_intersects assumes that they are planar
+# omitting argument 'Y' measures distance among the footprints supplied setting
+# maxSearch=NULL removes the search restriction
+fs_nndist(buildings[1:10, ], method = "centroid", maxSearch = NULL)
 #> Units: [m]
-#>  [1]  83.55586  83.55586  72.16085  72.16085  94.94137  94.94137 202.23022 209.11098 202.23022 417.35128
+#>  [1]  99.95859  99.95859  90.11091  90.11091 116.64498 116.64498 217.86037 228.63068 217.86037 438.91352
 ```
 
 Note that distance calculations are slower for polygons and for unprojected
-coordinate systems. It is recommended that a maximum search radius is always
-used. Internally the calculations are done with a `data.table` to benefit from
-multithreading capabilities.
+coordinate systems. The centroid-based calculations are fast. It is recommended
+that a maximum search radius is always used. Internally the calculations are
+done with a `data.table` to benefit from multi-threading capabilities.
 
 ### Rotation angles
+
 A less conventional geometric measure is derived from the rotated bounding
-rectangle. This is the rectangle enclosing a polygon (or set of points) which
-has been rotated to minimise the area. In contrast, a "bounding box" for a shape
-is always oriented along the x and y axes.
+rectangle. This is the rectangle enclosing a footprint polygon which has been
+rotated to minimise the area. In contrast, a "bounding box" for a polygon is
+always oriented along the x and y axes.
 
 
 ```r
 # To obtain the rotated rectangle as a spatial object
-mbr <- fs_mbr(buildings[5, ], returnShape = T)
+mbr <- fs_mbr(buildings[4502, ], returnShape = T)
 
-plot(sf::st_geometry(buildings[5, ]))
-plot(mbr, border = "red", add = T)
+plot(sf::st_geometry(buildings[4502, ]), col = "grey")
+plot(mbr, border = "red", lwd = 2, add = T)
 ```
 
-![plot of chunk unnamed-chunk-7](figure/unnamed-chunk-7-1.png)
+<img src="man/figures/REAsDME-unnamed-chunk-8-1.png" title="plot of chunk unnamed-chunk-8" alt="plot of chunk unnamed-chunk-8" width="100%" />
 
 ```r
 
-# Or obtain just the angle
-fs_mbr(buildings[5, ], returnShape = F)
+# Or obtain just the angle measure
+fs_mbr(buildings[4502, ], returnShape = F)
 #>        X 
-#> 358.8693
+#> 63.25363
 ```
 
 The angles can be summarised as an entropy measure and normalised to describe
-how much the angles of structures depart from a regular grid pattern (available
-in `fs_angle_entropy()`).
-
+how much the angles of a set of structures depart from a regular grid pattern 
+(available in `calculate_footstats` where `how="entropy"`). 
 
 ## Creating and supplying zone indices
-Rather than treating all features as a single summary zone, it's more common to
-want to summarise metrics within smaller areas. There are several ways to supply
-information on the zones.
+
+Rather than treating all footprints features as belonging to a single summary
+zone, it's more common to want to summarise metrics within smaller areas. There
+are several ways to supply information on the zones.
 
 ### Index by vector
-A vector of indices for a zone can be supplied to the functions as a column
-name, column number, or passed as a standalone vector object. The length of a
+
+A vector of indices for the zones can be supplied to `foot` functions as a 1)
+column name within the footprints, 2) a standalone numeric vector of indices, or
+3) a spatial polygons object to join to the building footprints. The length of a
 vector of indices must match the number of building polygons.
 
 
 ```r
 # create a vector of ten random zones
-id <- sample(1:10, nrow(buildings), replace = T)
-buildings$id <- id  # add it to the buildings object
+idx <- sample(1:10, nrow(buildings), replace = T)
+buildings$id <- idx  # add it to the buildings object
 table(buildings$id)  # splitting observations into 10 groups
 #> 
 #>   1   2   3   4   5   6   7   8   9  10 
-#> 470 499 499 502 517 464 465 459 493 472
+#> 509 467 462 448 487 493 485 450 501 538
 
-# pass the index by name
-fs_area_total(buildings, index = "id")  # note default units
-#>     index fs_area_ha_total
-#>  1:     1   15.398450 [ha]
-#>  2:     2   12.815166 [ha]
-#>  3:     3   10.577883 [ha]
-#>  4:     4   16.834218 [ha]
-#>  5:     5   12.632468 [ha]
-#>  6:     6    9.806395 [ha]
-#>  7:     7   12.938074 [ha]
-#>  8:     8   12.612959 [ha]
-#>  9:     9   11.044551 [ha]
-#> 10:    10   12.722124 [ha]
+# 1. pass the index by name
+colnames(buildings)
+#> [1] "FID_1"    "geometry" "id"
+calculate_footstats(buildings, "id", what = "area", how = "mean", verbose = FALSE)
+#>     id      area_mean
+#>  1:  1 275.0420 [m^2]
+#>  2:  2 257.8828 [m^2]
+#>  3:  3 315.0744 [m^2]
+#>  4:  4 264.5197 [m^2]
+#>  5:  5 249.9275 [m^2]
+#>  6:  6 259.0437 [m^2]
+#>  7:  7 283.8820 [m^2]
+#>  8:  8 245.0677 [m^2]
+#>  9:  9 269.5894 [m^2]
+#> 10: 10 217.2403 [m^2]
 
-# pass the index by column number
-fs_count(buildings, index = 3)
-#>     index fs_count
-#>  1:     1      470
-#>  2:     2      499
-#>  3:     3      499
-#>  4:     4      502
-#>  5:     5      517
-#>  6:     6      464
-#>  7:     7      465
-#>  8:     8      459
-#>  9:     9      493
-#> 10:    10      472
+# 2. pass the index as a standalone vector
+calculate_footstats(buildings, idx, what = "settled", how = "count", verbose = FALSE)
+#>     zoneID settled_count
+#>  1:      1           509
+#>  2:      2           467
+#>  3:      3           462
+#>  4:      4           448
+#>  5:      5           487
+#>  6:      6           493
+#>  7:      7           485
+#>  8:      8           450
+#>  9:      9           501
+#> 10:     10           538
 
-# pass a separate vector object
-print(fs_angle_entropy(buildings, index = id, normalize = T))
-#>     index fs_angle_entropy
-#>  1:     1       0.08379157
-#>  2:     2       0.06151392
-#>  3:     3       0.03357253
-#>  4:     4       0.05698299
-#>  5:     5       0.03795802
-#>  6:     6       0.07766643
-#>  7:     7       0.06703642
-#>  8:     8       0.08310194
-#>  9:     9       0.06913862
-#> 10:    10       0.05821359
+# 3. pass a separate spatial object of zones
+calculate_footstats(buildings, zone = adminzones, what = "angle", how = "entropy", 
+    verbose = FALSE)
+#>     zoneID angle_entropy
+#>  1:      1     0.9351095
+#>  2:      2     0.3108829
+#>  3:      3     0.5849276
+#>  4:      4     0.2003194
+#>  5:      5     0.6678707
+#>  6:      6     0.7139565
+#>  7:      7     0.9691374
+#>  8:      8     0.6102641
+#>  9:      9     0.5110688
+#> 10:     10     0.7309444
+#> 11:     11     0.3933987
+#> 12:     12     0.4602628
+#> 13:     13     1.0000000
+#> 14:     14     0.4656334
+#> 15:     15     0.3129308
+#> 16:     16     0.4551733
+#> 17:     17     0.3864071
+#> 18:     18     0.6949125
+#> 19:     19     0.2928137
+#> 20:     20     0.4598566
+#> 21:     21     0.6047045
+#> 22:     22     0.6520860
+#> 23:     23     0.2425743
+#> 24:     24     0.4518750
+#> 25:     25     0.8426361
+#> 26:     26     0.7302834
+#> 27:     27     0.4325040
+#> 28:     29     0.6144511
+#> 29:     30     0.4754793
+#> 30:     31     0.6023774
+#> 31:     32     0.4508777
+#> 32:     33     0.8639418
+#> 33:     34     0.1613791
+#>     zoneID angle_entropy
 ```
 
-### Index by shape
+### Index by zone shapes
+
 Rather than supplying a pre-calculated column or vector of zonal indices,
-buildings can be assigned a zone based on a spatial join. Creating an index from
-a spatial object returns a field called "zoneID" which other calculation
-functions in `foot` can use.
+buildings can be assigned a zone based on a spatial join. When the index is
+created in the building footprints, it will be named "zoneID" or a
+user-specified name. 
 
 
 ```r
-# Return a table of index values based on administrative zone polygons
-zID <- zonalIndex(buildings, adminzones, returnObject = F)
-zID  # the xID column are row numbers
-#>        xID zoneID
-#>    1:  145      1
-#>    2:  338      1
-#>    3:  655      1
-#>    4:  995      1
-#>    5: 2869      1
-#>   ---            
-#> 4846: 4829     34
-#> 4847: 4830     34
-#> 4848: 4831     34
-#> 4849: 4832     34
-#> 4850: 4833     34
+# examine the other objects loaded from supplied data
+head(adminzones)
+#> Simple feature collection with 6 features and 1 field
+#> geometry type:  POLYGON
+#> dimension:      XY
+#> bbox:           xmin: 32.60589 ymin: 0.3277355 xmax: 32.62531 ymax: 0.3388665
+#> geographic CRS: WGS 84
+#>   Id                       geometry
+#> 1  1 POLYGON ((32.61231 0.327771...
+#> 2  2 POLYGON ((32.61034 0.335317...
+#> 3  3 POLYGON ((32.61592 0.327757...
+#> 4  4 POLYGON ((32.6214 0.3277355...
+#> 5  5 POLYGON ((32.62342 0.333760...
+#> 6  6 POLYGON ((32.62498 0.335199...
+head(clusters)
+#> Simple feature collection with 6 features and 1 field
+#> geometry type:  POLYGON
+#> dimension:      XY
+#> bbox:           xmin: 32.60624 ymin: 0.3303863 xmax: 32.63375 ymax: 0.3472696
+#> geographic CRS: WGS 84
+#>   Id                       geometry
+#> 1  1 POLYGON ((32.6066 0.3398617...
+#> 2  2 POLYGON ((32.61151 0.337602...
+#> 3  3 POLYGON ((32.61028 0.331954...
+#> 4  4 POLYGON ((32.61649 0.344649...
+#> 5  5 POLYGON ((32.62552 0.345516...
+#> 6  6 POLYGON ((32.63225 0.340927...
 
-# Alternatively, join the zones to create and return a new spatial object A
-# custom zone name can be added but must be supplied to the summary functions
+# Return a table of index values based on administrative zone polygons using the
+# standalone function within `foot`
+zID <- zonalIndex(buildings, adminzones, returnObject = F)
+head(zID, 10)  # the xID column are row numbers to object X
+#>      xID zoneID
+#>  1:  145      1
+#>  2:  338      1
+#>  3:  655      1
+#>  4:  995      1
+#>  5: 2869      1
+#>  6: 3164      1
+#>  7: 3263      1
+#>  8: 3314      1
+#>  9: 3407      1
+#> 10: 3454      1
+
+# Alternatively (and preferably), join zones to create a new footprint object A
+# custom zone name can be used but must be specificed to the summary functions
 zObj <- zonalIndex(buildings, clusters, zoneField = "Id", returnObject = T)
 zObj
-#> Simple feature collection with 350 features and 3 fields
+#> Simple feature collection with 348 features and 3 fields
 #> geometry type:  POLYGON
 #> dimension:      XY
 #> bbox:           xmin: 32.60631 ymin: 0.328119 xmax: 32.63543 ymax: 0.349785
 #> geographic CRS: WGS 84
 #> First 10 features:
 #>    FID_1 id Id                       geometry
-#> 1   6293  6  1 POLYGON ((32.60744 0.338575...
-#> 2  17706  5  1 POLYGON ((32.60664 0.339347...
-#> 3  29106  3  1 POLYGON ((32.60719 0.339276...
-#> 4  53393  1  1 POLYGON ((32.60779 0.339691...
-#> 5  57187  9  1 POLYGON ((32.60826 0.338663...
-#> 6  59496  4  1 POLYGON ((32.60692 0.339387...
-#> 7  68588  2  1 POLYGON ((32.60791 0.338896...
+#> 1   6293  4  1 POLYGON ((32.60744 0.338575...
+#> 2  17706  8  1 POLYGON ((32.60664 0.339347...
+#> 3  29106  8  1 POLYGON ((32.60719 0.339276...
+#> 4  53393  9  1 POLYGON ((32.60779 0.339691...
+#> 5  57187 10  1 POLYGON ((32.60826 0.338663...
+#> 6  59496 10  1 POLYGON ((32.60692 0.339387...
+#> 7  68588  9  1 POLYGON ((32.60791 0.338896...
 #> 8  68590  1  1 POLYGON ((32.60768 0.339633...
 #> 9  72387  3  1 POLYGON ((32.60777 0.338962...
-#> 10 78504  3  1 POLYGON ((32.60702 0.338636...
+#> 10 78504  8  1 POLYGON ((32.60702 0.338636...
 ```
 
 When using a new spatial object which has been joined to its zones, remember to
-supply the name of the zone field if a custom name was used.
+supply the name of the zone field to `calculate_foostats`.
+
 
 ```r
-# use the new object
-zarea <- fs_area_mean(zObj, index = "Id")
-clusters <- merge(clusters, zarea, by.x = "Id", by.y = "index")
-plot(clusters["fs_area_ha_mean"])
+# use the new object and zone field 'Id' in a summary calculation
+colnames(zObj)
+#> [1] "FID_1"    "id"       "Id"       "geometry"
+
+zarea <- calculate_footstats(zObj, zone = "Id", what = "area", how = "mean", verbose = F)
+clusters <- merge(clusters, zarea, by = "Id")
+plot(sf::st_geometry(adminzones))
+plot(clusters["area_mean"], add = T)
 ```
 
-![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10-1.png)
+<img src="man/figures/REAsDME-unnamed-chunk-11-1.png" title="plot of chunk unnamed-chunk-11" alt="plot of chunk unnamed-chunk-11" width="100%" />
 
 The `zonalIndex` function works by spatial intersection. This produces some
-(potentially useful) side effects that users need to be aware of.
+(potentially useful) side effects that users need to be aware of. Specifically,
+note that if a building footprint intersects more than 1 zone it will be
+duplicated and associated to all intersecting zones.
 
-The default behaviour is for any intersecting structure to included in the zone.
+The default behaviour (see `method`) is to assign a building to a zone based on
+its **centroid**.
 
 ```r
 # Note the selected structures extend beyond the cluster boundary
 plot(sf::st_geometry(clusters)[[6]])
 plot(sf::st_geometry(buildings), add = T)
 plot(sf::st_geometry(zObj[zObj$Id == 6, ]), col = "red", add = T)
+plot(sf::st_geometry(sf::st_centroid(zObj[zObj$Id == 6, ])), pch = 16, add = T)
 ```
 
-![plot of chunk unnamed-chunk-11](figure/unnamed-chunk-11-1.png)
+<img src="man/figures/REAsDME-unnamed-chunk-12-1.png" title="plot of chunk unnamed-chunk-12" alt="plot of chunk unnamed-chunk-12" width="100%" />
 
-Alternatively, the intersection can return a clipped set of buildings.
+Alternatively, an intersection can be used to assign footprints to any zones
+which are intersected. The whole footprint is associated, even if the shape is
+not "contained" by the zone. 
 
 ```r
-zClip <- zonalIndex(buildings, clusters, zoneField = "Id", clip = T)
+# Note the selected structures extend beyond the cluster boundary
+zInt <- zonalIndex(buildings, clusters, zoneField = "Id", method = "intersect")
+
+plot(sf::st_geometry(clusters)[[6]])
+plot(sf::st_geometry(buildings), add = T)
+plot(sf::st_geometry(zInt[zInt$Id == 6, ]), col = "red", add = T)
+```
+
+<img src="man/figures/REAsDME-unnamed-chunk-13-1.png" title="plot of chunk unnamed-chunk-13" alt="plot of chunk unnamed-chunk-13" width="100%" />
+
+Finally, the intersection can return a clipped set of buildings.
+
+```r
+zClip <- zonalIndex(buildings, clusters, zoneField = "Id", method = "clip")
 
 plot(sf::st_geometry(clusters)[[6]])
 plot(sf::st_geometry(buildings), add = T)
 plot(sf::st_geometry(zClip[zClip$Id == 6, ]), col = "red", add = T)
 ```
 
-![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-12-1.png)
+<img src="man/figures/REAsDME-unnamed-chunk-14-1.png" title="plot of chunk unnamed-chunk-14" alt="plot of chunk unnamed-chunk-14" width="100%" />
 
-This option clips the footprints via intersection, potentially leaving small
-slivers of structures in the zone which will affect the feature statistics.
+This third option clips the footprints via intersection, potentially leaving
+small slivers of structures in the zone which will affect the feature
+statistics.
 
-An additional side effect of the intersection is that overlapping zones are
-allowed and this duplicates and associates the footprints into both zones.
+An additional side effect of the intersection operation is that overlapping
+zones are allowed, and this can duplicate and associate footprints into both
+(overlapping) zones.
 
 
 ```r
@@ -384,7 +472,7 @@ newClusters <- st_sfc(sf::st_geometry(clusters)[[1]], sf::st_cast(sf::st_geometr
 
 newClusters <- st_sf(geometry = newClusters, crs = sf::st_crs(clusters))
 
-newObj <- zonalIndex(buildings, newClusters, clip = T)
+newObj <- zonalIndex(buildings, newClusters, method = "clip")
 
 # areas of overlap are in a purple hue
 plot(sf::st_geometry(newClusters))
@@ -394,238 +482,162 @@ plot(sf::st_geometry(newObj[newObj$zoneID == 2, ]), col = sf::sf.colors(n = 1, a
 plot(sf::st_geometry(buildings), add = T)
 ```
 
-![plot of chunk unnamed-chunk-13](figure/unnamed-chunk-13-1.png)
+<img src="man/figures/REAsDME-unnamed-chunk-15-1.png" title="plot of chunk unnamed-chunk-15" alt="plot of chunk unnamed-chunk-15" width="100%" />
 
 These side effects are allowed because they allow for flexibility to support
 types of "focal" summaries of statistics and to produce a true gridded measure
 of footprint metrics.
 
-
 ## Calculating multiple metrics
+
 The `calculate_footstats()` function provides a convenient wrapper to the
-individual footprint statistic functions and other helper functions. The
-function accepts a variety of input formats (see `?calculate_footstats`).
-Multiple metrics can be calculated for the same sets of buildings and zones.
+individual footprint statistics and as well to `zonalIndex`. The function
+accepts a variety of input formats (see `?calculate_footstats`). Multiple
+metrics can be calculated for the same sets of buildings and zones.
 
 
 ```r
-# Creates zonal index and calculates multiple metrics
+# Creates a zonal index and calculates multiple metrics
+# Use the intersection method define zones
 results <- calculate_footstats(buildings, 
-                               adminzones, 
-                               metrics=c("fs_area_mean","fs_area_cv"), 
-                               gridded=F)
-#> although coordinates are longitude/latitude, st_intersects assumes that they are planar
-  print(results)  
-#>     index  fs_area_ha_mean fs_area_cv
-#>  1:     1 0.040259838 [ha]  1.2479809
-#>  2:     2 0.021105341 [ha]  1.1069491
-#>  3:     3 0.052507469 [ha]  1.9194754
-#>  4:     4 0.055509314 [ha]  3.8206699
-#>  5:     5 0.056871544 [ha]  1.7000587
-#>  6:     6 0.102195294 [ha]  2.0652377
-#>  7:     7 0.202770402 [ha]  1.4077033
-#>  8:     8 0.090824803 [ha]  1.4225521
-#>  9:     9 0.018168220 [ha]  1.6104922
-#> 10:    10 0.025199721 [ha]  1.5272718
-#> 11:    11 0.022011253 [ha]  1.4300230
-#> 12:    12 0.008783690 [ha]  1.2659928
-#> 13:    13 0.066161890 [ha]  1.7191007
-#> 14:    14 0.008185444 [ha]  0.3447115
-#> 15:    15 0.008078532 [ha]  1.0115881
-#> 16:    16 0.006875161 [ha]  0.5102143
-#> 17:    17 0.013917524 [ha]  0.8678702
-#> 18:    18 0.008723691 [ha]  1.5248900
-#> 19:    19 0.023707627 [ha]  0.6189696
-#> 20:    20 0.019939362 [ha]  0.9103598
-#> 21:    21 0.024409906 [ha]  2.4147823
-#> 22:    22 0.019239558 [ha]  0.3464272
-#> 23:    23 0.077600000 [ha]  2.1447695
-#> 24:    24 0.021927229 [ha]  0.7972001
-#> 25:    25 0.050622155 [ha]  1.3228666
-#> 26:    26 0.112964270 [ha]  1.7076343
-#> 27:    27 0.022800865 [ha]  2.2623265
-#> 28:    29 0.023876025 [ha]  2.7887959
-#> 29:    30 0.020368136 [ha]  0.8303153
-#> 30:    31 0.014213649 [ha]         NA
-#> 31:    32 0.027276984 [ha]  1.0894764
-#> 32:    33 0.041866391 [ha]  0.9787568
-#> 33:    34 0.017681732 [ha]  1.3707628
-#>     index  fs_area_ha_mean fs_area_cv
+                               zone=adminzones, 
+                               what="area",
+                               how=list("mean","cv"),
+                               controlZone=list(method="intersect"),
+                               verbose=F
+                              )
+  results
+#>     zoneID        area_mean   area_cv
+#>  1:      1  402.59838 [m^2] 1.2479809
+#>  2:      2  211.05341 [m^2] 1.1069491
+#>  3:      3  525.07469 [m^2] 1.9194754
+#>  4:      4  555.09314 [m^2] 3.8206699
+#>  5:      5  568.71544 [m^2] 1.7000587
+#>  6:      6 1021.95294 [m^2] 2.0652377
+#>  7:      7 2027.70402 [m^2] 1.4077033
+#>  8:      8  908.24803 [m^2] 1.4225521
+#>  9:      9  181.68220 [m^2] 1.6104922
+#> 10:     10  251.99721 [m^2] 1.5272718
+#> 11:     11  220.11253 [m^2] 1.4300230
+#> 12:     12   87.83690 [m^2] 1.2659928
+#> 13:     13  661.61890 [m^2] 1.7191007
+#> 14:     14   81.85444 [m^2] 0.3447115
+#> 15:     15   80.78532 [m^2] 1.0115881
+#> 16:     16   68.75161 [m^2] 0.5102143
+#> 17:     17  139.17524 [m^2] 0.8678702
+#> 18:     18   87.23691 [m^2] 1.5248900
+#> 19:     19  237.07627 [m^2] 0.6189696
+#> 20:     20  199.39362 [m^2] 0.9103598
+#> 21:     21  244.09906 [m^2] 2.4147823
+#> 22:     22  192.39558 [m^2] 0.3464272
+#> 23:     23  776.00000 [m^2] 2.1447695
+#> 24:     24  219.27229 [m^2] 0.7972001
+#> 25:     25  506.22155 [m^2] 1.3228666
+#> 26:     26 1129.64270 [m^2] 1.7076343
+#> 27:     27  228.00865 [m^2] 2.2623265
+#> 28:     29  238.76025 [m^2] 2.7887959
+#> 29:     30  203.68136 [m^2] 0.8303153
+#> 30:     31  142.13649 [m^2]        NA
+#> 31:     32  272.76984 [m^2] 1.0894764
+#> 32:     33  418.66391 [m^2] 0.9787568
+#> 33:     34  176.81732 [m^2] 1.3707628
+#>     zoneID        area_mean   area_cv
 ```
 
-Note that this function uses the default arguments and units for creating zones
-and calculating metrics. For the requested metrics the standard deviation is
-required for the CV calculation. This is dependency is added and handled
-internally by `calculate_footstats`. Also note that one zone has only one
-structure in it, so NA values are returned for the CV.
+Multiple metrics can be applied to specific groups of characteristics by
+providing nested lists of metrics and summary functions. The argument `what`
+will accept a string or a list of strings for specific metric names. Users may
+also supply `"all"` or `"nodist"` to calculate all available metrics or all bar
+the nearest neighbour distance-related ones, respectively. Excluding the
+distance-related metrics can speed up the calculations due to the long-running.
+Other performance improvements can be to set
+`controlDistance=list("method"="centroid")`, which uses centroid-to-centroid
+nearest neighbour distances rather than polygon edge-to-edge. See also,
+`?fs_nndist`.
 
-The argument `metrics` will accept a string or a vector of strings for specific
-metric names. Users may also supply `"ALL"` or `"NODIST"` to calculate all
-available metrics or all bar the nearest neighbour distance-related ones,
-respectively.
-
-
-## Gridded outputs 
-Often the desired output is a gridded dataset of a measure, rather than
-summarising metrics to polygon zones. A gridded dataset can be achieved with the
-`foot` functions in several ways.
-
-(@) The simplest method is to attach buildings (and summary measures) to grid
-cells by their centroid point location. A fast approach is to use cell numbers
-as a zonal index.
 
 ```r
-mgrid <- kampala$mastergrid # ~100m raster layer
-
-# get the cell numbers from the grid
-cellIDs <- raster::cellFromXY(mgrid, 
-                              sf::st_coordinates(sf::st_centroid(buildings)))
-#> Warning in st_centroid.sf(buildings): st_centroid assumes attributes are constant over geometries of x
-#> Warning in st_centroid.sfc(st_geometry(x), of_largest_polygon = of_largest_polygon): st_centroid does not give correct centroids for longitude/latitude data
-# use these numbers as the zone
-gridRes <- calculate_footstats(buildings, 
-                               index=cellIDs, 
-                               metrics=c("fs_perim_total",
-                                         "fs_area_total",
-                                         "fs_count",
-                                         "fs_settled"),
-                               gridded=F)
-# buildings lacking a grid cell are NA
-gridRes <- na.omit(gridRes)
-  gridRes
-#>      index fs_settled fs_count fs_area_ha_total fs_perim__total
-#>   1:     1          1        1 0.030170228 [ha]    79.27521 [m]
-#>   2:     2          1        4 0.112942319 [ha]   275.12308 [m]
-#>   3:     3          1        5 0.138862915 [ha]   356.61070 [m]
-#>   4:     4          1        6 0.128857046 [ha]   351.05542 [m]
-#>   5:     5          1        3 0.069463158 [ha]   209.95544 [m]
-#>  ---                                                           
-#> 781:   892          1        4 0.090691170 [ha]   247.10057 [m]
-#> 782:   893          1        2 0.191112517 [ha]   317.01344 [m]
-#> 783:   897          1        6 0.059662965 [ha]   236.90637 [m]
-#> 784:   898          1        4 0.042424995 [ha]   166.82738 [m]
-#> 785:   900          1        1 0.008472198 [ha]    38.63609 [m]
-  
-# create a blank raster and fill with summary measures
-outSettled <- mgrid
-outSettled[] <- NA
-# `$index` are the cell numbers from the raster 
-outSettled[gridRes$index] <- gridRes$fs_area_ha_total
-
-outCount <- mgrid
-outCount[] <- NA
-outCount[gridRes$index] <- gridRes$fs_count
-
-raster::plot(outCount)
-plot(sf::st_geometry(buildings), add=T)
+# Use nested lists to group characteristics and summary functions
+results <- calculate_footstats(buildings, 
+                               zone=adminzones, 
+                               what=list(list("area","perimeter"), 
+                                         list("settled")),
+                               how=list(list("sum","cv"), 
+                                        list("count")),
+                               controlZone=list(method="centroid"),
+                               verbose=F
+                              )
+  results
+#>     zoneID          area_sum   perimeter_sum   area_cv perimeter_cv settled_count
+#>  1:      1   8454.5661 [m^2]  1781.62245 [m] 1.2479809    0.6561304            21
+#>  2:      2  29758.5314 [m^2]  8596.30974 [m] 1.1069491    0.7313348           141
+#>  3:      3  25728.6600 [m^2]  4414.86934 [m] 1.9194754    0.9811076            49
+#>  4:      4  63835.7113 [m^2]  9640.94681 [m] 3.8206699    1.0600954           115
+#>  5:      5  26729.6259 [m^2]  4329.10334 [m] 1.7000587    0.9581201            47
+#>  6:      6  35768.3531 [m^2]  3835.74843 [m] 2.0652377    0.9616081            35
+#>  7:      7  28387.8563 [m^2]  2565.09927 [m] 1.4077033    0.9286094            14
+#>  8:      8  44504.1537 [m^2]  6348.37632 [m] 1.4225521    0.8489816            49
+#>  9:      9  48145.7825 [m^2] 15739.78807 [m] 1.6104922    0.9246860           265
+#> 10:     10   7559.9164 [m^2]  2087.88260 [m] 1.5272718    1.0900293            30
+#> 11:     11  24212.3780 [m^2]  7672.66021 [m] 1.4300230    0.8815988           110
+#> 12:     12   3109.8042 [m^2]  1403.25960 [m] 1.3014215    0.7257624            36
+#> 13:     13   2646.4756 [m^2]   423.87801 [m] 1.7191007    1.3165558             4
+#> 14:     14   6712.0641 [m^2]  3088.40482 [m] 0.3447115    0.2059276            82
+#> 15:     15  19226.9062 [m^2]  8676.96497 [m] 1.0115881    0.5073846           238
+#> 16:     16   9900.2318 [m^2]  4968.39946 [m] 0.5102143    0.3095971           144
+#> 17:     17  14752.5754 [m^2]  5213.18182 [m] 0.8678702    0.5541695           106
+#> 18:     18  36895.4355 [m^2] 15742.13708 [m] 1.5308486    0.7093738           424
+#> 19:     19  96490.0399 [m^2] 26354.10548 [m] 0.6189696    0.4151437           407
+#> 20:     20  80355.6287 [m^2] 23566.14546 [m] 0.9103598    0.5257108           403
+#> 21:     21  18063.3304 [m^2]  4403.44976 [m] 2.4147823    0.7810948            74
+#> 22:     22  10196.9657 [m^2]  3061.47987 [m] 0.3464272    0.2238327            53
+#> 23:     23 132673.0618 [m^2] 17464.78357 [m] 2.1625263    1.1205392           172
+#> 24:     24  61834.7854 [m^2] 17707.47705 [m] 0.7972001    0.5317242           282
+#> 25:     25  11643.0956 [m^2]  2163.70761 [m] 1.3228666    0.8940386            23
+#> 26:     26 150208.7190 [m^2] 17604.40321 [m] 1.6814458    1.0767096           129
+#> 27:     27  33816.8355 [m^2] 10017.95165 [m] 0.7963207    0.4462858           177
+#> 28:     29  37007.8380 [m^2]  9185.83050 [m] 2.7887959    1.0713172           155
+#> 29:     30  15276.1021 [m^2]  4621.61764 [m] 0.8303153    0.5426390            75
+#> 30:     31    142.1365 [m^2]    48.13661 [m]        NA           NA             1
+#> 31:     32  35732.8487 [m^2]  9127.30909 [m] 1.0894764    0.6469339           131
+#> 32:     33   7117.2864 [m^2]  1557.24261 [m] 0.9787568    0.6104610            17
+#> 33:     34 146935.1905 [m^2] 47733.83601 [m] 1.3707628    0.7474269           831
+#>     zoneID          area_sum   perimeter_sum   area_cv perimeter_cv settled_count
 ```
 
-![plot of chunk unnamed-chunk-15](figure/unnamed-chunk-15-1.png)
+### Filtering buildings
 
-(@) Pixel-level calculation. While centroid-based calculations are fast,
-sometimes it may be necessary to know the true amount of settlement *per pixel*.
-The zonal index functions can be used to intersect buildings to grid squares,
-and then supply those "pixels" as zones to the feature calculations as shown.
+In some settings it may be preferable to exclude very small and/or very large
+building footprint polygons. The lower and upper bounds for filtering can be
+specified with `minArea` and `maxArea` in the `filter` argument. The values for
+these filters are in the same units specified by `controlUnits` or the default
+value for area calculations. Note that an "area" footprint statistic does not
+need to be requested as this characteristic is automatically calculated to
+enable filtering.
+
 
 ```r
-# convert the grid to a `stars` object and then `sf` to get polygons
-sgrid <- stars::st_as_stars(mgrid)
-sgrid <- sf::st_as_sf(sgrid)
-
-# add a cell number ID to the grid polygons
-sgrid$cellIDs <- raster::cellFromXY(mgrid, sf::st_coordinates(sf::st_centroid(sgrid)))
-
-# create a zonal index on the building objects
-pxZone <- zonalIndex(buildings, 
-                     sgrid, 
-                     "cellIDs", 
-                     returnObject=T, 
-                     clip=T)
-
-pxResult <- calculate_footstats(pxZone, 
-                                index="cellIDs",
-                                metrics=c("fs_area_total", "fs_settled"))
-  print(pxResult)
-#>      index fs_settled  fs_area_ha_total
-#>   1:     1          1 2.676570e-02 [ha]
-#>   2:     2          1 1.086126e-01 [ha]
-#>   3:     3          1 1.509693e-01 [ha]
-#>   4:     4          1 1.539263e-01 [ha]
-#>   5:     5          1 6.933793e-02 [ha]
-#>  ---                                   
-#> 835:   894          1 4.767962e-05 [ha]
-#> 836:   897          1 6.184597e-02 [ha]
-#> 837:   898          1 3.986828e-02 [ha]
-#> 838:   899          1 1.304506e-03 [ha]
-#> 839:   900          1 6.687084e-03 [ha]
+# Filtering: # footprints must be larger than 50 m^2 and smaller than 1000 m^2
+calculate_footstats(buildings,
+                    what="perimeter",
+                    how=list("mean", "sum"),
+                    controlUnits=list(areaUnit="m^2"),
+                    filter=list(minArea=50, maxArea=1000),
+                    verbose=FALSE)  
+#>    zoneID perimeter_mean perimeter_sum
+#> 1:      1   63.16899 [m]  228482.2 [m]
 ```
 
-As before, the metrics are linked to the grid by their cell numbers. The results
-can also be merged to the `stars` or `sf` representation of the grid and quickly
-rasterized based on geometry. The difference between using centroids or pixels
-is most visible with large structures.
+## Next steps
 
-```r
-# create output
-pxSettled <- mgrid
-pxSettled[] <- NA
-pxSettled[pxResult$index] <- pxResult$fs_area_ha_total
-
-# compare centroid and pixel settled maps
-par(mfrow = c(1, 2))
-raster::plot(outSettled, zlim = c(0, 1), xlim = c(32.623, 32.626), ylim = c(0.338, 
-    0.342))
-plot(sf::st_geometry(buildings), add = T)
-raster::plot(pxSettled, zlim = c(0, 1), xlim = c(32.623, 32.626), ylim = c(0.338, 
-    0.342))
-plot(sf::st_geometry(buildings), add = T)
-```
-
-![Centroid-based (left) and a pixel-based (right) map of total building area](figure/unnamed-chunk-17-1.png)
-
-(@) Write gridded data to GeoTiff files. Using `calculate_footstats` a template
-raster and an output location can be specified. The template can be a `raster`
-or `stars` object. Each metric will be written to a separate grid. This approach
-builds on using an `sf` object to define the summary zone directly in the call
-to the wrapper function.
-
-```r
-outputPath <- tempdir()
-
-# re-using the sf pixels as "zones"
-calculate_footstats(buildings, 
-                    index=sgrid, 
-                    metrics=c("fs_area_mean", "fs_settled"),
-                    gridded=TRUE, 
-                    template=mgrid,  # using a rasterlayer
-                    outputPath=outputPath # or a temp directory is created
-                   )
-#> although coordinates are longitude/latitude, st_intersects assumes that they are planar
-#> Warning in dir.create(outputPath): '/tmp/RtmprZs5pk' already exists
-#>      index fs_settled  fs_area_ha_mean
-#>   1:     1          1 0.030170228 [ha]
-#>   2:     2          1 0.027039204 [ha]
-#>   3:     3          1 0.024465687 [ha]
-#>   4:     4          1 0.026389713 [ha]
-#>   5:     5          1 0.023045401 [ha]
-#>  ---                                  
-#> 835:   894          1 0.146420223 [ha]
-#> 836:   897          1 0.011029982 [ha]
-#> 837:   898          1 0.011290191 [ha]
-#> 838:   899          1 0.010422231 [ha]
-#> 839:   900          1 0.008472198 [ha]
-
-# get the output
-raster::plot(raster::raster(paste0(outputPath, "/fs_area_ha_mean.tif")))
-plot(st_geometry(buildings), add=T)
-```
-
-![plot of chunk unnamed-chunk-18](figure/unnamed-chunk-18-1.png)
-
-The above approaches work fine for small study areas, but may be too slow over
-large areas and with many footprint features. Producing country-scale gridded
-datasets with tools from `foot` is addressed in the second vignette ("bigfoot").
-
+The `calculate_footstats` function provides the core functionality for
+calculating and summarising the characteristics of building footprints. It also
+wraps the functionality of assigning footprints to zones based on different
+spatial joining techniques. To go further with `foot` the concept of footprint
+morphology calculations can be extended to created gridded data. See
+`vignette("bigfoot", package="foot")`. Additionally, users can specify their own
+custom summary functions to be used with `calculate_footstats`. This and other
+advanced options are covered in `vignette("cobbler", package="foot")`.
 
 ***
 
@@ -647,16 +659,17 @@ sessionInfo()
 #> [1] stats     graphics  grDevices utils     datasets  methods   base     
 #> 
 #> other attached packages:
-#> [1] sf_0.9-2   foot_0.4.1 knitr_1.28
+#> [1] stars_0.4-1  abind_1.4-5  foot_0.5     knitr_1.28   sf_0.9-2     raster_3.1-5 sp_1.4-1    
 #> 
 #> loaded via a namespace (and not attached):
-#>  [1] Rcpp_1.0.4.6       lattice_0.20-40    prettyunits_1.1.1  class_7.3-16       ps_1.3.2           foreach_1.4.8      assertthat_0.2.1   rprojroot_1.3-2    digest_0.6.25      R6_2.4.1          
-#> [11] backports_1.1.5    evaluate_0.14      e1071_1.7-3        highr_0.8          pillar_1.4.3       rlang_0.4.5        rstudioapi_0.11    data.table_1.12.8  callr_3.4.3        raster_3.1-5      
-#> [21] rmarkdown_2.1      pkgdown_1.6.1      desc_1.2.0         devtools_2.3.0     rgdal_1.4-8        stringr_1.4.0      compiler_3.6.3     xfun_0.12          pkgconfig_2.0.3    pkgbuild_1.0.6    
-#> [31] rgeos_0.5-2        htmltools_0.4.0    mmap_0.6-19        tidyselect_1.0.0   tibble_3.0.1       codetools_0.2-16   fansi_0.4.1        crayon_1.3.4       dplyr_0.8.5        withr_2.1.2       
-#> [41] grid_3.6.3         lwgeom_0.2-3       lifecycle_0.2.0    DBI_1.1.0          git2r_0.26.1       magrittr_1.5       formatR_1.7        units_0.6-6        KernSmooth_2.23-16 cli_2.0.2         
-#> [51] stringi_1.4.6      fs_1.3.1           remotes_2.1.1      doParallel_1.0.15  sp_1.4-1           testthat_2.3.2     filelock_1.0.2     ellipsis_0.3.0     vctrs_0.2.4        rematch2_2.1.1    
-#> [61] iterators_1.0.12   tools_3.6.3        glue_1.4.0         purrr_0.3.3        processx_3.4.2     abind_1.4-5        pkgload_1.0.2      parallel_3.6.3     yaml_2.2.1         sessioninfo_1.1.1 
-#> [71] stars_0.4-1        classInt_0.4-3     memoise_1.1.0      usethis_1.6.1
+#>  [1] pkgload_1.0.2      foreach_1.4.8      StanHeaders_2.19.2 assertthat_0.2.1   highr_0.8          stats4_3.6.3       yaml_2.2.1         remotes_2.1.1      sessioninfo_1.1.1  pillar_1.4.3      
+#> [11] backports_1.1.5    lattice_0.20-40    glue_1.4.0         digest_0.6.25      colorspace_1.4-1   htmltools_0.4.0    pkgconfig_2.0.3    devtools_2.3.0     rstan_2.19.3       purrr_0.3.3       
+#> [21] scales_1.1.0       processx_3.4.2     whisker_0.4        downlit_0.2.0      tibble_3.0.1       ggplot2_3.3.0      usethis_1.6.1      ellipsis_0.3.0     withr_2.1.2        cli_2.0.2         
+#> [31] magrittr_1.5       crayon_1.3.4       memoise_1.1.0      evaluate_0.14      ps_1.3.2           fs_1.3.1           fansi_0.4.1        doParallel_1.0.15  xml2_1.3.1         lwgeom_0.2-3      
+#> [41] class_7.3-16       pkgbuild_1.0.6     loo_2.2.0          tools_3.6.3        data.table_1.12.8  prettyunits_1.1.1  matrixStats_0.56.0 formatR_1.7        lifecycle_0.2.0    stringr_1.4.0     
+#> [51] munsell_0.5.0      callr_3.4.3        packrat_0.5.0      compiler_3.6.3     pkgdown_1.6.1      e1071_1.7-3        rlang_0.4.5        classInt_0.4-3     units_0.6-6        grid_3.6.3        
+#> [61] iterators_1.0.12   rstudioapi_0.11    rmarkdown_2.1      testthat_2.3.2     gtable_0.3.0       codetools_0.2-16   inline_0.3.15      DBI_1.1.0          rematch2_2.1.1     R6_2.4.1          
+#> [71] gridExtra_2.3      dplyr_0.8.5        rgdal_1.4-8        filelock_1.0.2     rprojroot_1.3-2    KernSmooth_2.23-16 desc_1.2.0         stringi_1.4.6      parallel_3.6.3     Rcpp_1.0.4.6      
+#> [81] vctrs_0.2.4        tidyselect_1.0.0   xfun_0.12
 ```
 

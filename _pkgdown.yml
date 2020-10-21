@@ -1,0 +1,55 @@
+reference:
+  - title: Workflow wrapper functions
+    desc: ~
+    contents:
+      - '`calculate_footstats`'
+      - '`calculate_bigfoot`'
+  - title: Built-in morphology metrics
+    desc: ~
+    contents:
+      - '`fs_area`'
+      - '`fs_count`'
+      - '`fs_mbc`'
+      - '`fs_mbr`'
+      - '`fs_nndist`'
+      - '`fs_perimeter`'
+      - '`fs_compact`'
+      - '`fs_shape`'
+  - title: Built-in summary functions
+    desc: ~
+    contents:
+      - '`fs_angle_entropy`'
+      - '`binary`'
+      - '`count`'
+      - '`cv`'
+      - '`entropy`'
+      - '`majority`'
+      - '`fs_nnindex`'
+  - title: Utility functions
+    desc: ~
+    contents:
+      - '`list_fs`'
+      - '`fs_varlist`'
+      - '`gridTiles`'
+      - '`zonalIndex`'
+      - '`gen_nnindex`'
+  - title: Package files
+    desc: ~
+    contents:
+      - '`foot`'
+      - '`kampala`'
+navbar:
+  type: inverse
+  left:
+    - icon: fa-home
+      href: index.html
+    - text: "Reference"
+      href: reference/index.html
+    - text: "Articles"
+      menu:
+      -  text: 'footsteps: Getting started'
+         href: articles/footsteps.html
+      -  text: 'bigfoot: Gridded footprint calculations'
+         href: articles/bigfoot.html
+      -  text: 'cobbler: Using custom summary functions'
+         href: articles/cobbler.html

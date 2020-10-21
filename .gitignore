@@ -5,7 +5,7 @@ wd/.Rhistory
 inst/doc
 doc
 Meta
-docs
 README.md.old
 README.Rmd
 .Rproj.user
+pkg_build.R

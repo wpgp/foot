@@ -1,6 +1,6 @@
 ---
 title: "Gridded footprint calculation layers"
-date: 'October 01, 2020'
+date: 'October 21, 2020'
 description: >
   Building footprints or polygons representing the outline shape of structures
   can provide a unique data source for studying urban areas at high spatial
@@ -19,10 +19,12 @@ vignette: >
 The `foot` package was developed by WorldPop at the University of Southampton
 ([www.worldpop.org](https://www.worldpop.org)) to support geometric calculations
 and zonal summaries of measures from building footprint polygons. The
-`vignette(footsteps)` provides an introduction to package and the functionality
-of calculating and summarising morphology measures. This vignette builds on
-those methods and demonstrates a more advanced workflow to produce gridded
-summaries of buildings measures and how to handle large data sets.
+`vignette("footsteps", package="foot")` provides an introduction to package and 
+the functionality of calculating and summarising morphology measures. This 
+vignette builds on those methods and demonstrates a more advanced workflow to 
+produce gridded summaries of buildings measures. In particular, the focus is on 
+using `foot::calculate_bigfoot()` in order how to handle very large (i.e. 
+national-scale) datasets of building footprints.
 
 This vignette use a portion of Ordnance Survey's OS OpenMap Local data of
 building footprint polygons. The polygons cover the area of Southampton. These
@@ -37,6 +39,7 @@ library(foot)
 ```
 
 ## Calculations with `foot`
+
 The central function for producing gridded layers is `calculate_bigfoot`. It is
 designed to support processing large sets of building polygons into gridded
 (GeoTiff) summary layers. The procedure is intended to be more memory-efficient
@@ -44,24 +47,29 @@ by splitting the processing area into "tiles" which can then be handled
 individually or in parallel. This function works as a wrapper to
 `calculate_footstats` as well as several helper functions within the `foot`
 package for managing the input/output and creating and indexing spatial zones.
+Because it extends `calculate_footstats`, this function takes the same `what=`
+and `how=` arguments to define the summary operations. Likewise the available
+metrics are available from `list_fs()`.
 
 By default the function performs calculations in parallel (which can be changed
-with the argument `parallel=FALSE`. To monitor the supplied values and
+with the argument `parallel=FALSE`). Users can adjust the number of computing 
+cores used with the argument `nCores=`) To monitor the supplied values and
 processing steps, set `verbose=TRUE`.
 
 ### Main inputs
-Users need to supply:
+
+Users need to supply `calculate_bigfoot()` with:
 
 * A path to a file of building footprints in a spatial vector data format (e.g.
 `.gpkg`, `.shp`)
 * A filepath to a template gridded dataset specifying the extent and resolution
 for the outputs (e.g. `.tif`)
 
-For example.
+For example:
+
 
 ```r
-# local file paths for demonstration
-dir <- "/home/jochem/Documents/projects/0_data"
+# create paths to files
 bldgPath <- file.path(dir, "soton_buildings.gpkg")
 sotonGrid <- file.path(dir, "soton_borough_100m.tif")
 ```
@@ -73,122 +81,198 @@ intended to allow users to process much larger datasets than can be held in
 memory.
 
 ### Basic calculations
+
 With the key inputs for the file paths set, the processing can be executed with
 a single function.
 
 
 ```r
 # basic function call with default parameters
-calculate_bigfoot(X = bldgPath, template = sotonGrid, metrics = "settled", verbose = TRUE)
-#> Setting up cluster
-#> Begin parallel tile processing: 2020-10-01 14:07:03
+calculate_bigfoot(X=bldgPath,
+                  template=sotonGrid,
+                  what="settled", how="binary",
+                  verbose=TRUE)
+#> Selecting metrics 
+#> Setting control values. 
+#> Creating template output grids 
+#> Creating list of processing tiles 
+#> Setting up cluster...
+#> Begin parallel tile processing: 2020-10-21 16:08:59
 #> 
-#> Finished processing all tiles: 2020-10-01 14:07:09
+#> Finished processing all tiles: 2020-10-21 16:09:07
 ```
+The documentation and default parameters are available from
+`?foot::calculate_bigfoot`.
+
+The arguments `what` and `how` are the same as for `calculate_footstats`. They
+provide a character or list list of character names or characteristics (i.e.
+columns within the building footprint attributes) and summary functions,
+respectively. The available metrics can be retrieved with `list_fs()`.
 
 ### Specifying outputs
-By default the outputs of `bigfoot` are saved as GeoTiffs in `R`'s `tempdir()`
-which is changed for the each session. Each grid is named by the short name of
-the calculated metric.
+
+By default the outputs of `bigfoot` are saved as GeoTiffs in the user's working
+directory (`getwd()`). Each grid is named by the combination of characteristics
+and summary function. The example below shows how to retrieve an output of
+`calculate_bigfoot`.
 
 
 ```r
 # retrieve the gridded outputs
-outGrid <- raster::raster(file.path(tempdir(), "settled.tif"))
+outGrid <- raster::raster(file.path(getwd(), "settled_binary.tif"))
 
 raster::plot(outGrid)
 ```
 
-![Binary settled raster for Southampton at 100m resolution](figure/Fig1-1.png)
+<img src="man/figures/REAsDME-Fig1-1.png" title="Binary settled raster for Southampton at 100m resolution" alt="Binary settled raster for Southampton at 100m resolution" width="100%" />
 
-Users can specify an output path to another folder location. Additionally a
-"tag" can be specified as a parameter to the function. The tag is appended to
-the beginning of each file name. This can be useful for identifying different
-outputs.
-
-### Multiple metrics
-As with `calculate_footstats` multiple metrics and summary statistics can be
-supplied to `bigfoot` as a vector of strings. The list of metrics is available
-in `foot::fs_footprint_metrics` or it can be retrieved with several look-up
-functions (see `?get_fs_metrics`).
+Users can specify an output path to another folder location (`outputPath=`).
+Additionally a "tag" can be specified as a parameter to the function
+(`outputTag=`). The tag is appended to the beginning of each file name with an
+underscore. This can be useful for identifying different outputs. These options
+are demonstrated in the code block below.
 
 
 ```r
-# re-running the basic call
+# basic function call specifying output parameters
 calculate_bigfoot(X=bldgPath,
-                  metrics=c("settled","area_cv"),  # multiple metrics
+                  template=sotonGrid,
+                  what="settled", how="binary",
+                  outputPath=file.path(tempdir()), # output location
+                  outputTag="Soton",
+                  verbose=TRUE)
+#> Selecting metrics 
+#> Setting control values. 
+#> Creating template output grids 
+#> Creating list of processing tiles 
+#> Setting up cluster...
+#> Begin parallel tile processing: 2020-10-21 16:09:08
+#> 
+#> Finished processing all tiles: 2020-10-21 16:09:15
+```
+
+### Multiple metrics
+
+As with `calculate_footstats` multiple metrics and summary statistics can be
+supplied to `bigfoot` as a list or nested lists grouping characteristics and
+functions. 
+
+
+```r
+# re-running the basic call with multiple metrics
+calculate_bigfoot(X=bldgPath,
                   template=sotonGrid, 
-                  outputPath=tempdir(),  # output folder location as a string
-                  outputTag="soton")  # filename tag
+                  what=list(list("settled"), list("area")),
+                  how=list(list("binary"), list("cv")),
+                  outputPath=tempdir(),  
+                  outputTag="soton")  
+#> Selecting metrics 
+#> Setting control values. 
+#> Creating template output grids 
+#> Creating list of processing tiles 
+#> Setting up cluster...
+#> Begin parallel tile processing: 2020-10-21 16:09:15
+#> 
+#> Finished processing all tiles: 2020-10-21 16:09:25
 ```
 
 ```r
-# retrieve the gridded outputs must add the 'tag' to the filename
+# retrieve the gridded outputs Note: must add the 'tag' to the filename
 outGrid <- raster::raster(file.path(tempdir(), "soton_area_cv.tif"))
 
 raster::plot(outGrid)
 ```
 
-![Coeff. of variation in building area for Southampton at 100m resolution](figure/Fig2-1.png)
+<img src="man/figures/REAsDME-Fig2-1.png" title="Coeff. of variation in building area for Southampton at 100m resolution" alt="Coeff. of variation in building area for Southampton at 100m resolution" width="100%" />
 
 ### Focal window statistics
+
 In the examples above, the footprint statistics are summarised for buildings
-which intersect the pixels of the template grid. Internally this is handled by
-`zonalIndex()`. However, it is also possible to calculate and summarise building
-features within a local, circular window. The output is still associated with
-each template grid cell, similar to a moving window analysis. The focal radius
-distance is always specified in meters.
+whose centroid intersect the pixels of the template grid. Internally this is
+handled by `zonalIndex()`. The method for assigning footprints to spatial zones
+can be adjusted using `controlZone` options.
+
+It is also possible to extend those zones beyond the individual pixels and to
+calculate and summarise building footprints from within a local, circular window
+centred on each pixel. The output is still associated with each template grid
+cell. This process is similar to a moving window or filter analysis. The focal
+radius distance is specified in meters.
+
+A hypothetical example of using a 300 m focal radius around a pixel centroid to
+construct a local zone and using building centroids is shown below.
+<img src="man/figures/REAsDME-Fig3-1.png" title="Example of 300 m focal radius. Selected footprints are highlighted in red" alt="Example of 300 m focal radius. Selected footprints are highlighted in red" width="100%" />
+
+Below is an example of applying a 300 m focal radius in action for a gridded
+output layer.
 
 
 ```r
 # moving focal window calculations
 calculate_bigfoot(X=bldgPath,
-                  metrics=c("settled",
-                            "area_mean",
-                            "perim_total"),
+                  template=sotonGrid,
+                  what=list(list("area"), list("perimeter")),
+                  how=list(list("mean"), list("sum")),
                   focalRadius=300,  # buffer radius in meters
-                  template=sotonGrid, 
                   outputPath=tempdir(), 
                   outputTag="soton")
+#> Selecting metrics 
+#> Setting control values. 
+#> Creating template output grids 
+#> Creating list of processing tiles 
+#> Setting up cluster...
+#> Begin parallel tile processing: 2020-10-21 16:09:26
+#> 
+#> Finished processing all tiles: 2020-10-21 16:10:22
 ```
+Creating the focal window is handled by `calculate_bigfoot`. The focal window is
+also taken into consideration by the function when creating processing tiles -
+the footprints are extract from outside the tile, in neighbouring areas, to
+prevent edge effects
 
 Note that when a focal radius is specified, this value is always appended to the
 end of the file names so that the outputs can be identified.
 
 ```r
-# note that the filename includes both a tag and a focal radius value
-outGrid <- raster::raster(file.path(tempdir(), "soton_perim_total_300.tif"))
+# Note that the filename includes both a tag and a focal radius value
+outGrid <- raster::raster(file.path(tempdir(), "soton_perimeter_sum_300.tif"))
 
 raster::plot(outGrid)
 ```
 
-![Total building perimeter in a 300m radius window. Output at a 100m resolution](figure/Fig3-1.png)
-
+<img src="man/figures/REAsDME-Fig4-1.png" title="Total building perimeter in a 300m radius window. Output at a 100m resolution" alt="Total building perimeter in a 300m radius window. Output at a 100m resolution" width="100%" />
 
 ## Options and finer control
+
 The `calculate_bigfoot` function is set up with default values that should work
 under most conditions; however, there is additional flexibility for users to
 specify alternative parameters. 
 
 ### Specifying geometry units
+
 To override the default units used in the geometry calculations, a named list of
 unit strings can be supplied to the `controlUnits` argument. This list can
-contain named items for `areaUnit`, `perimUnit`, and `distUnit`. The value of
-each item should be coercible with `units::as_units`.
+contain named items for `areaUnit`, `perimUnit`, and `distUnit`. The default
+values are meters ("m") and square meters ("m^2") The value of each item should
+be coercible with `units::as_units`.
 
 
 ```r
 # change the default units used to calculate area and distance
 calculate_bigfoot(X=bldgPath,
-                  metrics=c("area_mean",
-                            "perim_total"),  
+                  template=sotonGrid, 
+                  what=list(list("area"), list("perimeter")),
+                  how=list(list("mean"), list("sum")),
+                  controlZone=list("method"="intersect"), # join by intersection
                   controlUnits=list(areaUnit="m^2",  # change default units
                                     perimUnit="km"),
-                  template=sotonGrid, 
                   outputPath=tempdir(),  
                   outputTag="soton",
                   parallel=FALSE,
                   verbose=TRUE)  
+#> Selecting metrics 
+#> Setting control values. 
+#> Creating template output grids 
+#> Creating list of processing tiles 
 #> 
 #> Tile: 1 of 1
 #> Reading footprints 
@@ -199,57 +283,56 @@ calculate_bigfoot(X=bldgPath,
 #> bbox:           xmin: 436985.8 ymin: 109485.5 xmax: 447734.5 ymax: 117564.1
 #> z_range:        zmin: 0 zmax: 0
 #> projected CRS:  OSGB 1936 / British National Grid
-#> Warning in st_cast.sf(Xsub, "POLYGON"): repeating attributes for all sub-geometries for which they may not be constant
-#> Pre-calculating footprint areas 
-#> Pre-calculating footprint perimeters
-#> Linking to GEOS 3.8.0, GDAL 3.0.4, PROJ 6.3.1
-#> WARNING: different compile-time and runtime versions for GEOS found:
-#> Linked against: 3.8.0-CAPI-1.13.1  compiled against: 3.8.1-CAPI-1.13.3
-#> It is probably a good idea to reinstall sf, and maybe rgeos and rgdal too
+#> 
 #> Reading template grid 
-#> Creating zonal index 
 #> Selecting metrics 
+#> Setting control values. 
+#> Creating zonal index 
+#> Pre-calculating areas 
+#> Pre-calculating perimeters 
 #> 
 #> Calculating  2  metrics ... 
-#>    fs_area_mean  
-#>    fs_perim_total  
+#>    area mean  
+#>    perimeter sum  
 #> Finished calculating metrics. 
 #> Writing output tiles 
 #> Finished writing grids
 #> 
-#> Finished processing all tiles: 2020-10-01 14:08:09
+#> Finished processing all tiles: 2020-10-21 16:10:30
 
 # plot the total perimeter, measured in kilometres
-outGrid <- raster::raster(file.path(tempdir(), "soton_perim_total.tif"))
+outGrid <- raster::raster(file.path(tempdir(), "soton_perimeter_sum.tif"))
 raster::plot(outGrid)
 ```
 
-![Total building perimeter in KM](figure/Fig4-1.png)
-In the above example, note that the units for the nearest neighbour distance
-were not specified in the `controlUnits` list. The default value was still used.
-
+<img src="man/figures/REAsDME-Fig5-1.png" title="Total building perimeter in KM" alt="Total building perimeter in KM" width="100%" />
 ### Filtering buildings
+
 In some settings it may be preferable to exclude very small and/or very large
 building footprint polygons. The lower and upper bounds for filtering can be
-specified with `minArea` and `maxArea` arguments. The values for these filters
-are in the same units specified by `controlUnits` or the default value for area
-calculations. Note that an "area" footprint statistic does not need to be
-requested.
+specified with `minArea` and `maxArea` in the `filter` argument. The values for
+these filters are in the same units specified by `controlUnits` or the default
+value for area calculations. Note that an "area" footprint statistic does not
+need to be requested as this characteristic is automatically calculated to
+enable filtering.
 
 
 ```r
+# Filtering: # footprints must be larger than 50 m^2 and smaller than 1000 m^2
 calculate_bigfoot(X=bldgPath,
-                  metrics=c("shape_mean",
-                            "count",
-                            "perim_total"),  
-                  controlUnits=list(areaUnit="m^2"),
-                  minArea=50,  # footprints must be larger than 50 m^2
-                  maxArea=1000,  # footprints must be smaller than 1000 m^2
                   template=sotonGrid, 
+                  what=list(list("shape"), list("settled"), list("perimeter")),
+                  how=list(list("mean"), list("count"), list("sum")),
+                  controlUnits=list(areaUnit="m^2"),
+                  filter=list(minArea=50, maxArea=1000),
                   outputPath=tempdir(),  
                   outputTag="soton",
                   parallel=FALSE,
                   verbose=TRUE)  
+#> Selecting metrics 
+#> Setting control values. 
+#> Creating template output grids 
+#> Creating list of processing tiles 
 #> 
 #> Tile: 1 of 1
 #> Reading footprints 
@@ -260,38 +343,44 @@ calculate_bigfoot(X=bldgPath,
 #> bbox:           xmin: 436985.8 ymin: 109485.5 xmax: 447734.5 ymax: 117564.1
 #> z_range:        zmin: 0 zmax: 0
 #> projected CRS:  OSGB 1936 / British National Grid
-#> Warning in st_cast.sf(Xsub, "POLYGON"): repeating attributes for all sub-geometries for which they may not be constant
-#> Pre-calculating footprint areas 
-#> Pre-calculating footprint perimeters 
-#> Filtering features larger than 50 
-#> Filtering features smaller than 1000 
+#> 
 #> Reading template grid 
-#> Creating zonal index 
 #> Selecting metrics 
+#> Setting control values. 
+#> Creating zonal index 
+#> Pre-calculating areas 
+#>  Filtering features larger than 50 
+#>  Filtering features smaller than 1000 
+#> Pre-calculating perimeters 
+#> Pre-calculating shape 
 #> 
 #> Calculating  3  metrics ... 
-#>    fs_count  
-#>    fs_perim_total  
-#>    fs_shape_mean  
+#>    shape mean  
+#>    settled count  
+#>    perimeter sum  
 #> Finished calculating metrics. 
 #> Writing output tiles 
 #> Finished writing grids
 #> 
-#> Finished processing all tiles: 2020-10-01 14:08:38
+#> Finished processing all tiles: 2020-10-21 16:10:57
 ```
 
-In the map of the results, note the much smaller number of structures in pixels
-around the central business districts and southwestern edge of the study region.
+In the map of the results below, each pixel is the count of footprints present.
+Note the smaller number of structures and sparseness of structures in pixels
+around the lower center portions of the image. This corresponds with the study
+region's central business district and industrial areas with fewer, but larger
+structures.
 
 ```r
-outGrid <- raster::raster(file.path(tempdir(), "soton_count.tif"))
+outGrid <- raster::raster(file.path(tempdir(), "soton_settled_count.tif"))
 
 raster::plot(outGrid)
 ```
 
-![Count of buildings with area >50 m^2 and <1000 m^2](figure/Fig5-1.png)
+<img src="man/figures/REAsDME-Fig6-1.png" title="Count of buildings with area &gt;50 m^2 and &lt;1000 m^2" alt="Count of buildings with area &gt;50 m^2 and &lt;1000 m^2" width="100%" />
 
 ### Tile size
+
 The size of the processing tiles, specified in pixel dimensions (rows, columns)
 can be an important factor in the efficiency of the calculations. Smaller tile
 regions result in fewer building footprints being read/processed at one time,
@@ -304,59 +393,115 @@ is supplied and the processing is done in parallel with verbose output.
 ```r
 calculate_bigfoot(X=bldgPath,
                   template=sotonGrid,
-                  metrics=c("settled","compact_mean"),
-                  tileSize=c(100, 75),  # rows x columns in pixels
+                  what="compact",
+                  how="mean",
+                  tileSize=c(75, 75),  # rows x columns in pixels
                   parallel=FALSE,
                   verbose=TRUE)
+#> Selecting metrics 
+#> Setting control values. 
+#> Creating template output grids 
+#> Creating list of processing tiles 
 #> 
-#> Tile: 1 of 2
+#> Tile: 1 of 4
 #> Reading footprints 
 #> Reading layer `soton_buildings' from data source `/home/jochem/Documents/projects/0_data/soton_buildings.gpkg' using driver `GPKG'
-#> Simple feature collection with 19510 features and 10 fields
+#> Simple feature collection with 19448 features and 10 fields
 #> geometry type:  MULTIPOLYGON
 #> dimension:      XYZ
-#> bbox:           xmin: 436985.8 ymin: 109485.5 xmax: 444270.8 ymax: 117564.1
+#> bbox:           xmin: 436985.8 ymin: 110061.1 xmax: 444270.8 ymax: 117564.1
 #> z_range:        zmin: 0 zmax: 0
 #> projected CRS:  OSGB 1936 / British National Grid
-#> Warning in st_cast.sf(Xsub, "POLYGON"): repeating attributes for all sub-geometries for which they may not be constant
-#> Pre-calculating footprint areas 
-#> Pre-calculating footprint perimeters 
-#> Reading template grid 
-#> Creating zonal index 
-#> Selecting metrics 
 #> 
-#> Calculating  2  metrics ... 
-#>    fs_settled  
-#>    fs_compact_mean  
+#> Reading template grid 
+#> Selecting metrics 
+#> Setting control values. 
+#> Creating zonal index 
+#> Pre-calculating compactness 
+#> 
+#> Calculating  1  metrics ... 
+#>    compact mean  
 #> Finished calculating metrics. 
 #> Writing output tiles 
 #> Finished writing grids
 #> 
-#> Tile: 2 of 2
+#> Tile: 2 of 4
 #> Reading footprints 
 #> Reading layer `soton_buildings' from data source `/home/jochem/Documents/projects/0_data/soton_buildings.gpkg' using driver `GPKG'
-#> Simple feature collection with 11872 features and 10 fields (with 1 geometry empty)
+#> Simple feature collection with 11585 features and 10 fields (with 1 geometry empty)
 #> geometry type:  MULTIPOLYGON
 #> dimension:      XYZ
-#> bbox:           xmin: 444148.1 ymin: 109493.6 xmax: 447734.5 ymax: 116557.5
+#> bbox:           xmin: 444148.1 ymin: 109954.1 xmax: 447734.5 ymax: 116557.5
 #> z_range:        zmin: 0 zmax: 0
 #> projected CRS:  OSGB 1936 / British National Grid
-#> Warning in st_cast.sf(Xsub, "POLYGON"): repeating attributes for all sub-geometries for which they may not be constant
-#> Pre-calculating footprint areas 
-#> Pre-calculating footprint perimeters 
-#> Reading template grid 
-#> Creating zonal index 
-#> Selecting metrics 
 #> 
-#> Calculating  2  metrics ... 
-#>    fs_settled  
-#>    fs_compact_mean  
+#> Reading template grid 
+#> Selecting metrics 
+#> Setting control values. 
+#> Creating zonal index 
+#> Pre-calculating compactness 
+#> 
+#> Calculating  1  metrics ... 
+#>    compact mean  
 #> Finished calculating metrics. 
 #> Writing output tiles 
 #> Finished writing grids
 #> 
-#> Finished processing all tiles: 2020-10-01 14:08:47
+#> Tile: 3 of 4
+#> Reading footprints 
+#> Reading layer `soton_buildings' from data source `/home/jochem/Documents/projects/0_data/soton_buildings.gpkg' using driver `GPKG'
+#> Simple feature collection with 68 features and 10 fields
+#> geometry type:  MULTIPOLYGON
+#> dimension:      XYZ
+#> bbox:           xmin: 442517.3 ymin: 109485.5 xmax: 444219 ymax: 110101.5
+#> z_range:        zmin: 0 zmax: 0
+#> projected CRS:  OSGB 1936 / British National Grid
+#> 
+#> Reading template grid 
+#> Selecting metrics 
+#> Setting control values. 
+#> Creating zonal index 
+#> Pre-calculating compactness 
+#> 
+#> Calculating  1  metrics ... 
+#>    compact mean  
+#> Finished calculating metrics. 
+#> Writing output tiles 
+#> Finished writing grids
+#> 
+#> Tile: 4 of 4
+#> Reading footprints 
+#> Reading layer `soton_buildings' from data source `/home/jochem/Documents/projects/0_data/soton_buildings.gpkg' using driver `GPKG'
+#> Simple feature collection with 311 features and 10 fields
+#> geometry type:  MULTIPOLYGON
+#> dimension:      XYZ
+#> bbox:           xmin: 444207.5 ymin: 109493.6 xmax: 445655.3 ymax: 110117.8
+#> z_range:        zmin: 0 zmax: 0
+#> projected CRS:  OSGB 1936 / British National Grid
+#> 
+#> Reading template grid 
+#> Selecting metrics 
+#> Setting control values. 
+#> Creating zonal index 
+#> Pre-calculating compactness 
+#> 
+#> Calculating  1  metrics ... 
+#>    compact mean  
+#> Finished calculating metrics. 
+#> Writing output tiles 
+#> Finished writing grids
+#> 
+#> Finished processing all tiles: 2020-10-21 16:11:09
 ```
+## Next steps
+
+This vignette has provided an overview of how to create gridded outputs layers
+summarising building footprint morphology measures. This workflow uses
+`calculate_bigfoot` and is designed to work for large sets of data through tiled
+read/writing and processing these tiles in parallel. The `bigfoot` functionality
+extends and makes use of `footstats`. Both of these functions can take
+use-supplied and custom summary functions. This advanced usage is demonstrated
+in `vignette("cobbler", package="foot")`.
 
 ***
 
@@ -378,16 +523,17 @@ sessionInfo()
 #> [1] stats     graphics  grDevices utils     datasets  methods   base     
 #> 
 #> other attached packages:
-#> [1] sf_0.9-2   foot_0.4.1 knitr_1.28
+#> [1] stars_0.4-1  abind_1.4-5  foot_0.5     knitr_1.28   sf_0.9-2     raster_3.1-5 sp_1.4-1    
 #> 
 #> loaded via a namespace (and not attached):
-#>  [1] Rcpp_1.0.4.6       lattice_0.20-40    prettyunits_1.1.1  class_7.3-16       ps_1.3.2           foreach_1.4.8      assertthat_0.2.1   rprojroot_1.3-2    digest_0.6.25      R6_2.4.1          
-#> [11] backports_1.1.5    evaluate_0.14      e1071_1.7-3        highr_0.8          pillar_1.4.3       rlang_0.4.5        rstudioapi_0.11    data.table_1.12.8  callr_3.4.3        raster_3.1-5      
-#> [21] rmarkdown_2.1      pkgdown_1.6.1      desc_1.2.0         devtools_2.3.0     rgdal_1.4-8        stringr_1.4.0      compiler_3.6.3     xfun_0.12          pkgconfig_2.0.3    pkgbuild_1.0.6    
-#> [31] rgeos_0.5-2        htmltools_0.4.0    mmap_0.6-19        tidyselect_1.0.0   tibble_3.0.1       codetools_0.2-16   fansi_0.4.1        crayon_1.3.4       dplyr_0.8.5        withr_2.1.2       
-#> [41] grid_3.6.3         lwgeom_0.2-3       lifecycle_0.2.0    DBI_1.1.0          git2r_0.26.1       magrittr_1.5       formatR_1.7        units_0.6-6        KernSmooth_2.23-16 cli_2.0.2         
-#> [51] stringi_1.4.6      fs_1.3.1           remotes_2.1.1      doParallel_1.0.15  sp_1.4-1           testthat_2.3.2     filelock_1.0.2     ellipsis_0.3.0     vctrs_0.2.4        rematch2_2.1.1    
-#> [61] iterators_1.0.12   tools_3.6.3        glue_1.4.0         purrr_0.3.3        processx_3.4.2     abind_1.4-5        pkgload_1.0.2      parallel_3.6.3     yaml_2.2.1         sessioninfo_1.1.1 
-#> [71] stars_0.4-1        classInt_0.4-3     memoise_1.1.0      usethis_1.6.1
+#>  [1] pkgload_1.0.2      foreach_1.4.8      StanHeaders_2.19.2 assertthat_0.2.1   highr_0.8          stats4_3.6.3       yaml_2.2.1         remotes_2.1.1      sessioninfo_1.1.1  pillar_1.4.3      
+#> [11] backports_1.1.5    lattice_0.20-40    glue_1.4.0         digest_0.6.25      colorspace_1.4-1   htmltools_0.4.0    pkgconfig_2.0.3    devtools_2.3.0     rstan_2.19.3       purrr_0.3.3       
+#> [21] scales_1.1.0       processx_3.4.2     whisker_0.4        downlit_0.2.0      tibble_3.0.1       ggplot2_3.3.0      usethis_1.6.1      ellipsis_0.3.0     withr_2.1.2        cli_2.0.2         
+#> [31] magrittr_1.5       crayon_1.3.4       memoise_1.1.0      evaluate_0.14      ps_1.3.2           fs_1.3.1           fansi_0.4.1        doParallel_1.0.15  xml2_1.3.1         lwgeom_0.2-3      
+#> [41] class_7.3-16       pkgbuild_1.0.6     loo_2.2.0          tools_3.6.3        data.table_1.12.8  prettyunits_1.1.1  matrixStats_0.56.0 formatR_1.7        lifecycle_0.2.0    stringr_1.4.0     
+#> [51] munsell_0.5.0      callr_3.4.3        packrat_0.5.0      compiler_3.6.3     pkgdown_1.6.1      e1071_1.7-3        rlang_0.4.5        classInt_0.4-3     units_0.6-6        grid_3.6.3        
+#> [61] iterators_1.0.12   rstudioapi_0.11    rmarkdown_2.1      testthat_2.3.2     gtable_0.3.0       codetools_0.2-16   inline_0.3.15      DBI_1.1.0          rematch2_2.1.1     R6_2.4.1          
+#> [71] gridExtra_2.3      dplyr_0.8.5        rgdal_1.4-8        filelock_1.0.2     rprojroot_1.3-2    KernSmooth_2.23-16 desc_1.2.0         stringi_1.4.6      parallel_3.6.3     Rcpp_1.0.4.6      
+#> [81] vctrs_0.2.4        tidyselect_1.0.0   xfun_0.12
 ```
 

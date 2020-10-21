@@ -1,6 +1,5 @@
 #' gridTiles
 #' 
-#' @title gridTiles
 #' @description Split gridded data extents into subsets for parallel processing.
 #' @param X The gridded (\code{raster} or \code{stars}) object to find tiles
 #' @param n number of tiles. Can be a vector length 1 or of length 2 (rows,
