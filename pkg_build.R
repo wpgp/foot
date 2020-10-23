@@ -33,3 +33,4 @@ devtools::reload(devtools::inst('foot'))
 rmarkdown::render("README.Rmd")
 pkgdown::build_site()
 
+devtools::build_vignettes()
