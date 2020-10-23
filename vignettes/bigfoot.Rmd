@@ -90,7 +90,7 @@ a single function.
 calculate_bigfoot(X=buildings,
                   template=mgrid,
                   what="settled", how="binary",
-                  verbose=TRUE)
+                  parallel=FALSE, verbose=TRUE)
 ```
 The documentation and default parameters are available from
 `?foot::calculate_bigfoot`.
