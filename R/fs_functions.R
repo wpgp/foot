@@ -28,7 +28,7 @@ count <- function(x){
 #' @rdname fs_functions
 cv <- function(x){
   res <- sd(x) / mean(x)
-  return(units::drop_units(res))
+  return(units::set_units(res, NULL))
 }
 
 
