@@ -41,6 +41,7 @@ RoxygenNote: 7.1.0
 Suggests: 
     knitr,
     rmarkdown
+    formatR
 VignetteBuilder: knitr
 Depends: 
     R (>= 3.5)
