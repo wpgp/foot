@@ -166,6 +166,8 @@ zonalIndex.character <- function(X, zone,
 get_zonal_index <- function(X, zone, 
                             zoneField=NULL, method='centroid', 
                             returnObject=TRUE){
+  # clean up
+  on.exit({ rm(list=ls()); gc() })
   if(missing(X)){
     stop("Missing footprint dataset")
   } else if (all(!class(X) %in% c("sf","sfc"))){

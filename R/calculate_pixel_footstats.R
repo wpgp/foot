@@ -329,10 +329,11 @@ calc_fs_px_internal <- function(X, what, how,
     
     outName <- file.path(outputPath, 
                          paste0(outputTag, mTag, ".tif"))
-    stars::write_stars(outTemplate, 
-                       outName) # default is float32
+    tmp <- stars::write_stars(outTemplate, 
+                              outName) # default is float32
     allOutPath[[i]] <- outName
   }
+  rm(tmp)
   # print(allOutPath)
 
   # tiles for processing
@@ -441,6 +442,8 @@ process_tile <- function(mgTile, mgBuffTile,
                          filter,
                          verbose=FALSE){
   
+  # clean-up
+  on.exit({ rm(list=ls()); gc() })
   # blank tile for the results
   naTile <- stars::st_as_stars(matrix(NA, 
                                       nrow=nrow(mgTile), 
@@ -511,7 +514,7 @@ process_tile <- function(mgTile, mgBuffTile,
                                          verbose=verbose)
       # clean-up
       rm(Xsub)
-      
+
       # check for errors in the return
       if(is.null(tileResults)){
         return(NULL)
