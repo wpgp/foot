@@ -296,7 +296,8 @@ calc_fs_internal <- function(X, zone, what, how,
         X[[controlZone$zoneName]] <- rep(1, nrow(X))
       }
       # drop non-intersecting buildings
-      X <- subset(X, !is.na(controlZone$zoneName))
+      # X <- subset(X, !is.na(controlZone$zoneName))
+      X <- sf::st_as_sf(subset(data.table::setDT(X), !is.na(controlZone$zoneName)))
       # check for no intersecting
       if(nrow(X) == 0){
         if(verbose){ cat("No records found in zones. \n") }
@@ -350,16 +351,19 @@ calc_fs_internal <- function(X, zone, what, how,
   if(!is.null(filter$minArea)){
     if(verbose) { cat(paste0(" Filtering features larger than ", 
                              filter$minArea," \n")) }
-    X <- subset(X, X[['area']] > units::set_units(filter$minArea, 
-                                                  controlUnits$areaUnit,
-                                                  mode="standard"))
+    X <- sf::st_as_sf(subset(data.table::setDT(X), 
+                             area > units::set_units(filter$minArea, 
+                                                     controlUnits$areaUnit,
+                                                     mode="standard")))
   }
   if(!is.null(filter$maxArea)){
     if(verbose) { cat(paste0(" Filtering features smaller than ", 
                              filter$maxArea," \n")) }
-    X <- subset(X, X[['area']] < units::set_units(filter$maxArea, 
-                                                  controlUnits$areaUnit,
-                                                  mode="standard"))
+    
+    X <- sf::st_as_sf(subset(data.table::setDT(X), 
+                             area < units::set_units(filter$maxArea, 
+                                                     controlUnits$areaUnit,
+                                                     mode="standard")))
   }
   if(nrow(X) == 0){ # filter removed all?
     if(verbose){ cat("No records found in zones. \n") }
@@ -436,7 +440,7 @@ calc_fs_internal <- function(X, zone, what, how,
   #          argsDF$cols=="nndist", "params"] <- fs_varlist(geomField, zone)
   
   # convert to data.frame
-  DT <- data.table::data.table(X)
+  DT <- data.table::setDT(X)
   data.table::setkeyv(DT, controlZone$zoneName)
   
   # main processing loop -- working!

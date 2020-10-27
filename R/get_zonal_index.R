@@ -205,11 +205,13 @@ get_zonal_index <- function(X, zone,
   }
 
   # intersects - binary predicate
-  ints <- suppressMessages(sf::st_intersects(zone, X))
+  suppressMessages(ints <- sf::st_intersects(zone, X))
   hits <- which(lengths(ints)>0)
   
   if(length(hits) > 0){
-    geomDT <- data.table::data.table(xID=ints[hits])
+    geomDT <- list(xID=ints[hits])
+    data.table::setDT(geomDT)
+    # geomDT <- data.table::data.table(xID=ints[hits])
     # geomDT[, (zoneField) := hits]
     geomDT[, zID := hits]
     data.table::setkey(geomDT, zID)
@@ -223,11 +225,14 @@ get_zonal_index <- function(X, zone,
     # expand list of intersected features
     intDT <- geomDT[, setNames(c(xID), "xID"), by=zoneField]
     data.table::setcolorder(intDT, c("xID", zoneField))
+    data.table::setkey(intDT, xID)
     
     if(returnObject){
       # join
       Xdt <- data.table::data.table(X)
       Xdt[, xID := 1:.N]
+      data.table::setkey(Xdt, xID)
+      
       intDT[Xdt, on='xID', colnames(X) := mget(colnames(X))]
       # drop xID col
       intDT[, xID := NULL]

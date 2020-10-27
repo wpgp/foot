@@ -313,7 +313,7 @@ calc_fs_px_internal <- function(X, what, how,
   
   if(verbose){ cat("Creating template output grids \n") }
   # create empty output grids to match template
-  outTemplate <- stars::st_as_stars(matrix(NA, 
+  outTemplate <- stars::st_as_stars(matrix(NA_real_, 
                                            nrow=nrow(template), 
                                            ncol=ncol(template)), 
                                     dimensions=stars::st_dimensions(template))
@@ -333,7 +333,7 @@ calc_fs_px_internal <- function(X, what, how,
                               outName) # default is float32
     allOutPath[[i]] <- outName
   }
-  rm(tmp)
+  rm(tmp, outTemplate)
   # print(allOutPath)
 
   # tiles for processing
@@ -384,9 +384,11 @@ calc_fs_px_internal <- function(X, what, how,
 
     foreach::foreach(job=iterators::iter(tiles, by="row"),
                      jobBuff=iterators::iter(tilesBuff, by="row"),
-                     .inorder=FALSE,
-                     .export="process_tile"
+                     .inorder=FALSE
+                     # .verbose=TRUE
+                     # .export="process_tile"
                      ) %dopar% {
+      on.exit({ rm(list=ls()); gc() })
       mgTile <- stars::st_as_stars(template[,job$xl:job$xu, job$yl:job$yu])
       mgBuffTile <- stars::st_as_stars(template[,jobBuff$xl:jobBuff$xu, 
                                                 jobBuff$yl:jobBuff$yu])
@@ -445,7 +447,7 @@ process_tile <- function(mgTile, mgBuffTile,
   # clean-up
   on.exit({ rm(list=ls()); gc() })
   # blank tile for the results
-  naTile <- stars::st_as_stars(matrix(NA, 
+  naTile <- stars::st_as_stars(matrix(NA_real_, 
                                       nrow=nrow(mgTile), 
                                       ncol=ncol(mgTile)), 
                                dimensions=stars::st_dimensions(mgTile))
