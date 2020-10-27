@@ -20,7 +20,7 @@ Authors@R:
 	  		 role="ctb")
 	)
 License: GPL-3.0
-URL: https://github.com/wpgp/foot
+URL: https://github.com/wpgp/foot, https://wpgp.github.io/foot/
 BugReports: https://github.com/wpgp/foot/issues
 Imports: 
     data.table,
