@@ -17,6 +17,7 @@ usethis::use_package("iterators")
 usethis::use_package("units")
 usethis::use_package("mmap")
 
+# library("roxygen2")
 # package documentation
 devtools::document()
 
