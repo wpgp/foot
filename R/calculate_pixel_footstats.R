@@ -388,7 +388,7 @@ calc_fs_px_internal <- function(X, what, how,
                      # .verbose=TRUE
                      # .export="process_tile"
                      ) %dopar% {
-      on.exit({ rm(list=ls()); gc() })
+      # on.exit({ rm(list=ls()); gc() })
       mgTile <- stars::st_as_stars(template[,job$xl:job$xu, job$yl:job$yu])
       mgBuffTile <- stars::st_as_stars(template[,jobBuff$xl:jobBuff$xu, 
                                                 jobBuff$yl:jobBuff$yu])
