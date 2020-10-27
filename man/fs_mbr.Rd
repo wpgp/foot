@@ -13,7 +13,7 @@ fs_mbr(X, returnShape = FALSE)
 \item{X}{polygons of building footprints in type \code{sf}.}
 
 \item{returnShape}{logical. Should the function return the \code{sf} polygon
-of the rotated bounding rectange or should it retun the angle (in degrees).}
+of the rotated bounding rectangle or should it return the angle (in degrees).}
 }
 \value{
 a numeric angle from 0 to 360 degrees or the rotated rectangle as a

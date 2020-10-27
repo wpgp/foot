@@ -10,74 +10,82 @@
 \usage{
 calculate_bigfoot(
   X,
-  metrics = "all",
+  what = "all",
+  how = "all",
   focalRadius = 0,
-  minArea = NULL,
-  maxArea = NULL,
-  controlUnits = NULL,
-  clip = FALSE,
+  controlZone = list(zoneName = "zoneID", method = "centroid"),
+  controlUnits = list(areaUnit = "m^2", perimUnit = "m", distUnit = "m"),
+  controlDist = list(maxSearch = 100, method = "centroid", unit =
+    controlUnits$distUnit),
+  filter = list(minArea = NULL, maxArea = NULL),
   template = NULL,
   tileSize = c(500, 500),
   parallel = TRUE,
   nCores = max(1, parallel::detectCores() - 1),
-  outputPath = tempdir(),
+  outputPath = getwd(),
   outputTag = NULL,
   tries = 100,
-  verbose = FALSE
+  verbose = TRUE
 )
 
 \method{calculate_bigfoot}{sf}(
   X,
-  metrics = "all",
+  what = "all",
+  how = "all",
   focalRadius = 0,
-  minArea = NULL,
-  maxArea = NULL,
-  controlUnits = NULL,
-  clip = FALSE,
+  controlZone = list(zoneName = "zoneID", method = "centroid"),
+  controlUnits = list(areaUnit = "m^2", perimUnit = "m", distUnit = "m"),
+  controlDist = list(maxSearch = 100, method = "centroid", unit =
+    controlUnits$distUnit),
+  filter = list(minArea = NULL, maxArea = NULL),
   template = NULL,
   tileSize = c(500, 500),
   parallel = TRUE,
   nCores = max(1, parallel::detectCores() - 1),
-  outputPath = tempdir(),
+  outputPath = getwd(),
   outputTag = NULL,
   tries = 100,
-  verbose = FALSE
+  verbose = TRUE
 )
 
 \method{calculate_bigfoot}{sp}(
   X,
-  metrics = "all",
+  what = "all",
+  how = "all",
   focalRadius = 0,
-  minArea = NULL,
-  maxArea = NULL,
-  controlUnits = NULL,
-  clip = FALSE,
+  controlZone = list(zoneName = "zoneID", method = "centroid"),
+  controlUnits = list(areaUnit = "m^2", perimUnit = "m", distUnit = "m"),
+  controlDist = list(maxSearch = 100, method = "centroid", unit =
+    controlUnits$distUnit),
+  filter = list(minArea = NULL, maxArea = NULL),
   template = NULL,
   tileSize = c(500, 500),
   parallel = TRUE,
   nCores = max(1, parallel::detectCores() - 1),
-  outputPath = tempdir(),
+  outputPath = getwd(),
   outputTag = NULL,
   tries = 100,
-  verbose = FALSE
+  verbose = TRUE
 )
 
 \method{calculate_bigfoot}{character}(
   X,
-  metrics = "all",
+  what = "all",
+  how = "all",
   focalRadius = 0,
-  minArea = NULL,
-  maxArea = NULL,
-  controlUnits = NULL,
-  clip = FALSE,
+  controlZone = list(zoneName = "zoneID", method = "centroid"),
+  controlUnits = list(areaUnit = "m^2", perimUnit = "m", distUnit = "m"),
+  controlDist = list(maxSearch = 100, method = "centroid", unit =
+    controlUnits$distUnit),
+  filter = list(minArea = NULL, maxArea = NULL),
   template = NULL,
   tileSize = c(500, 500),
   parallel = TRUE,
   nCores = max(1, parallel::detectCores() - 1),
-  outputPath = tempdir(),
+  outputPath = getwd(),
   outputTag = NULL,
   tries = 100,
-  verbose = FALSE
+  verbose = TRUE
 )
 }
 \arguments{
@@ -86,36 +94,47 @@ multiple spatial types, including \code{sf} and \code{sp}, or a filepath
 string to a file, or a list where each member provides a spatial object or
 a filepath string.}
 
-\item{metrics}{character vector. Names of footprint statistics in the form of
-"fs_area_mean", etc. Other options include \code{ALL} or \code{NODIST} to
-calculate all available metrics and all except nearest neighbour distances,
-respectively.}
+\item{what}{list of strings naming the columns or built-in geometry measures to
+calculate for each footprint. Other options include \code{'all'} or
+\code{'nodist'} to calculate all available characteristics and all except
+nearest-neighbour distance metrics.}
+
+\item{how}{list of strings naming functions to be used to calculate summary
+statistics. The functions can be built-in functions (e.g. "mean","sd"), or
+user-defined function names.}
 
 \item{focalRadius}{numeric. Distance in meters for a buffer around each
 template pixel. Creates a focal processing window for metrics.}
 
-\item{minArea}{numeric. Minimum footprint area to filter \code{X}.}
-
-\item{maxArea}{numeric. Maximum footprint area to filter \code{X}.}
+\item{controlZone}{(optional) named list. Setting controls passed on to 
+\code{\link[foot]{zonalIndex}}. Elements can include \code{zoneName} and
+\code{method}.}
 
 \item{controlUnits}{(optional) named list. Elements can include
 \code{areaUnit}, \code{perimUnit}, and \code{distUnit}. The values for
 these items should be strings that can be coerced into a \code{units}
 object.}
 
-\item{clip}{(optional). Logical. Should polygons which span pixel zones be
-clipped? Default is \code{FALSE}.}
+\item{controlDist}{(optional) named list to override default
+options for distance calculations. Elements can include \code{maxSearch}
+and \code{method}. Ignored if \code{metrics} does not include a distance
+calculation. See \code{\link[foot]{fs_nndist}}.}
+
+\item{filter}{(optional) named list with \code{minArea} and \code{maxArea}.
+These are numeric values to filter footprints prior to processing. Default
+values are \code{NULL} and do not filter any records.}
 
 \item{template}{(optional). When creating a gridded output, a supplied
 \code{stars} or \code{raster} dataset to align the data.}
 
 \item{tileSize}{number of pixels per side of a tile. Can be a vector of
-length 2 (rows, column pixels). Ignored if n provided. Default is 1000.}
+length 2 (rows, column pixels). Default is \code{c(500, 500)}.}
 
 \item{parallel}{logical. Should a parallel backend be used to process the
-tiles.}
+tiles. Default is \code{TRUE}.}
 
-\item{nCores}{number of CPU cores to use if \code{parallel} is \code{TRUE}.}
+\item{nCores}{number of CPU cores to use if \code{parallel} is \code{TRUE}.
+Default is 1 less than the available CPUs.}
 
 \item{outputPath}{(optional). When creating a gridded output, a path for the
 location of the output. Default is the temp directory.}
@@ -127,7 +146,7 @@ beginning of the output name for the gridded files.}
 file. Default is 100.}
 
 \item{verbose}{logical. Should progress messages be printed. Default
-\code{False}.}
+\code{TRUE}.}
 }
 \value{
 Invisible. Returns a vector of paths to the output files.
@@ -152,14 +171,13 @@ calculate_bigfoot
   for the calculations.
 }
 \examples{
-data(kampala)
+data("kampala", package="foot")
 buildings <- kampala$buildings
 templateGrid <- kampala$mastergrid
 
 calculate_bigfoot(X=buildings,
-                  metrics=c("shape_mean",
-                            "count",
-                            "perim_total"),  
+                  what=list(list("shape"), list("perimeter")),
+                  how=list(list("mean"), list("sum")),
                   controlUnits=list(areaUnit="m^2"),
                   minArea=50,  # footprints must be larger than 50 m^2
                   maxArea=1000,  # footprints must be smaller than 1000 m^2
@@ -173,4 +191,7 @@ calculate_bigfoot(X=buildings,
 outGrid <- raster::raster(file.path(tempdir(), "kampala_count.tif"))
 raster::plot(outGrid)
 
+}
+\seealso{
+\link[foot]{calculate_footstats}
 }

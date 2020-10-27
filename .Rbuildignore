@@ -1,3 +1,12 @@
 ^data-raw$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^README\.md\.old$
+^README\.Rmd$
+^.*\.Rproj$
+^\.Rproj\.user$
+^LICENSE\.md$
+^pkg_build\.R$
 ^doc$
 ^Meta$

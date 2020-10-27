@@ -33,15 +33,22 @@ columns)}
   \item cropXsize number of columns in the tile 
   \item cropYsize number of rows in the tile 
   }
+  
+ @examples 
+ data("kampala")
+ # example dataset
+ g <- kampala$mastergrid
+ 
+ gridTiles(g)
+ gridTiles(g, n=2)
+ gridTiles(g, px=c(5, 25))
 }
 \description{
 Split gridded data extents into subsets for parallel processing.
 }
 \details{
-gridTiles
-
 \code{gridTiles} provides a convenient way for splitting a gridded
-  dataset into subdatasets for cropping or processing individually. The
+  dataset into sub-datasets for cropping or processing individually. The
   splitting uses the extent of the total grid, potentially including noData
   cells.
 }

@@ -12,10 +12,13 @@ Polsby, Daniel D., and Robert D. Popper. 1991. “The Third Criterion:
 \usage{
 fs_compact(X)
 
-fs_shape(X)
+fs_shape(X, unit = NULL)
 }
 \arguments{
 \item{X}{polygons of building footprints of type \code{sf}.}
+
+\item{unit}{string indicating unit of measure. Passed to
+\code{units::set_units}.}
 }
 \value{
 numeric vector of compactness values ranging from 0 to 1 for each
@@ -44,4 +47,14 @@ The shape index is calculated as the ratio of footprint polygon's
 
 The function first looks for pre-calculated values of area in a field called
 \code{fs_area}. If not present, the areas are calculated in m^2.
+}
+\examples{
+data("kampala", package="foot")
+buildings = kampala$buildings
+
+fs_shape(buildings)
+
+# how the calculation is done - first observation
+fs_area(buildings[1,]) / fs_area(fs_mbc(buildings[1,]))
+
 }

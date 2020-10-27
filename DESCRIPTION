@@ -1,7 +1,7 @@
 Package: foot
-Title: A package for processing building footprints
-Version: 0.4.1
-Date: 2020-08-13
+Title: An R package for processing building footprints morphometrics
+Version: 0.5
+Date: 2020-10-19
 Authors@R: 
 	c(person(given="WorldPop Research Group, University of Southampton", 
 			 role="aut"),
@@ -14,15 +14,20 @@ Authors@R:
 			 role="ctb"),
 	  person(family="Leasure", 
 			 given="Doug", 
-			 role="ctb")
+			 role="ctb"),
+	  person(family="Darin",
+	  		 give="Edith",
+	  		 role="ctb")
 	)
 License: GPL-3.0
 URL: https://github.com/wpgp/foot
+BugReports: https://github.com/wpgp/foot/issues
 Imports: 
     data.table,
     purrr,
     sf,
     stars,
+    abind,
     lwgeom,
     doParallel,
     parallel,
@@ -30,12 +35,13 @@ Imports:
     units,
     filelock
 LazyData: true
-Description: Support for morphometric calculations and zonal summaries of measures derived from building footprint polygons.
+Description: Support for morphometric calculations of building footprints implemented in R. It provides flexible tools for processing 2D vector polygon representations of structures. The functionality includes basic geometry and morphology measures, distance and clustering metrics. These calculations are supported with helper functions for spatial intersections to define zonal indices and tiled reading/writing of data files.
 Encoding: UTF-8
 RoxygenNote: 7.1.0
 Suggests: 
     knitr,
-    rmarkdown
+    rmarkdown,
+    formatR
 VignetteBuilder: knitr
 Depends: 
     R (>= 3.5)

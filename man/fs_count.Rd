@@ -15,12 +15,15 @@ fs_count(X, index = NULL, col = NULL)
 \arguments{
 \item{X}{Spatial object with building footprint polygons}
 
-\item{index}{A character or numeric value identifying a column within \code{X} 
-which provides a zonal index for summarising values. Alternatively a vector of 
-indices can be provided. If omitted all observations in \code{X} are assumed 
-to be within one zone.}
+\item{index}{A string identifying a column within \code{X} which provides a
+zonal index for summarising values. Alternatively a vector of indices can
+be provided. If omitted, all observations in \code{X} are assumed to be
+within one zone.}
 
 \item{col}{column name within \code{X} with pre-calculated area measures}
+
+\item{unit}{character or \code{units} object to define area. Default is
+\code{NULL} which will use the units of the spatial reference system}
 }
 \value{
 \code{data.table} of zonal indices and values.
@@ -28,4 +31,10 @@ to be within one zone.}
 \description{
 Calculate and summarise selected metrics of building 
 footprints within zones.
+}
+\details{
+Note that this function is provided as a standalone calculation for
+  convenience. The same summary measure can be executed within
+  \code{calculate_footstats} by specifying \code{what='settled'} and
+  \code{how='count'}.
 }

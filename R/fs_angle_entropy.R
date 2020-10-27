@@ -3,27 +3,45 @@
 #' @description Calculate the entropy of rotation angles for building footprint
 #' polygons within zones.
 #' 
-#' @inheritParams fs_area_mean
+#' @param X Spatial object with building footprint polygons
+#' @param index A string identifying a column within \code{X} which provides a
+#'   zonal index for summarising values. Alternatively a vector of indices can
+#'   be provided. If omitted, all observations in \code{X} are assumed to be
+#'   within one zone.
+#' @param unit character or \code{units} object to define area. Default is
+#'   \code{NULL} which will use the units of the spatial reference system
+#' @param col column name within \code{X} with pre-calculated area measures
 #' @param normalize A logical value indicating whether to normalize the entropy. 
 #' Default is \code{TRUE}.
 #' 
 #' @details This measure uses the angle of the minimum rotated rectangle
-#'   enclosing each footprint poygon. Entropy is an information criteria
+#'   enclosing each footprint polygon. Entropy is an information criteria
 #'   measure. When summarising the angles of footprints, higher entropy values
 #'   may suggest less formally planned or zoned areas. The entropy calculation
 #'   uses the common Shannon's Entropy. The normalization step produces an
-#'   indicator for how much a zone departs from a grid.
+#'   indicator for how much a zone departs from a grid. This metric is based on
+#'   work by Boeing (2019).
+#'   
+#'   Note that this function is provided as a standalone calculation for
+#'   convenience. The same summary measure can be executed within
+#'   \code{calculate_footstats} by specifying \code{what='angle'} and
+#'   \code{how='entropy'}.
 #'
 #' @return \code{data.table} of zonal indices and values.
 #' 
+#' @references Boeing, Geoff (2019). "Urban spatial order: Street network
+#'   orientation, configuration, and entropy." Applied Network Science, 4(67),
+#'   \url{https://doi.org/10.1007/s41109-019-0189-1}.
+#' 
 #' @examples 
-#' data(kampala)
+#' data("kampala", package="foot")
 #' b <- kampala$buildings
+#' 
 #' # assign random groups
 #' idx <- sample(1:10, nrow(b), replace=T)
 #' 
-#' angles <- fs_angle_entropy(b, index=idx, normalize=F)
-#' angle_norm <- fs_angle_entropy(b, index=idx, normalize=T)
+#' angles <- fs_angle_entropy(b, index=idx, normalize=FALSE)
+#' angle_norm <- fs_angle_entropy(b, index=idx, normalize=TRUE)
 #' 
 #' @import data.table
 #' 
@@ -31,7 +49,9 @@
 #' @rdname fs_angle_entropy
 #' 
 #' @export 
-fs_angle_entropy <- function(X, index=NULL, col=NULL, normalize=TRUE) UseMethod("fs_angle_entropy")
+fs_angle_entropy <- function(X, index=NULL, 
+                             col=NULL, 
+                             normalize=TRUE) UseMethod("fs_angle_entropy")
 
 
 #' @name fs_angle_entropy
@@ -68,49 +88,65 @@ fs_angle_entropy.sf <- function(X, index=NULL, col=NULL, normalize=TRUE){
 }
 
 
+#' @name fs_angle_entropy
+#' @export
+fs_angle_entropy.sfc <- function(X, index=NULL, col=NULL, normalize=TRUE){
+  X <- sf::st_as_sf(X)
+  return(fs_angle_entropy(X, index, col, noramlize))
+}
+
+
 fs_angle_entropy_calc <- function(X, index, normalize=TRUE){
   if(!"fs_angle" %in% names(X)){
     X[["fs_angle"]] <- sapply(sf::st_geometry(X), fs_mbr)
   }
   
+  indexCol <- "zoneID" # default
+  
   if(is.null(index)){
-    warning("No index found, treating as one group.")
+    message("No index found, treating as one group.")
     index <- rep(1, nrow(X))
   } else{
-    if(length(index)==1){
-      if((is.numeric(index) & index <= ncol(X)) | 
-         (is.character(index) & index %in% names(X))){
-        index <- X[[index]]
+    if(is.character(index)){ 
+      if(length(index)==1){ 
+        if(nrow(X)>1){ # it must be a column name
+          if(!index %in% colnames(X)){
+            stop("Index column not found in footprints.")
+          } else{
+            indexCol <- index
+            index <- X[[indexCol]]
+          }
+        } # potential issue if 1 row X and 1 column name - won't affect calcs
+      } else if(length(index != nrow(X))){
+        stop("Invalid length of zonal index.")
+      } 
+    } else if(is.numeric(index)){
+      if(length(index) != nrow(X)){
+        stop("Invalid length of zonal index.")
       }
-    } else if(length(index) != nrow(X)){
-      message("Invalid index")
-      stop()
     }
   } 
   
-  # abins <- cut(0:360, seq(5, 355, 10), labels=F) + 1
-  # abins[is.na(abins)] <- 1
-  
   colNam <- "fs_angle_entropy"
-  DT <- data.table::data.table(index=c(index, index), 
+  DT <- data.table::data.table(idxCol=c(index, index), 
                                area_calc=c(X[["fs_angle"]], (X[["fs_angle"]] + 180) %% 360)
                               )
+  data.table::setnames(DT, "idxCol", indexCol)
+  
   DT[, bin := cut(area_calc, seq(5, 355, 10), labels=F) + 1]
   DT[is.na(bin), bin := 1]
   
-  data.table::setkey(DT, index)
+  data.table::setkeyv(DT, indexCol)
   result <- DT[, list(entropy = -1 * sum(prop.table(table(bin)) * 
                                          log(prop.table(table(bin)))) ), 
-             by=index]
+             by=indexCol]
   
   if(normalize){ # based on Boeing (2019)
     hmax <- 3.584
     hg <- 1.386
-    
     result[, entropy := 1 - ((entropy-hg) / (hmax - hg))^2, by=index]
   } 
-  
   data.table::setnames(result, "entropy", colNam)
   
-  return(result)
+  return(result[]) # [] trick needed to print on return because used ':='. known data.table bug
 }

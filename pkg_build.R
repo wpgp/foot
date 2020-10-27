@@ -13,7 +13,9 @@ usethis::use_package("parallel")
 usethis::use_package("foreach")
 usethis::use_package("filelock")
 # usethis::use_package("purrr")
+usethis::use_package("iterators")
 usethis::use_package("units")
+usethis::use_package("mmap")
 
 # library("roxygen2")
 # package documentation
@@ -28,5 +30,8 @@ devtools::build()
 devtools::install()
 devtools::reload(devtools::inst('foot'))
 .rs.restartR()
+ 
+rmarkdown::render("README.Rmd")
+pkgdown::build_site()
 
-
+devtools::build_vignettes()

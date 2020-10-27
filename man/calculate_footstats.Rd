@@ -6,169 +6,160 @@
 \alias{calculate_footstats.sfc}
 \alias{calculate_footstats.sp}
 \alias{calculate_footstats.character}
-\alias{calculate_footstats.list}
 \title{calculate_footstats: Feature statistics of building footprints}
 \usage{
 calculate_footstats(
   X,
-  index = NULL,
-  metrics = "all",
-  minArea = NULL,
-  maxArea = NULL,
-  controlUnits = NULL,
-  clip = FALSE,
-  gridded = FALSE,
-  template = NULL,
-  outputPath = NULL,
-  outputTag = NULL,
-  driver = "GTiff",
-  verbose = FALSE
+  zone = NULL,
+  what = "all",
+  how = NULL,
+  controlZone = list(zoneName = "zoneID", method = "centroid"),
+  controlUnits = list(areaUnit = "m^2", perimUnit = "m", distUnit = "m"),
+  controlDist = list(maxSearch = 100, method = "centroid", unit =
+    controlUnits$distUnit),
+  filter = list(minArea = NULL, maxArea = NULL),
+  verbose = TRUE
 )
 
 \method{calculate_footstats}{sf}(
   X,
-  index = NULL,
-  metrics = "all",
-  minArea = NULL,
-  maxArea = NULL,
-  controlUnits = NULL,
-  clip = FALSE,
-  gridded = FALSE,
-  template = NULL,
-  outputPath = NULL,
-  outputTag = NULL,
-  driver = "GTiff",
-  verbose = FALSE
+  zone = NULL,
+  what = "all",
+  how = NULL,
+  controlZone = list(zoneName = "zoneID", method = "centroid"),
+  controlUnits = list(areaUnit = "m^2", perimUnit = "m", distUnit = "m"),
+  controlDist = list(maxSearch = 100, method = "centroid", unit =
+    controlUnits$distUnit),
+  filter = list(minArea = NULL, maxArea = NULL),
+  verbose = TRUE
 )
 
 \method{calculate_footstats}{sfc}(
   X,
-  index = NULL,
-  metrics = "all",
-  minArea = NULL,
-  maxArea = NULL,
-  controlUnits = NULL,
-  clip = FALSE,
-  gridded = FALSE,
-  template = NULL,
-  outputPath = NULL,
-  outputTag = NULL,
-  driver = "GTiff",
-  verbose = FALSE
+  zone = NULL,
+  what = "all",
+  how = NULL,
+  controlZone = list(zoneName = "zoneID", method = "centroid"),
+  controlUnits = list(areaUnit = "m^2", perimUnit = "m", distUnit = "m"),
+  controlDist = list(maxSearch = 100, method = "centroid", unit =
+    controlUnits$distUnit),
+  filter = list(minArea = NULL, maxArea = NULL),
+  verbose = TRUE
 )
 
 \method{calculate_footstats}{sp}(
   X,
-  index = NULL,
-  metrics = "all",
-  minArea = NULL,
-  maxArea = NULL,
-  controlUnits = NULL,
-  clip = FALSE,
-  gridded = FALSE,
-  template = NULL,
-  outputPath = NULL,
-  outputTag = NULL,
-  driver = "GTiff",
-  verbose = FALSE
+  zone = NULL,
+  what = "all",
+  how = NULL,
+  controlZone = list(zoneName = "zoneID", method = "centroid"),
+  controlUnits = list(areaUnit = "m^2", perimUnit = "m", distUnit = "m"),
+  controlDist = list(maxSearch = 100, method = "centroid", unit =
+    controlUnits$distUnit),
+  filter = list(minArea = NULL, maxArea = NULL),
+  verbose = TRUE
 )
 
 \method{calculate_footstats}{character}(
   X,
-  index = NULL,
-  metrics = "all",
-  minArea = NULL,
-  maxArea = NULL,
-  controlUnits = NULL,
-  clip = FALSE,
-  gridded = FALSE,
-  template = NULL,
-  outputPath = NULL,
-  outputTag = NULL,
-  driver = "GTiff",
-  verbose = FALSE
-)
-
-\method{calculate_footstats}{list}(
-  X,
-  index = NULL,
-  metrics = "all",
-  minArea = NULL,
-  maxArea = NULL,
-  controlUnits = NULL,
-  clip = FALSE,
-  gridded = FALSE,
-  template = NULL,
-  outputPath = NULL,
-  outputTag = NULL,
-  driver = "GTiff",
-  verbose = FALSE
+  zone = NULL,
+  what = "all",
+  how = NULL,
+  controlZone = list(zoneName = "zoneID", method = "centroid"),
+  controlUnits = list(areaUnit = "m^2", perimUnit = "m", distUnit = "m"),
+  controlDist = list(maxSearch = 100, method = "centroid", unit =
+    controlUnits$distUnit),
+  filter = list(minArea = NULL, maxArea = NULL),
+  verbose = TRUE
 )
 }
 \arguments{
 \item{X}{object with building footprint polygons. This argument can take
 multiple spatial types, including \code{sf} and \code{sp}, or a filepath
-string to a file, or a list where each member provides a spatial object or
-a filepath string.}
+string to a file.}
 
-\item{index}{A spatial polygon file defining areas. Or a character or numeric
-value identifying a column within \code{X} which provides a zonal index for
-summarising values. Alternatively a vector of indices can be provided. If
-omitted all observations with
-\code{X} are assumed to be within one zone.}
+\item{zone}{A spatial polygon file defining areas. Or a string identifying a
+column within \code{X} which provides a zonal index for summarising values.
+Alternatively a vector of indices (with \code{length(index)==nrow(X)}) can
+be provided. If omitted, all observations in \code{X} are assumed to be
+within one zone.}
 
-\item{metrics}{character vector. Names of footprint statistics in the form of
-"fs_area_mean", etc. Other options include \code{ALL} or \code{NODIST} to
-calculate all available metrics and all except nearest neighbour distances,
-respectively.}
+\item{what}{list of strings naming the columns or built-in geometry measures to
+calculate for each footprint. Other options include \code{'all'} or
+\code{'nodist'} to calculate all available characteristics and all except
+nearest-neighbour distance metrics.}
 
-\item{minArea}{numeric. Minimum footprint area to filter \code{X}.}
+\item{how}{list of strings naming functions to be used to calculate summary
+statistics. The functions can be built-in functions (e.g. "mean","sd"), or
+user-defined function names.}
 
-\item{maxArea}{numeric. Maximum footprint area to filter \code{X}.}
+\item{controlZone}{(optional) named list. Setting controls passed on to 
+\code{\link[foot]{zonalIndex}}. Elements can include \code{zoneName} and
+\code{method}.}
 
 \item{controlUnits}{(optional) named list. Elements can include
 \code{areaUnit}, \code{perimUnit}, and \code{distUnit}. The values for
 these items should be strings that can be coerced into a \code{units}
 object.}
 
-\item{clip}{(optional). Logical. Should polygons which span pixel zones be
-clipped? Default is \code{FALSE}.}
+\item{controlDist}{(optional) named list to override default
+options for distance calculations. Elements can include \code{maxSearch}
+and \code{method}. Ignored if \code{metrics} does not include a distance
+calculation. See \code{\link[foot]{fs_nndist}}.}
 
-\item{gridded}{Should a gridded output be created? Default \code{FALSE}.}
-
-\item{template}{(optional). When creating a gridded output, a supplied
-\code{stars} or \code{raster} dataset to align the data.}
-
-\item{outputPath}{(optional). When creating a gridded output, a path for the
-location of the output.}
-
-\item{outputTag}{(optional). A character string that will be added tagged to
-the beginning of the output gridded files. If \code{X} is a \code{list},
-then the names of the list items will be used or a vector of tags of the
-same length as \code{X} should be supplied.}
-
-\item{driver}{character. Currently supports geotiff ("GTiff").}
+\item{filter}{(optional) named list with \code{minArea} and \code{maxArea}.
+These are numeric values to filter footprints prior to processing. Default
+values are \code{NULL} and do not filter any records.}
 
 \item{verbose}{logical. Should progress messages be printed. 
-Default \code{False}.}
+Default \code{TRUE}.}
 }
 \value{
-a \code{data.table} with an 'index' column and named columns for each
-  footprint statistic. Alternatively, geoTiffs of
+a \code{data.table} with an index column identifying the zones and
+  named columns for each footprint summary statistic.
 }
 \description{
 Calculate groups of metrics for building footprint datasets
 }
 \details{
 calculate_footstats
+
+\code{calculate_footstats} is a wrapper function combining several
+  internal functions from \code{foot}. It can calculate various geometric
+  measures for each footprint polygon, including area, perimeter,
+  compactness, shape, angle of rotation, and nearest neighbour distance. To
+  find the list of built-in characteristics and summary metrics, use
+  \code{list_fs()}.
+  
+  The \code{what} and \code{how} arguments are lists specifying the
+  characteristics and the summary metrics to calculated, respectively. Each
+  "how" function will be applied to each "what" characteristic. To apply a
+  metric to only a subset of characteristics, nested lists, with groups of
+  characteristics and functions can be supplied. See examples. 
+  
+  The \code{control} arguments are sets of lists with named arguments that
+  pass on these parameters to other \code{foot} functions. These are
+  optional.
 }
 \examples{
-data(kampala)
+data("kampala", package="foot")
 buildings <- kampala$buildings
 adminzones <- kampala$adminZones
 
-calculate_footstats(buildings, 
-                    index=adminzones, 
-                    metrics=c("fs_area_mean","fs_area_cv"))    
+# no summary statistics, just geometry calculations
+calculate_footstats(buildings, adminzones, what=list("area","perimeter"))
 
+# average building footprint area
+calculate_footstats(buildings, 
+                    zone=adminzones, 
+                    what="area", how="mean")
+                    
+# calculate multiple metrics - nested lists to group arguments
+calculate_footstats(buildings, adminzones, 
+                    what=list(list("area"), list("perimeter")), 
+                    how=list(list("mean","sum"), list("sd","cv")))
+                    
+}
+\seealso{
+\link[foot]{zonalIndex}, \link[foot]{fs_nndist}, \link[foot]{list_fs}
 }

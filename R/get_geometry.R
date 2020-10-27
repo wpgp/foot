@@ -71,13 +71,11 @@ fs_compact <- function(X){
   if(!inherits(X, 'sf')){
     X <- sf::st_as_sf(X)
   }
-  
-  if(!"fs_area" %in% names(X)){
-    if(any(!sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON"))){
+
+  if(any(!sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON"))){
       stop("Area requires polygons")
-    } else{
+  } else{
       X[["fs_area"]] <- fs_area(X, unit="m^2")
-    }
   }
   
   if(!"fs_perimeter" %in% names(X)){
@@ -99,6 +97,8 @@ fs_compact <- function(X){
 #' 
 #' @description Calculates a measure of shape or "roundness".
 #' @param X polygons of building footprints of type \code{sf}.
+#' @param unit string indicating unit of measure. Passed to
+#'   \code{units::set_units}.
 #' @return numeric vector with shape index values ranging from 0 to 1 or each
 #'   item in \code{X}.
 #' 
@@ -110,9 +110,18 @@ fs_compact <- function(X){
 #' The function first looks for pre-calculated values of area in a field called
 #' \code{fs_area}. If not present, the areas are calculated in m^2.
 #' 
+#' @examples 
+#' data("kampala", package="foot")
+#' buildings = kampala$buildings
+#' 
+#' fs_shape(buildings)
+#' 
+#' # how the calculation is done - first observation
+#' fs_area(buildings[1,]) / fs_area(fs_mbc(buildings[1,]))
+#' 
 #' @name fs_shape
 #' @export
-fs_shape <- function(X){
+fs_shape <- function(X, unit=NULL){
   if(!inherits(X, "sf")){
     X <- sf::st_as_sf(X)
   }
@@ -121,17 +130,21 @@ fs_shape <- function(X){
     stop("Shape index requires polygons")
   } 
   
+  if(is.null(unit)){
+    unit <- "m^2"
+  }
+  
   if(!"fs_area" %in% names(X)){
-    X[["fs_area"]] <- fs_area(X, unit="m^2")
+    X[["fs_area"]] <- fs_area(X, unit=unit)
   } else{
-    units(X$fs_area) <- units::as_units("m^2")
+    units(X$fs_area) <- units::as_units(unit)
   }
   
   DT <- data.table::data.table(sf::st_drop_geometry(X),
                                geom=sf::st_geometry(X))
   
   DT[, mbc := fs_mbc(geom)]
-  DT[, mbcA := fs_area(mbc, unit="m^2")]
+  DT[, mbcA := fs_area(mbc, unit=unit)]
   # calculate index
   DT[, shapeIdx := fs_area / mbcA]
   units(DT$shapeIdx) <- NULL
@@ -148,7 +161,7 @@ fs_shape <- function(X){
 #'
 #' @param X polygons of building footprints in type \code{sf}.
 #' @param returnShape logical. Should the function return the \code{sf} polygon
-#'   of the rotated bounding rectange or should it retun the angle (in degrees).
+#'   of the rotated bounding rectangle or should it return the angle (in degrees).
 #' @return a numeric angle from 0 to 360 degrees or the rotated rectangle as a
 #'   polygon of type \code{sf}.
 #' @details This function is currently not vectorized and processing is limited
@@ -201,40 +214,6 @@ fs_mbr <- function(X, returnShape=FALSE){
   } else{
     return(unlist(resList))
   }
-  
-  # if(sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON", "POINT", "MULTIPOINT")){
-  #   p <- sf::st_coordinates(X)[,1:2]
-  # } else if(class(X) != "Matrix"){
-  #   stop("Invalid coordinates.")
-  # }  
-  # 
-  # # Analyze the convex hull edges     
-  # a <- chull(p)                                   # Indexes of extremal points
-  # a <- c(a, a[1])                                 # Close the loop
-  # e <- p[a[-1],] - p[a[-length(a)], ]             # Edge directions
-  # norms <- sqrt(rowSums(e^2))                     # Edge lengths
-  # v <- e / norms                                  # Unit edge directions
-  # w <- cbind(-v[,2], v[,1])                       # Normal directions to the edges
-  # 
-  # # Find the MBR
-  # vertices <- p[a, ]                              # Convex hull vertices
-  # x <- apply(vertices %*% t(v), 2, range)         # Extremes along edges
-  # y <- apply(vertices %*% t(w), 2, range)         # Extremes normal to edges
-  # areas <- (y[1,]-y[2,])*(x[1,]-x[2,])            # Areas
-  # k <- which.min(areas)                           # Index of the best edge (smallest area)
-  # 
-  # # Form a rectangle from the extremes of the best edge
-  # R <- rbind(v[k,], w[k,])
-  # # print((atan2(R[2,1], R[1,1]) * 180/pi) %% 360)
-  # mbr <- cbind(x[c(1,2,2,1,1),k], y[c(1,1,2,2,1),k]) %*% R
-  # 
-  # if(returnShape){
-  #   return(sf::st_polygon(list(mbr)))
-  #   
-  # } else{
-  #   angle <- (atan2(R[2,1], R[1,1]) * 180/pi) %% 360
-  #   return(angle)
-  # }
 }
 
 

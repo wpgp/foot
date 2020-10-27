@@ -4,6 +4,7 @@
 \alias{fs_angle_entropy}
 \alias{fs_angle_entropy.sp}
 \alias{fs_angle_entropy.sf}
+\alias{fs_angle_entropy.sfc}
 \title{Building angle calculation}
 \usage{
 fs_angle_entropy(X, index = NULL, col = NULL, normalize = TRUE)
@@ -11,19 +12,24 @@ fs_angle_entropy(X, index = NULL, col = NULL, normalize = TRUE)
 \method{fs_angle_entropy}{sp}(X, index = NULL, col = NULL, normalize = TRUE)
 
 \method{fs_angle_entropy}{sf}(X, index = NULL, col = NULL, normalize = TRUE)
+
+\method{fs_angle_entropy}{sfc}(X, index = NULL, col = NULL, normalize = TRUE)
 }
 \arguments{
 \item{X}{Spatial object with building footprint polygons}
 
-\item{index}{A character or numeric value identifying a column within \code{X} 
-which provides a zonal index for summarising values. Alternatively a vector of 
-indices can be provided. If omitted all observations in \code{X} are assumed 
-to be within one zone.}
+\item{index}{A string identifying a column within \code{X} which provides a
+zonal index for summarising values. Alternatively a vector of indices can
+be provided. If omitted, all observations in \code{X} are assumed to be
+within one zone.}
 
 \item{col}{column name within \code{X} with pre-calculated area measures}
 
 \item{normalize}{A logical value indicating whether to normalize the entropy. 
 Default is \code{TRUE}.}
+
+\item{unit}{character or \code{units} object to define area. Default is
+\code{NULL} which will use the units of the spatial reference system}
 }
 \value{
 \code{data.table} of zonal indices and values.
@@ -33,9 +39,32 @@ Calculate the entropy of rotation angles for building footprint
 polygons within zones.
 }
 \details{
-This measure uses the angle of the minimum rotated rectangle enclosing 
-each footprint poygon. Entropy is an information criteria measure. When summarising
-the angles of footprints, higher entropy values may suggest less formally planned 
-or zoned areas. The entropy calculation uses the common Shannon's Entropy. The 
-normalization step produces an indicator for how much a zone departs from a grid.
+This measure uses the angle of the minimum rotated rectangle
+  enclosing each footprint polygon. Entropy is an information criteria
+  measure. When summarising the angles of footprints, higher entropy values
+  may suggest less formally planned or zoned areas. The entropy calculation
+  uses the common Shannon's Entropy. The normalization step produces an
+  indicator for how much a zone departs from a grid. This metric is based on
+  work by Boeing (2019).
+  
+  Note that this function is provided as a standalone calculation for
+  convenience. The same summary measure can be executed within
+  \code{calculate_footstats} by specifying \code{what='angle'} and
+  \code{how='entropy'}.
+}
+\examples{
+data("kampala", package="foot")
+b <- kampala$buildings
+
+# assign random groups
+idx <- sample(1:10, nrow(b), replace=T)
+
+angles <- fs_angle_entropy(b, index=idx, normalize=FALSE)
+angle_norm <- fs_angle_entropy(b, index=idx, normalize=TRUE)
+
+}
+\references{
+Boeing, Geoff (2019). "Urban spatial order: Street network
+  orientation, configuration, and entropy." Applied Network Science, 4(67),
+  \url{https://doi.org/10.1007/s41109-019-0189-1}.
 }

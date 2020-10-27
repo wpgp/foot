@@ -1,6 +1,5 @@
 #' gridTiles
 #' 
-#' @title gridTiles
 #' @description Split gridded data extents into subsets for parallel processing.
 #' @param X The gridded (\code{raster} or \code{stars}) object to find tiles
 #' @param n number of tiles. Can be a vector length 1 or of length 2 (rows,
@@ -10,7 +9,7 @@
 #' @param overlap number of pixels of overlap between internal tiles
 #'
 #' @details \code{gridTiles} provides a convenient way for splitting a gridded
-#'   dataset into subdatasets for cropping or processing individually. The
+#'   dataset into sub-datasets for cropping or processing individually. The
 #'   splitting uses the extent of the total grid, potentially including noData
 #'   cells.
 #'
@@ -23,6 +22,15 @@
 #'   \item cropXsize number of columns in the tile 
 #'   \item cropYsize number of rows in the tile 
 #'   }
+#'   
+#'  @examples 
+#'  data("kampala")
+#'  # example dataset
+#'  g <- kampala$mastergrid
+#'  
+#'  gridTiles(g)
+#'  gridTiles(g, n=2)
+#'  gridTiles(g, px=c(5, 25))
 #' 
 #' @aliases gridTiles
 #' @rdname gridTiles
@@ -38,7 +46,7 @@ gridTiles.stars <- function(X, n=NULL, px=c(1000, 1000), overlap=0){
   if(!is.null(n)){
     if(length(n) == 1){
       pxX <- pxY <- max(ceiling(stars::st_dimensions(X)$y$to / n),
-                        ceiling(tars::st_dimensions(X)$x$to / n))
+                        ceiling(stars::st_dimensions(X)$x$to / n))
     } else{
       pxY <- ceiling(stars::st_dimensions(X)$y$to / n[1])
       pxX <- ceiling(stars::st_dimensions(X)$x$to / n[2])

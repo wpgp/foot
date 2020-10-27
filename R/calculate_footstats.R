@@ -4,89 +4,116 @@
 #' @description Calculate groups of metrics for building footprint datasets
 #' @param X object with building footprint polygons. This argument can take
 #'   multiple spatial types, including \code{sf} and \code{sp}, or a filepath
-#'   string to a file, or a list where each member provides a spatial object or
-#'   a filepath string.
-#' @param index A spatial polygon file defining areas. Or a character or numeric
-#'   value identifying a column within \code{X} which provides a zonal index for
-#'   summarising values. Alternatively a vector of indices can be provided. If
-#'   omitted all observations with
-#'   \code{X} are assumed to be within one zone.
-#' @param metrics character vector. Names of footprint statistics in the form of
-#'   "fs_area_mean", etc. Other options include \code{ALL} or \code{NODIST} to
-#'   calculate all available metrics and all except nearest neighbour distances,
-#'   respectively.
-#' @param minArea numeric. Minimum footprint area to filter \code{X}.
-#' @param maxArea numeric. Maximum footprint area to filter \code{X}.
+#'   string to a file.
+#' @param zone A spatial polygon file defining areas. Or a string identifying a
+#'   column within \code{X} which provides a zonal index for summarising values.
+#'   Alternatively a vector of indices (with \code{length(index)==nrow(X)}) can
+#'   be provided. If omitted, all observations in \code{X} are assumed to be
+#'   within one zone.
+#' @param what list of strings naming the columns or built-in geometry measures to
+#'   calculate for each footprint. Other options include \code{'all'} or
+#'   \code{'nodist'} to calculate all available characteristics and all except
+#'   nearest-neighbour distance metrics.
+#' @param how list of strings naming functions to be used to calculate summary
+#'   statistics. The functions can be built-in functions (e.g. "mean","sd"), or
+#'   user-defined function names.
+#' @param controlZone (optional) named list. Setting controls passed on to 
+#'   \code{\link[foot]{zonalIndex}}. Elements can include \code{zoneName} and
+#'   \code{method}.
 #' @param controlUnits (optional) named list. Elements can include
 #'   \code{areaUnit}, \code{perimUnit}, and \code{distUnit}. The values for
 #'   these items should be strings that can be coerced into a \code{units}
 #'   object.
-#' @param clip (optional). Logical. Should polygons which span pixel zones be
-#'   clipped? Default is \code{FALSE}. 
-#' @param gridded Should a gridded output be created? Default \code{FALSE}.
-#' @param template (optional). When creating a gridded output, a supplied
-#'   \code{stars} or \code{raster} dataset to align the data.
-#' @param outputPath (optional). When creating a gridded output, a path for the
-#'   location of the output.
-#' @param outputTag (optional). A character string that will be added tagged to
-#'   the beginning of the output gridded files. If \code{X} is a \code{list},
-#'   then the names of the list items will be used or a vector of tags of the
-#'   same length as \code{X} should be supplied.
-#' @param driver character. Currently supports geotiff ("GTiff").
+#' @param controlDist (optional) named list to override default
+#'   options for distance calculations. Elements can include \code{maxSearch}
+#'   and \code{method}. Ignored if \code{metrics} does not include a distance
+#'   calculation. See \code{\link[foot]{fs_nndist}}. 
+#' @param filter (optional) named list with \code{minArea} and \code{maxArea}.
+#'   These are numeric values to filter footprints prior to processing. Default
+#'   values are \code{NULL} and do not filter any records.
 #' @param verbose logical. Should progress messages be printed. 
-#' Default \code{False}.
+#' Default \code{TRUE}.
 #' 
-#' @return a \code{data.table} with an 'index' column and named columns for each
-#'   footprint statistic. Alternatively, geoTiffs of 
+#' @details \code{calculate_footstats} is a wrapper function combining several
+#'   internal functions from \code{foot}. It can calculate various geometric
+#'   measures for each footprint polygon, including area, perimeter,
+#'   compactness, shape, angle of rotation, and nearest neighbour distance. To
+#'   find the list of built-in characteristics and summary metrics, use
+#'   \code{list_fs()}.
+#'   
+#'   The \code{what} and \code{how} arguments are lists specifying the
+#'   characteristics and the summary metrics to calculated, respectively. Each
+#'   "how" function will be applied to each "what" characteristic. To apply a
+#'   metric to only a subset of characteristics, nested lists, with groups of
+#'   characteristics and functions can be supplied. See examples. 
+#'   
+#'   The \code{control} arguments are sets of lists with named arguments that
+#'   pass on these parameters to other \code{foot} functions. These are
+#'   optional.
+#' 
+#' @return a \code{data.table} with an index column identifying the zones and
+#'   named columns for each footprint summary statistic.
 #'   
 #' @examples 
-#' data(kampala)
+#' data("kampala", package="foot")
 #' buildings <- kampala$buildings
 #' adminzones <- kampala$adminZones
 #' 
+#' # no summary statistics, just geometry calculations
+#' calculate_footstats(buildings, adminzones, what=list("area","perimeter"))
+#' 
+#' # average building footprint area
 #' calculate_footstats(buildings, 
-#'                     index=adminzones, 
-#'                     metrics=c("fs_area_mean","fs_area_cv"))    
+#'                     zone=adminzones, 
+#'                     what="area", how="mean")
+#'                     
+#' # calculate multiple metrics - nested lists to group arguments
+#' calculate_footstats(buildings, adminzones, 
+#'                     what=list(list("area"), list("perimeter")), 
+#'                     how=list(list("mean","sum"), list("sd","cv")))
+#'                     
+#' @seealso \link[foot]{zonalIndex}, \link[foot]{fs_nndist}, \link[foot]{list_fs}
 #' 
 #' @aliases calculate_footstats
 #' @rdname calculate_footstats
 #' 
 #' @export
-calculate_footstats <- function(X, 
-                                index=NULL, 
-                                metrics='all',
-                                minArea=NULL,
-                                maxArea=NULL,
-                                controlUnits=NULL,
-                                clip=FALSE,
-                                gridded=FALSE, 
-                                template=NULL,
-                                outputPath=NULL,
-                                outputTag=NULL,
-                                driver="GTiff",
-                                verbose=FALSE) UseMethod("calculate_footstats")
+calculate_footstats <- function(X, zone=NULL, what='all', how=NULL,
+                                controlZone=list(zoneName="zoneID", 
+                                                 method="centroid"), 
+                                controlUnits=list(areaUnit="m^2", 
+                                                  perimUnit="m", 
+                                                  distUnit="m"), 
+                                controlDist=list(maxSearch=100, 
+                                                 method="centroid", 
+                                                 unit=controlUnits$distUnit),
+                                filter=list(minArea=NULL, 
+                                            maxArea=NULL),
+                                verbose=TRUE) UseMethod("calculate_footstats") 
 
 #' @name calculate_footstats
 #' @export
-calculate_footstats.sf <- function(X, index=NULL, metrics='all', 
-                                   minArea=NULL,
-                                   maxArea=NULL,
-                                   controlUnits=NULL,
-                                   clip=FALSE,
-                                   gridded=FALSE, template=NULL, 
-                                   outputPath=NULL, 
-                                   outputTag=NULL,
-                                   driver="GTiff",
-                                   verbose=FALSE){
+calculate_footstats.sf <- function(X, zone=NULL, what='all', how=NULL,
+                                   controlZone=list(zoneName="zoneID", 
+                                                    method="centroid"), 
+                                   controlUnits=list(areaUnit="m^2", 
+                                                     perimUnit="m", 
+                                                     distUnit="m"), 
+                                   controlDist=list(maxSearch=100, 
+                                                    method="centroid", 
+                                                    unit=controlUnits$distUnit),
+                                   filter=list(minArea=NULL, 
+                                               maxArea=NULL),
+                                   verbose=TRUE){
   
   if(any(!sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON") )){
     message("Footprint statistics require polygon shapes.")
     stop()
   }
   
-  result <- calc_fs_internal(X, index, metrics, minArea, maxArea,
-                             controlUnits, clip, gridded, 
-                             template, outputPath, outputTag, driver, verbose)
+  result <- calc_fs_internal(X, zone, what, how,
+                             controlZone, controlUnits, controlDist,
+                             filter, verbose)
   
   return(result)
 }
@@ -94,27 +121,26 @@ calculate_footstats.sf <- function(X, index=NULL, metrics='all',
 
 #' @name calculate_footstats
 #' @export
-calculate_footstats.sfc <- function(X, index=NULL, metrics='all', 
-                                    minArea=NULL,
-                                    maxArea=NULL,
-                                    controlUnits=NULL,
-                                    clip=FALSE,
-                                    gridded=FALSE, template=NULL, 
-                                    outputPath=NULL, 
-                                    outputTag=NULL,
-                                    driver="GTiff",
-                                    verbose=FALSE){
+calculate_footstats.sfc <- function(X, zone=NULL, what='all', how=NULL,
+                                    controlZone=list(zoneName="zoneID", 
+                                                     method="centroid"), 
+                                    controlUnits=list(areaUnit="m^2", 
+                                                      perimUnit="m", 
+                                                      distUnit="m"), 
+                                    controlDist=list(maxSearch=100, 
+                                                     method="centroid", 
+                                                     unit=controlUnits$distUnit),
+                                    filter=list(minArea=NULL, 
+                                                maxArea=NULL),
+                                    verbose=TRUE){
   # cast to sf for consistency
   X <- sf::st_as_sf(X)
   
-  result <- calculate_footstats(X, index=index, metrics=metrics, 
-                                minArea=minArea, maxArea=maxArea,
+  result <- calculate_footstats(X, zone=zone, what=what, how=how, 
+                                controlZone=controlZone,
                                 controlUnits=controlUnits,
-                                clip=clip,
-                                gridded=gridded, template=template, 
-                                outputPath=outputPath, 
-                                outputTag=outputTag,
-                                driver=driver,
+                                controlDist=controlDist,
+                                filter=filter,
                                 verbose=verbose)
   return(result)
 }
@@ -122,173 +148,103 @@ calculate_footstats.sfc <- function(X, index=NULL, metrics='all',
 
 #' @name calculate_footstats
 #' @export
-calculate_footstats.sp <- function(X, index=NULL, metrics='all', 
-                                   minArea=NULL,
-                                   maxArea=NULL,
-                                   controlUnits=NULL,
-                                   clip=FALSE,
-                                   gridded=FALSE, template=NULL, 
-                                   outputPath=NULL, 
-                                   outputTag=NULL,
-                                   driver="GTiff",
-                                   verbose=FALSE){
+calculate_footstats.sp <- function(X, zone=NULL, what='all', how=NULL,
+                                   controlZone=list(zoneName="zoneID", 
+                                                    method="centroid"), 
+                                   controlUnits=list(areaUnit="m^2", 
+                                                     perimUnit="m", 
+                                                     distUnit="m"), 
+                                   controlDist=list(maxSearch=100, 
+                                                    method="centroid", 
+                                                    unit=controlUnits$distUnit),
+                                   filter=list(minArea=NULL, 
+                                               maxArea=NULL),
+                                   verbose=TRUE){
   # convert to sf
   X <- sf::st_as_sf(X)
   
-  result <- calculate_footstats(X, index=index, metrics=metrics, 
-                                minArea=minArea, maxArea=maxArea,
-                                controlUnits=controlUnits, clip=clip,
-                                gridded=gridded, template=template, 
-                                outputPath=outputPath, 
-                                outputTag=outputTag,
-                                driver=driver,
-                                verbose=verbose)
+  result <- calculate_footstats(X, zone, what, how,
+                                controlZone, controlUnits, controlDist,
+                                filter, verbose)
   return(result)
 }
 
 
 #' @name calculate_footstats
 #' @export
-calculate_footstats.character <- function(X, index=NULL, metrics='all',
-                                          minArea=NULL,
-                                          maxArea=NULL,
-                                          controlUnits=NULL,
-                                          clip=FALSE,
-                                          gridded=FALSE, template=NULL, 
-                                          outputPath=NULL, 
-                                          outputTag=NULL,
-                                          driver="GTiff",
-                                          verbose=FALSE){
+calculate_footstats.character <- function(X, zone=NULL, what='all', how=NULL,
+                                          controlZone=list(zoneName="zoneID", 
+                                                           method="centroid"), 
+                                          controlUnits=list(areaUnit="m^2", 
+                                                            perimUnit="m", 
+                                                            distUnit="m"), 
+                                          controlDist=list(maxSearch=100, 
+                                                           method="centroid", 
+                                                           unit=controlUnits$distUnit),
+                                          filter=list(minArea=NULL, 
+                                                      maxArea=NULL),
+                                          verbose=TRUE){
   # attempt to read in file
   X <- sf::st_read(X)
   
-  result <- calculate_footstats(X, index=index, metrics=metrics, 
-                                minArea, maxArea,
-                                controlUnits=controlUnits,
-                                clip=clip,
-                                gridded=gridded, template=template, 
-                                outputPath=outputPath, 
-                                outputTag=outputTag,
-                                driver=driver,
-                                verbose=verbose)
+  result <- calculate_footstats(X, zone, what, how,
+                                controlZone, controlUnits, controlDist,
+                                filter, verbose)
   return(result)
 }
 
 
-#' @name calculate_footstats
-#' @export
-calculate_footstats.list <- function(X, index=NULL, metrics='all', 
-                                     minArea=NULL,
-                                     maxArea=NULL,
-                                     controlUnits=NULL,
-                                     clip=FALSE,
-                                     gridded=FALSE, template=NULL, 
-                                     outputPath=NULL, 
-                                     outputTag=NULL,
-                                     driver="GTiff",
-                                     verbose=FALSE){
-  
-  if(is.null(outputTag)){
-    if(is.null(names(X))){
-      outputTag <- seq_along(X)
-    } else{
-      outputTag <- names(X)
-    }
-  } else{
-    if(length(outputTag) != length(X)){
-      stop("Invalid output tag length.")
-    } 
-  }
-  
-  # expand other arguments - recycling values
-  args <- list(index=index, metrics=metrics, 
-               minArea=minArea, maxArea=maxArea,
-               controlUnits=controlUnits, clip=clip,
-               gridded=gridded, template=template, 
-               outputPath=outputPath, driver=driver, 
-               verbose=verbose)
-  maxL <- max(lengths(args), length(X))
-  args <- lapply(args, rep, length.out=maxL)
-  
-  result <- lapply(seq_along(X), FUN=function(i){
-    calculate_footstats(X[[i]], 
-                        index=args$index[i], 
-                        metrics=args$metrics[i],
-                        minArea=args$minArea[i],
-                        maxArea=args$maxArea[i],
-                        controlUnits=args$controlUnits[i],
-                        clip=args$clip[i],
-                        gridded=args$gridded[i], 
-                        template=args$template[i],
-                        outputPath=args$outputPath[i], 
-                        outputTag=outputTag[[i]],
-                        driver=args$driver[i], 
-                        verbose=args$verbose[i])
-  })
-  
-  return(result)  # should the list be simplified?
-}
-
-
-calc_fs_internal <- function(X, index, metrics, 
-                             minArea, maxArea,
-                             controlUnits, clip,
-                             gridded, template, 
-                             outputPath, outputTag, driver, verbose){
+# internal processing function
+calc_fs_internal <- function(X, zone, what, how,
+                             controlZone, controlUnits, controlDist,
+                             filter, verbose){
   
   if(is.na(st_crs(X))){
-    stop("Polygons must have a spatial reference.")
+    stop("Footprints must have a spatial reference.")
+  }
+ 
+  # get characteristics and metrics
+  if(verbose){ cat(paste0("Selecting metrics \n")) }
+  if("all" %in% what){ 
+    argsDF <- list_fs(what="all", how=how) 
+  } else if("nodist" %in% what){ 
+    argsDF <- list_fs(what="nodist", how=how) 
+  } else if(!is.null(how)){
+    argsX <- crossargs(what, how)
+    argsDF <- do.call(rbind, argsX)
+    argsDF <- unique(argsDF)
+  } 
+  
+  if(is.null(how)){
+    argsDF <- list_fs(what, how=NULL)
+    uchars <- unlist(unique(argsDF))
+    if("nndist" %in% argsDF){ 
+      calcD <- TRUE
+    } else{
+      calcD <- FALSE
+    }
+  } else{
+    uchars <- unlist(unique(argsDF$cols))
+    calcD <- ifelse(nrow(argsDF[argsDF$cols=="nndist" & 
+                                  argsDF$funs != "nnindex",])>0, 
+                    TRUE, FALSE)
   }
   
-  if(verbose){ cat("Creating zonal index \n") }
-  if(!is.null(index)){
-    if(inherits(index, "Spatial")){
-      index <- sf::st_as_sf(index)
-    }
-    if(inherits(index, "sf")){
-      if(any(sf::st_geometry_type(index) %in% c("POLYGON","MULTIPOLYGON"))){
-        indexZones <- index # make copy
-        indexZones$index <- 1:nrow(indexZones)
-        
-        X <- zonalIndex(X, index, returnObject=TRUE, clip=clip)
-        index <- "zoneID"
-        # check for no intersecting
-        if(is.null(X)){
-          return(NULL)
-        }
-      } else{
-        warning("Index must be a polygon or a column name. Ignoring input.")
-        index <- NULL
-      }
-      # drop non-intersecting buildings
-      X <- subset(X, !is.na(zoneID))
-      # check for no intersecting
-      if(nrow(X) == 0){
-        return(NULL)
-      }
-    } else if(class(index) == "numeric"){
-      if(length(index) != nrow(X)) stop("Index length does not match footprints.")
-      
-    } else if(class(index) == "character"){
-      index <- index[1]
-      if(!index %in% names(X)) stop("Index column not found in footprints.")
-      
-    } else{
-      warning("Index must be a polygon or a column name/index. Ignoring input.")
-      index <- rep(1, nrow(X))
-    }
-  }
-  # check for empty zone intersection
-  if(is.null(X) | nrow(X) == 0){
-    return(NULL)
+  # set defaults for controls
+  if(verbose){ cat("Setting control values. \n") }
+  # defaults for zonal indexing
+  providedZone <- controlZone
+  controlZone <- list(zoneName="zoneID", method="centroid")
+  controlZone <- controlZone[order(names(controlZone))]
+  # update with provide values
+  if(!is.null(providedZone)){
+    providedZone <- providedZone[order(names(providedZone))]
+    controlZone[names(controlZone) %in% names(providedZone)] <- providedZone
   }
   
   # get full set of units - sort alphabetically to make matches
   providedUnits <- controlUnits
-  
-  controlUnits <- list(areaUnit=get_fs_units("fs_area_mean"),
-                       perimUnit=get_fs_units("fs_perim_mean"),
-                       distUnit=get_fs_units("fs_nndist_mean"))
+  controlUnits <- list(areaUnit="m^2", perimUnit="m", distUnit="m")
   controlUnits <- controlUnits[order(names(controlUnits))]
   # update with provide values
   if(!is.null(providedUnits)){
@@ -296,228 +252,244 @@ calc_fs_internal <- function(X, index, metrics,
     controlUnits[names(controlUnits) %in% names(providedUnits)] <- providedUnits
   }
   
-  # select and expand list of metrics
-  if(verbose){ cat("Selecting metrics \n") }
-  metrics <- get_fs_metrics(short_names=metrics, group=metrics)
-  # if(toupper(metrics[1]) == 'ALL'){
-  #   metrics <- get_fs_metrics("ALL")
-  # }
-  # 
-  # if(toupper(metrics[1]) == "NODIST"){
-  #   metrics <- get_fs_metrics("NODIST")
-  # }
-  
-  # if(any(grepl("area_cv", metrics, fixed=T))){
-  #   metrics <- c(metrics, "fs_area_mean", "fs_area_sd")
-  #   metrics <- metrics[!grepl("area_cv", metrics)]
-  #   area_cv <- TRUE
-  # } else{
-  #   area_cv <- FALSE
-  # }
-  # 
-  # if(any(grepl("perim_cv", metrics, fixed=T))){
-  #   metrics <- c(metrics, "fs_perim_mean", "fs_perim_sd")
-  #   metrics <- metrics[!grepl("perim_cv", metrics)]
-  #   perim_cv <- TRUE
-  # } else{
-  #   perim_cv <- FALSE
-  # }
-  
-  # if(any(grepl("compact", metrics, fixed=T))){
-  #   compact <- TRUE
-  # } else{
-  #   compact <- FALSE
-  # }
-  
-  nnIndex <- FALSE
-  if(any(grepl("nnindex", metrics, fixed=T))){
-    # metrics <- c(metrics, "fs_nndist_mean", "fs_count")
-    metrics <- metrics[!grepl("nnindex", metrics)]
-    nnIndex <- TRUE
-    # 
-    if(!exists("indexZones")){
-      warning("Nearest neighbour index requires zonal areas.")
-      nnIndex <- FALSE
-    #   zonalArea <- data.table::data.table(index=indexZones$index, 
-    #                                       zoneArea=fs_area(indexZones, 
-    #                                                        unit=controlUnits$areaUnit))
-    }
-  } 
-  
-  if(any(grepl("angle", metrics, fixed=T))){
-    normalize <- TRUE
+  # defaults for distance measures
+  providedDist <- controlUnits
+  controlDist=list(maxSearch=100, 
+                   method="centroid", 
+                   unit=controlUnits$distUnit)
+  controlDist <- controlDist[order(names(controlDist))]
+  # update with provide values
+  if(!is.null(providedDist)){
+    providedDist <- providedDist[order(names(providedDist))]
+    controlDist[names(controlDist) %in% names(providedDist)] <- providedDist
   }
   
-  # pre-calculate unit geometry measures
-  if(any(grepl("area", metrics, fixed=T)) |
-     any(grepl("compact", metrics, fixed=T)) |
-     !is.null(minArea) | !is.null(maxArea)){
-    if(!"fs_area" %in% names(X)){
-      if(verbose){ cat("Pre-calculating footprint areas \n") }
-      X[["fs_area"]] <- fs_area(X, unit=controlUnits$areaUnit)
+  # create zonal index
+  if(!is.null(zone)){
+    if(verbose){ cat("Creating zonal index \n") }
+    if(inherits(zone, "Spatial")){
+      zone <- sf::st_as_sf(zone)
+    }
+    if(inherits(zone, "sf")){
+      if(sf::st_crs(zone) != sf::st_crs(X)){
+        stop("Spatial reference for footprints and zones does not match.")
+      }
+      if(all(sf::st_geometry_type(zone) %in% c("POLYGON","MULTIPOLYGON"))){
+        if(!controlZone$zoneName %in% colnames(zone)){
+          zone[[controlZone$zoneName]] <- 1:nrow(zone)
+        }
+        # create index
+        X <- zonalIndex(X, 
+                        zone=zone, 
+                        zoneField=controlZone$zoneName, 
+                        method=controlZone$method, 
+                        returnObject=TRUE)
+        # check for no intersecting
+        if(is.null(X)){
+          return(NULL)
+        }
+        # get the geometry attribute
+        geomField <- attr(X, which="sf_column")
+      } else{ # found 'sf' data but not polygons
+        warning("Zone must be a spatial polygon. Ignoring input.")
+        zone <- NULL
+        X[[controlZone$zoneName]] <- rep(1, nrow(X))
+      }
+      # drop non-intersecting buildings
+      # X <- subset(X, !is.na(controlZone$zoneName))
+      X <- sf::st_as_sf(subset(data.table::setDT(X), !is.na(controlZone$zoneName)))
+      # check for no intersecting
+      if(nrow(X) == 0){
+        if(verbose){ cat("No records found in zones. \n") }
+        return(NULL)
+      }
+    } else if(FALSE){ #is raster or is stars){
+      
+    } else if(is.character(zone)){ # could be column or a vector of codes
+      if(length(zone)==1){ # do we only have 1 footprint?
+        if(nrow(X)>1){ # it must be a column name
+          if(!zone %in% colnames(X)){
+            stop("Index column not found in footprints.")
+          } else{
+            controlZone$zoneName <- zone
+            zone <- NULL
+          }
+        } # potential issue if 1 row X and 1 column name - won't affect calcs
+      } else if(length(zone != nrow(X))){
+        stop("Invalid length of zonal index.")
+      }
+    } else if(is.numeric(zone)){
+      if(length(zone) != nrow(X)){
+        stop("Invalid length of zonal index.")
+      } else{
+        X[[controlZone$zoneName]] <- zone
+        zone <- NULL
+      }
+    }
+  } else{ # zone is null
+    # if(verbose) cat("No zone index provided, treating as one group. \n")
+    X[[controlZone$zoneName]] <- rep(1, nrow(X))
+  }
+
+  # check for empty zone intersection
+  if(is.null(X) | nrow(X) == 0){
+    return(NULL)
+  }
+
+  # pre-calculate 'whats'
+  if('area' %in% uchars |
+     !is.null(filter$minArea) | !is.null(filter$maxArea)){
+    if(!'area' %in% colnames(X)){
+      if(verbose){ cat("Pre-calculating areas \n") }
+      X[['area']] <- fs_area(X, unit=controlUnits$areaUnit)
+    } else{
+      if(verbose){ cat("Area data column already exists \n") }
     }
   }
-  
-  if(any(grepl("perim", metrics, fixed=T)) |
-     any(grepl("compact", metrics, fixed=T))){
-    if(!"fs_perim" %in% names(X)){
-      if(verbose){ cat("Pre-calculating footprint perimeters \n")}
-      X[["fs_perim"]] <- fs_perimeter(X, unit=controlUnits$perimUnit)
-    }
-  }
-  
-  if(any(grepl("nndist", metrics, fixed=T))){
-    if(!"fs_nndist" %in% names(X)){
-      if(verbose){ cat("Pre-calculating nearest neighbour distances \n") }
-      X[["fs_nndist"]] <- fs_nndist(X, unit=controlUnits$distUnit)
-    }
-  }
-  
-  if(any(grepl("angle", metrics, fixed=T))){
-    if(!"fs_angle" %in% names(X)){
-      if(verbose){ cat("Pre-calculating angles \n") }
-      X[["fs_angle"]] <- fs_mbr(X)
-    }
-  }
-  
+
   # filter records
-  if(!is.null(minArea)){
-    if(verbose) { cat(paste0("Filtering features larger than ", minArea," \n")) }
-    X <- subset(X, fs_area > units::as_units(minArea, 
-                                             controlUnits$areaUnit))
+  if(!is.null(filter$minArea)){
+    if(verbose) { cat(paste0(" Filtering features larger than ", 
+                             filter$minArea," \n")) }
+    X <- sf::st_as_sf(subset(data.table::setDT(X), 
+                             area > units::set_units(filter$minArea, 
+                                                     controlUnits$areaUnit,
+                                                     mode="standard")))
   }
-  
-  if(!is.null(maxArea)){
-    if(verbose) { cat(paste0("Filtering features smaller than ", maxArea," \n")) }
-    X <- subset(X, fs_area < units::as_units(maxArea, 
-                                             controlUnits$areaUnit))
+  if(!is.null(filter$maxArea)){
+    if(verbose) { cat(paste0(" Filtering features smaller than ", 
+                             filter$maxArea," \n")) }
+    
+    X <- sf::st_as_sf(subset(data.table::setDT(X), 
+                             area < units::set_units(filter$maxArea, 
+                                                     controlUnits$areaUnit,
+                                                     mode="standard")))
   }
   if(nrow(X) == 0){ # filter removed all?
+    if(verbose){ cat("No records found in zones. \n") }
     return(NULL)
   }
   
-  # creating the names of the functions to call
-  metrics <- unique(metrics)
-  metrics_calc <- paste0(metrics, "_calc")
-  if(verbose){ cat("\nCalculating ", length(metrics_calc)  ," metrics ... \n")}
+  if('perimeter' %in% uchars){
+    if(!'perimeter' %in% colnames(X)){
+      if(verbose){ cat("Pre-calculating perimeters \n") }
+      X[['perimeter']] <- fs_perimeter(X, unit=controlUnits$perimUnit)
+    } else{
+      if(verbose){ cat("Perimeter data column already exists \n") }
+    }
+  }
   
-  result <- lapply(seq_along(metrics_calc), function(current_metric){
-    if(verbose){ cat("  ", metrics[[current_metric]], " \n") }
-    func <- get(metrics_calc[[current_metric]], mode="function")
+  if('angle' %in% uchars){
+    if(!'angle' %in% colnames(X)){
+      if(verbose){ cat("Pre-calculating angles \n") }
+      X[['angle']] <- fs_mbr(X, returnShape=FALSE)
+    } else{
+      if(verbose){ cat("Angle data column already exists \n") }
+    }
+  }
+  
+  if('shape' %in% uchars){
+    if(!'shape' %in% colnames(X)){
+      if(verbose){ cat("Pre-calculating shape \n") }
+      X[['shape']] <- fs_shape(X, unit=controlUnits$areaUnit)
+    } else{
+      if(verbose){ cat("Shape data column already exists \n") }
+    }
+  }
+  
+  if('compact' %in% uchars){
+    if(!'compact' %in% colnames(X)){
+      if(verbose){ cat("Pre-calculating compactness \n") }
+      X[['compact']] <- fs_compact(X)
+    } else{
+      if(verbose){ cat("Shape data column already exists \n") }
+    }
+  }
+  
+  if('settled' %in% uchars){
+    if(!'settled' %in% colnames(X)){
+      X[['settled']] <- 1
+    } 
+  }
+  
+  if('nndist' %in% uchars & calcD){
+    if(!'dist' %in% colnames(X)){
+      if(verbose){ cat("Pre-calculating nearest neighbour distances \n") }
+        X[['nndist']] <- fs_nndist(X, 
+                                   maxSearch=controlDist$maxSearch, 
+                                   method=controlDist$method, 
+                                   unit=controlUnits$distUnit)
+    } else{
+      if(verbose){ cat("NN distance data column already exists. \n") }
+    }
+  }
+  
+  if(is.null(how)){
+    if(verbose){ cat("No summary functions found, returning metrics. \n\n") }
+    return(data.table::data.table(sf::st_drop_geometry(X[, uchars])))
+  }
+  # check for invalid characteristic/function pairs
+  # but need to exclude user-supplied columns
+  # if(verbose){ cat("Checking for valid function parameter pairings. \n") }
+  if(is.null(zone)){ 
+    argsDF <- argsDF[!argsDF$funs == "nnindex", ]
+  }
+  # # update parameters
+  # argsDF$params <- argsDF$cols
+  # argsDF[argsDF$funs=="nnindex" & 
+  #          argsDF$cols=="nndist", "params"] <- fs_varlist(geomField, zone)
+  
+  # convert to data.frame
+  DT <- data.table::setDT(X)
+  data.table::setkeyv(DT, controlZone$zoneName)
+  
+  # main processing loop -- working!
+  if(verbose){ cat("\nCalculating ", nrow(argsDF)  ," metrics ... \n")}
+  
+  result <- lapply(1:nrow(argsDF), function(i){
+    params <- unlist(argsDF[i, "cols"])
+    calc_func <- unlist(argsDF[i, "funs"])
+    if(verbose){ cat("  ", params, calc_func, " \n") }
+    newNm <- paste(paste(params, collapse="_"), calc_func, sep="_")
     
-    # getUnit <- fs_footprint_metrics$default_units[match(metrics[[current_metric]], fs_footprint_metrics$name)]
-    getUnit <- switch(get_fs_group(metrics[[current_metric]]), 
-                      area = controlUnits$areaUnit,
-                      perim = controlUnits$perimUnit,
-                      dist = controlUnits$distUnit)
-    
-    assign("unit", value=getUnit, envir=parent.env(environment()))
-    arguments <- names(formals(func))
+    if(calc_func == "nnindex"){
+      calc_func <- gen_nnindex(zone, controlZone$zoneName, controlUnits$distUnit)
+      params <- geomField
+    }  
 
-    tryCatch(do.call(what=func,
-                     args=mget(arguments, 
-                               envir=parent.env(environment()), 
-                               ifnotfound=list(NULL))
-                    ),
+    tryCatch(DT[, setNames(list(do.call(calc_func, unname(.SD))),
+                           newNm),
+                by=eval(controlZone$zoneName),
+                .SDcols=params],
              error = function(e){
                message("")
                stop(e)
              }
-            )  
-    })
+    )
+  })
+  
+  # result <- lapply(1:nrow(argsDF), function(i){
+  #   params <- unlist(argsDF[i, "cols"])
+  #   calc_func <- unlist(argsDF[i, "funs"])
+  #   if(verbose){ cat("  ", params, " ", calc_func, " \n") }
+  #   newNm <- paste(paste(params, collapse="_"), calc_func, sep="_")
+  # 
+  #   tryCatch(DT[, setNames(list(do.call(calc_func, unname(.SD))),
+  #                          newNm),
+  #               by=eval(controlZone$zoneName),
+  #               .SDcols=params],
+  #            error = function(e){
+  #              message("")
+  #              stop(e)
+  #            }
+  #   )
+  # })
   
   # merge all
   merged_result <- Reduce(function(...) merge(...), result)
-
-  # if(area_cv){
-  #   merged_result[, fs_area_cv:=fs_area_ha_sd / fs_area_ha_mean]
-  # }
-  # 
-  # if(perim_cv){
-  #   merged_result[, fs_perim_cv:=fs_perim_m_sd / fs_perim_m_mean]
-  # }
   
-  if(nnIndex){
-    if(verbose){ cat("  Calculating nearest neighbour index... \n")}
-    nniDT <- fs_nnindex(X, index=indexZones, unit=controlUnits$distUnit)
-    # nniDT <- merged_result[, list(index, fs_nndist_m_mean, fs_count)]
-    # nniDT <- merge(nniDT, zonalArea, by.x="index", by.y="zoneID")
-    # nniDT[, fs_nnindex := fs_nndist_m_mean / (0.5 * sqrt(zoneArea / fs_count)), by=index]
-    # units(nniDT$fs_nnindex) <- NULL
-    
-    merged_result <- merge(merged_result, 
-                           nniDT[, list(index, fs_nnindex)], 
-                           by="index")
-  }
   if(verbose){ cat("Finished calculating metrics. \n") }
   
-  # output
-  if(gridded==TRUE){
-    if(verbose){ cat("\nCreating gridded datasets \n") }
-    
-    if(is.null(outputPath)){
-      outputPath <- tempdir()
-    } else{
-      dir.create(outputPath)
-    }
-    
-    # get template for aligning gridded output
-    if(is.null(template)){
-      template <- stars::st_as_stars(sf::st_bbox(X), values=NA_real_)  # default resolution
-    } else if(inherits(template, "stars")){
-      # no change?
-    } else if(class(template) == "RasterLayer"){
-      template <- stars::st_as_stars(template)
-    } else if(class(template) == "character"){
-      template <- stars::read_stars(template)[1]
-    } else{
-      stop("Error opening template dataset.")
-    }
-    
-    template[!is.na(template)] <- NA
-        
-    if(exists("indexZones")){ # process buildings
-      spatial_result <- merge(indexZones, merged_result, by.x="index", by.y="index")
-      
-    } else{
-      if(sf::st_crs(template) != sf::st_crs(X)){
-        stop("CRS for buildings and template raster not matching.")
-      }
-      
-      # use building centroids to rasterize
-      if(!any(sf::st_geometry_type(X) %in% c("POINT"))){
-        X <- sf::st_centroid(X)
-      }
-
-      mp <- sf::st_cast(sf::st_geometry(X), 
-                        to="MULTIPOINT", 
-                        ids=X[[index]], 
-                        group_or_split=TRUE)
-      X <- sf::st_sf(index=unique(X[[index]]), geometry=mp, crs=sf::st_crs(X))
-      names(X)[1] <- index
-      
-      spatial_result <- merge(X, merged_result, by.x=index, by.y="index")
-    }
-    
-    if(verbose){ cat("Writing grids... \n") }
-    for(val in names(merged_result)[!names(merged_result) %in% "index"]){
-      if(is.null(outputTag)){
-        outName <- paste(val, "tif", sep=".")
-      } else{
-        outName <- paste(outputTag, "_", val, "tif", sep=".")
-      }
-      
-      if(verbose){ cat(" ", outName, "\n") }
-      stars::st_rasterize(spatial_result[val], 
-                          file=file.path(outputPath, outName), 
-                          template=template,
-                          driver=driver,
-                          options="compress=LZW")
-    }
-    if(verbose){ cat("Finished writing grids\n") }
-  }
-  
-  # if(verbose){ cat("Finished!\n") }
   return(merged_result)
 }
-
+  

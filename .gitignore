@@ -1,7 +1,11 @@
 wd/in
 wd/out
+wd/code
 .Rhistory
 wd/.Rhistory
-inst/doc
-doc
 Meta
+README.md.old
+README.Rmd
+.Rproj.user
+pkg_build.R
+doc
