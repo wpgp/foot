@@ -381,28 +381,66 @@ calc_fs_px_internal <- function(X, what, how,
     
     if(verbose){ cat(paste0("Begin parallel tile processing: ", 
                             Sys.time(), "\n"))}
-
-    foreach::foreach(job=iterators::iter(tiles, by="row"),
-                     jobBuff=iterators::iter(tilesBuff, by="row"),
-                     .inorder=FALSE
-                     # .verbose=TRUE
-                     # .export="process_tile"
-                     ) %dopar% {
-      # on.exit({ rm(list=ls()); gc() })
-      mgTile <- stars::st_as_stars(template[,job$xl:job$xu, job$yl:job$yu])
-      mgBuffTile <- stars::st_as_stars(template[,jobBuff$xl:jobBuff$xu, 
-                                                jobBuff$yl:jobBuff$yu])
-      process_tile(mgTile, mgBuffTile, 
-                   X, what, how, 
-                   focalRadius, 
-                   controlZone, controlUnits, constrolDist,
-                   allOutPath,
-                   tries,
-                   filter,
-                   verbose=FALSE) 
+    
+    # helper function to create iterator for chunking tile processing jobs
+    iJobs <- function(x, chunks){
+      i <- 1
+      it <- iterators::idiv(nrow(x), chunks=chunks)
       
-      NULL
+      nextEl <- function(){
+        ntasks <- nextElem(it)
+        ifirst <- i
+        ilast <- 1 + ntasks
+        if(ilast > nrow(x)) ilast <- nrow(x)
+        i <<- i + ntasks + 1
+        x[ifirst:ilast,, drop=FALSE]
+      }
+      
+      obj <- list(nextElem=nextEl)
+      class(obj) <- c('abstractiter', 'iter')
+      obj
     }
+    
+    foreach::foreach(js=iJobs(tiles, chunks=nCores),
+                     jBs=iJobs(tilesBuff, chunks=nCores),
+                     .inorder=FALSE
+    ) %dopar%{
+      for(i in 1:nrow(js)){
+        job <- js[i,]
+        jobBuff <- jBs[i,]
+        
+        mgTile <- stars::st_as_stars(template[,job$xl:job$xu, job$yl:job$yu])
+        mgBuffTile <- stars::st_as_stars(template[,jobBuff$xl:jobBuff$xu, 
+                                                  jobBuff$yl:jobBuff$yu])
+        process_tile(mgTile, mgBuffTile, 
+                     X, what, how, 
+                     focalRadius, 
+                     controlZone, controlUnits, constrolDist,
+                     allOutPath,
+                     tries,
+                     filter,
+                     verbose=FALSE) 
+      }
+    }
+
+    # foreach::foreach(job=iterators::iter(tiles, by="row"),
+    #                  jobBuff=iterators::iter(tilesBuff, by="row"),
+    #                  .inorder=FALSE
+    #                 ) %dopar% {
+    #   mgTile <- stars::st_as_stars(template[,job$xl:job$xu, job$yl:job$yu])
+    #   mgBuffTile <- stars::st_as_stars(template[,jobBuff$xl:jobBuff$xu, 
+    #                                             jobBuff$yl:jobBuff$yu])
+    #   process_tile(mgTile, mgBuffTile, 
+    #                X, what, how, 
+    #                focalRadius, 
+    #                controlZone, controlUnits, constrolDist,
+    #                allOutPath,
+    #                tries,
+    #                filter,
+    #                verbose=FALSE) 
+    #   
+    #   NULL
+    # }
     parallel::stopCluster(cl)
     
   } else{
