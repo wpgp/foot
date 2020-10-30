@@ -1,5 +1,5 @@
 Package: foot
-Title: An R package for processing building footprints morphometrics
+Title: An R package for processing building footprint morphometrics
 Version: 0.5
 Date: 2020-10-19
 Authors@R: 
@@ -20,7 +20,7 @@ Authors@R:
 	  		 role="ctb")
 	)
 License: GPL-3.0
-URL: https://github.com/wpgp/foot
+URL: https://github.com/wpgp/foot, https://wpgp.github.io/foot/
 BugReports: https://github.com/wpgp/foot/issues
 Imports: 
     data.table,
