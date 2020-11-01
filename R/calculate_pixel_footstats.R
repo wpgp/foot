@@ -382,29 +382,11 @@ calc_fs_px_internal <- function(X, what, how,
     if(verbose){ cat(paste0("Begin parallel tile processing: ", 
                             Sys.time(), "\n"))}
     
-    # helper function to create iterator for chunking tile processing jobs
-    iJobs <- function(x, chunks){
-      i <- 1
-      it <- iterators::idiv(nrow(x), chunks=chunks)
-      
-      nextEl <- function(){
-        ntasks <- nextElem(it)
-        ifirst <- i
-        ilast <- 1 + ntasks
-        if(ilast > nrow(x)) ilast <- nrow(x)
-        i <<- i + ntasks + 1
-        x[ifirst:ilast,, drop=FALSE]
-      }
-      
-      obj <- list(nextElem=nextEl)
-      class(obj) <- c('abstractiter', 'iter')
-      obj
-    }
-    
-    foreach::foreach(js=iJobs(tiles, chunks=nCores),
-                     jBs=iJobs(tilesBuff, chunks=nCores),
+    foreach::foreach(js=isplit(tiles, rep(1:nCores, length=nrow(tiles))),
+                     jBs=isplit(tilesBuff, rep(1:nCores, length=nrow(tilesBuff))),
                      .inorder=FALSE
-    ) %dopar%{
+    ) %dopar% {
+      on.exit({ rm(list=ls()); gc() })
       for(i in 1:nrow(js)){
         job <- js[i,]
         jobBuff <- jBs[i,]
@@ -421,26 +403,9 @@ calc_fs_px_internal <- function(X, what, how,
                      filter,
                      verbose=FALSE) 
       }
+      NULL
     }
 
-    # foreach::foreach(job=iterators::iter(tiles, by="row"),
-    #                  jobBuff=iterators::iter(tilesBuff, by="row"),
-    #                  .inorder=FALSE
-    #                 ) %dopar% {
-    #   mgTile <- stars::st_as_stars(template[,job$xl:job$xu, job$yl:job$yu])
-    #   mgBuffTile <- stars::st_as_stars(template[,jobBuff$xl:jobBuff$xu, 
-    #                                             jobBuff$yl:jobBuff$yu])
-    #   process_tile(mgTile, mgBuffTile, 
-    #                X, what, how, 
-    #                focalRadius, 
-    #                controlZone, controlUnits, constrolDist,
-    #                allOutPath,
-    #                tries,
-    #                filter,
-    #                verbose=FALSE) 
-    #   
-    #   NULL
-    # }
     parallel::stopCluster(cl)
     
   } else{
