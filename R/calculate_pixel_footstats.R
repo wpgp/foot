@@ -382,14 +382,18 @@ calc_fs_px_internal <- function(X, what, how,
     if(verbose){ cat(paste0("Begin parallel tile processing: ", 
                             Sys.time(), "\n"))}
     
-    foreach::foreach(js=isplit(tiles, rep(1:nCores, length=nrow(tiles))),
-                     jBs=isplit(tilesBuff, rep(1:nCores, length=nrow(tilesBuff))),
+    foreach::foreach(js=iterators::isplit(tiles, rep(1:nCores, length=nrow(tiles))),
+                     jBs=iterators::isplit(tilesBuff, rep(1:nCores, length=nrow(tilesBuff))),
                      .inorder=FALSE
-    ) %dopar% {
+    ) %dopar%{
       on.exit({ rm(list=ls()); gc() })
-      for(i in 1:nrow(js)){
-        job <- js[i,]
-        jobBuff <- jBs[i,]
+      
+      jobs <- js$value
+      jobsBuff <- jBs$value
+      
+      for(i in 1:nrow(jobs)){
+        job <- jobs[i,]
+        jobBuff <- jobsBuff[i,]
         
         mgTile <- stars::st_as_stars(template[,job$xl:job$xu, job$yl:job$yu])
         mgBuffTile <- stars::st_as_stars(template[,jobBuff$xl:jobBuff$xu, 
