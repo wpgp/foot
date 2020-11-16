@@ -14,7 +14,8 @@
 #'   cells.
 #'
 #' @return \code{data.frame} where each row is a set of tile indices and sizes.
-#'   \itemize{ 
+#'   \itemize{
+#'   \item tid tile identification number (sequential) 
 #'   \item xl leftmost column index 
 #'   \item yl lowest row index 
 #'   \item xu rightmost column index 
@@ -89,8 +90,9 @@ gridTiles.stars <- function(X, n=NULL, px=c(1000, 1000), overlap=0){
   
   tiles$cropXsize <- tiles$xu - tiles$xl + 1L
   tiles$cropYsize <- tiles$yu - tiles$yl + 1L
+  tiles$tid <- 1:nrow(tiles)
   
-  return(tiles)
+  return(tiles[, c("tid","xl","yl","xu","yu","cropXsize","cropYsize")])
 }
 
 
