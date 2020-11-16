@@ -25,7 +25,8 @@ columns)}
 }
 \value{
 \code{data.frame} where each row is a set of tile indices and sizes.
-  \itemize{ 
+  \itemize{
+  \item tid tile identification number (sequential) 
   \item xl leftmost column index 
   \item yl lowest row index 
   \item xu rightmost column index 

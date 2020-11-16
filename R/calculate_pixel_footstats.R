@@ -45,8 +45,11 @@
 #'   beginning of the output name for the gridded files.
 #' @param tries (optional). The number of attempts to write a tile to the output
 #'   file. Default is 100.
-#' @param verbose logical. Should progress messages be printed. Default
-#'   \code{TRUE}.
+#' @param restart (optional). A tile index (or vector of tile indices) from
+#'   which to restart processing. Default is \code{NULL} to always process from
+#'   the beginning.
+#' @param verbose logical. Should progress messages be printed and a log of
+#'   processed tiles be created. Default \code{TRUE}.
 #' 
 #' @details \code{calculate_bigfoot} provides a wrapper for a workflow to
 #'   process vector polygons of structures to create a gridded output summary of
@@ -117,6 +120,7 @@ calculate_bigfoot <- function(X,
                               outputPath=getwd(),
                               outputTag=NULL,
                               tries=100,
+                              restart=NULL,
                               verbose=TRUE) UseMethod("calculate_bigfoot")
 
 
@@ -142,6 +146,7 @@ calculate_bigfoot.sf <- function(X,
                                  outputPath=getwd(),
                                  outputTag=NULL,
                                  tries=100,
+                                 restart=NULL,
                                  verbose=TRUE){
 
   if(any(!sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON") )){
@@ -155,7 +160,7 @@ calculate_bigfoot.sf <- function(X,
                                 template, tileSize,
                                 parallel, nCores,
                                 outputPath, outputTag,
-                                tries, verbose)
+                                tries, restart, verbose)
   
   invisible(result)
 }
@@ -183,6 +188,7 @@ calculate_bigfoot.sp <- function(X,
                                  outputPath=getwd(),
                                  outputTag=NULL,
                                  tries=100,
+                                 restart=NULL,
                                  verbose=TRUE){
   
   # convert to sf
@@ -199,7 +205,7 @@ calculate_bigfoot.sp <- function(X,
                                 template, tileSize,
                                 parallel, nCores,
                                 outputPath, outputTag,
-                                tries, verbose)
+                                tries, restart, verbose)
   
   invisible(result)
 }
@@ -227,6 +233,7 @@ calculate_bigfoot.character <- function(X,
                                         outputPath=getwd(),
                                         outputTag=NULL,
                                         tries=100,
+                                        restart=NULL,
                                         verbose=TRUE){
         
   result <- calc_fs_px_internal(X, what, how,
@@ -235,7 +242,7 @@ calculate_bigfoot.character <- function(X,
                                 template, tileSize,
                                 parallel, nCores,
                                 outputPath, outputTag,
-                                tries, verbose)
+                                tries, restart, verbose)
   
   invisible(result)
 }
@@ -248,7 +255,7 @@ calc_fs_px_internal <- function(X, what, how,
                                 template, tileSize,
                                 parallel, nCores,
                                 outputPath, outputTag,
-                                tries, verbose){
+                                tries, restart, verbose){
 
   if(is.null(template)){
     stop("Template raster or grid required.")
@@ -329,16 +336,23 @@ calc_fs_px_internal <- function(X, what, how,
     
     outName <- file.path(outputPath, 
                          paste0(outputTag, mTag, ".tif"))
-    tmp <- stars::write_stars(outTemplate, 
-                              outName) # default is float32
+    if(is.null(restart)){
+      tmp <- stars::write_stars(outTemplate, 
+                                outName) # default is float32
+      rm(tmp)
+    }
     allOutPath[[i]] <- outName
   }
-  rm(tmp, outTemplate)
+  rm(outTemplate)
   # print(allOutPath)
 
   # tiles for processing
   if(verbose){ cat("Creating list of processing tiles \n") }
   tiles <- gridTiles(template, px=tileSize)
+  
+  if(verbose){ 
+    file.create(tile_log <- file.path(outputPath, "tile.log"))
+  }
   
   if(focalRadius > 0){
     # convert focal radius to pixels for extraction (approximation)
@@ -352,6 +366,19 @@ calc_fs_px_internal <- function(X, what, how,
     tilesBuff <- gridTiles(template, px=tileSize, overlap=pxLap)    
   } else{
     tilesBuff <- tiles
+  }
+  
+  if(!is.null(restart)){
+    if(verbose){ cat("Restarting tile processing \n") }
+    if(length(restart) == 1){
+      tiles <- tiles[tiles$tid >= restart, ]
+      tilesBuff <- tilesBuff[tilesBuff$tid >= restart, ]
+    }
+    
+    if(length(restart) > 1){
+      tiles <- tiles[tiles$tid %in% restart, ]
+      tilesBuff <- tilesBuff[tilesBuff$tid %in% restart, ]
+    }
   }
   
   # processing loop
@@ -372,7 +399,9 @@ calc_fs_px_internal <- function(X, what, how,
                                         "focalRadius",
                                         "filter",
                                         "allOutPath",
-                                        "tries"),
+                                        "tries",
+                                        "verbose",
+                                        "tile_log"),
                               envir=environment())
     }
     doParallel::registerDoParallel(cl)
@@ -406,6 +435,12 @@ calc_fs_px_internal <- function(X, what, how,
                      tries,
                      filter,
                      verbose=FALSE) 
+        # logging completed tiles
+        if(verbose){
+          lck <- filelock::lock(file.path(tempdir(), "tile.log.lock"))
+          write(job$tid, file=tile_log, append=TRUE)
+          filelock::unlock(lck)
+        }
       }
       NULL
     }
@@ -432,6 +467,10 @@ calc_fs_px_internal <- function(X, what, how,
                    tries,
                    filter,
                    verbose)
+      
+      if(verbose){
+        write(job$tid, file=tile_log, append=TRUE)
+      }
     } # end for loop on tiles
   }
   if(verbose){ cat(paste0("\nFinished processing all tiles: ", 
