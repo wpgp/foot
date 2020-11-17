@@ -264,6 +264,73 @@ calc_fs_internal <- function(X, zone, what, how,
     controlDist[names(controlDist) %in% names(providedDist)] <- providedDist
   }
   
+  if(controlZone$method %in% c("centroid", "intersect")){ 
+    # pre-calculate 'whats'
+    if('area' %in% uchars |
+       !is.null(filter$minArea) | !is.null(filter$maxArea)){
+      if(!'area' %in% colnames(X)){
+        if(verbose){ cat("Pre-calculating areas \n") }
+        X[['area']] <- fs_area(X, unit=controlUnits$areaUnit)
+      } else{
+        if(verbose){ cat("Area data column already exists \n") }
+      }
+    }
+    
+    if('perimeter' %in% uchars){
+      if(!'perimeter' %in% colnames(X)){
+        if(verbose){ cat("Pre-calculating perimeters \n") }
+        X[['perimeter']] <- fs_perimeter(X, unit=controlUnits$perimUnit)
+      } else{
+        if(verbose){ cat("Perimeter data column already exists \n") }
+      }
+    }
+    
+    if('angle' %in% uchars){
+      if(!'angle' %in% colnames(X)){
+        if(verbose){ cat("Pre-calculating angles \n") }
+        X[['angle']] <- fs_mbr(X, returnShape=FALSE)
+      } else{
+        if(verbose){ cat("Angle data column already exists \n") }
+      }
+    }
+    
+    if('shape' %in% uchars){
+      if(!'shape' %in% colnames(X)){
+        if(verbose){ cat("Pre-calculating shape \n") }
+        X[['shape']] <- fs_shape(X, unit=controlUnits$areaUnit)
+      } else{
+        if(verbose){ cat("Shape data column already exists \n") }
+      }
+    }
+    
+    if('compact' %in% uchars){
+      if(!'compact' %in% colnames(X)){
+        if(verbose){ cat("Pre-calculating compactness \n") }
+        X[['compact']] <- fs_compact(X)
+      } else{
+        if(verbose){ cat("Shape data column already exists \n") }
+      }
+    }
+    
+    if('settled' %in% uchars){
+      if(!'settled' %in% colnames(X)){
+        X[['settled']] <- 1
+      } 
+    }
+    
+    if('nndist' %in% uchars & calcD){
+      if(!'dist' %in% colnames(X)){
+        if(verbose){ cat("Pre-calculating nearest neighbour distances \n") }
+        X[['nndist']] <- fs_nndist(X, 
+                                   maxSearch=controlDist$maxSearch, 
+                                   method=controlDist$method, 
+                                   unit=controlUnits$distUnit)
+      } else{
+        if(verbose){ cat("NN distance data column already exists. \n") }
+      }
+    }
+  }
+  
   # create zonal index
   if(!is.null(zone)){
     if(verbose){ cat("Creating zonal index \n") }
@@ -336,14 +403,70 @@ calc_fs_internal <- function(X, zone, what, how,
     return(NULL)
   }
 
-  # pre-calculate 'whats'
-  if('area' %in% uchars |
-     !is.null(filter$minArea) | !is.null(filter$maxArea)){
-    if(!'area' %in% colnames(X)){
-      if(verbose){ cat("Pre-calculating areas \n") }
-      X[['area']] <- fs_area(X, unit=controlUnits$areaUnit)
-    } else{
-      if(verbose){ cat("Area data column already exists \n") }
+  if(controlZone$method == 'clip'){
+    # pre-calculate 'whats' after splitting with zonal index
+    if('area' %in% uchars |
+       !is.null(filter$minArea) | !is.null(filter$maxArea)){
+      if(!'area' %in% colnames(X)){
+        if(verbose){ cat("Pre-calculating areas \n") }
+        X[['area']] <- fs_area(X, unit=controlUnits$areaUnit)
+      } else{
+        if(verbose){ cat("Area data column already exists \n") }
+      }
+    }
+    
+    if('perimeter' %in% uchars){
+      if(!'perimeter' %in% colnames(X)){
+        if(verbose){ cat("Pre-calculating perimeters \n") }
+        X[['perimeter']] <- fs_perimeter(X, unit=controlUnits$perimUnit)
+      } else{
+        if(verbose){ cat("Perimeter data column already exists \n") }
+      }
+    }
+    
+    if('angle' %in% uchars){
+      if(!'angle' %in% colnames(X)){
+        if(verbose){ cat("Pre-calculating angles \n") }
+        X[['angle']] <- fs_mbr(X, returnShape=FALSE)
+      } else{
+        if(verbose){ cat("Angle data column already exists \n") }
+      }
+    }
+    
+    if('shape' %in% uchars){
+      if(!'shape' %in% colnames(X)){
+        if(verbose){ cat("Pre-calculating shape \n") }
+        X[['shape']] <- fs_shape(X, unit=controlUnits$areaUnit)
+      } else{
+        if(verbose){ cat("Shape data column already exists \n") }
+      }
+    }
+    
+    if('compact' %in% uchars){
+      if(!'compact' %in% colnames(X)){
+        if(verbose){ cat("Pre-calculating compactness \n") }
+        X[['compact']] <- fs_compact(X)
+      } else{
+        if(verbose){ cat("Shape data column already exists \n") }
+      }
+    }
+    
+    if('settled' %in% uchars){
+      if(!'settled' %in% colnames(X)){
+        X[['settled']] <- 1
+      } 
+    }
+    
+    if('nndist' %in% uchars & calcD){
+      if(!'dist' %in% colnames(X)){
+        if(verbose){ cat("Pre-calculating nearest neighbour distances \n") }
+        X[['nndist']] <- fs_nndist(X, 
+                                   maxSearch=controlDist$maxSearch, 
+                                   method=controlDist$method, 
+                                   unit=controlUnits$distUnit)
+      } else{
+        if(verbose){ cat("NN distance data column already exists. \n") }
+      }
     }
   }
 
@@ -368,60 +491,6 @@ calc_fs_internal <- function(X, zone, what, how,
   if(nrow(X) == 0){ # filter removed all?
     if(verbose){ cat("No records found in zones. \n") }
     return(NULL)
-  }
-  
-  if('perimeter' %in% uchars){
-    if(!'perimeter' %in% colnames(X)){
-      if(verbose){ cat("Pre-calculating perimeters \n") }
-      X[['perimeter']] <- fs_perimeter(X, unit=controlUnits$perimUnit)
-    } else{
-      if(verbose){ cat("Perimeter data column already exists \n") }
-    }
-  }
-  
-  if('angle' %in% uchars){
-    if(!'angle' %in% colnames(X)){
-      if(verbose){ cat("Pre-calculating angles \n") }
-      X[['angle']] <- fs_mbr(X, returnShape=FALSE)
-    } else{
-      if(verbose){ cat("Angle data column already exists \n") }
-    }
-  }
-  
-  if('shape' %in% uchars){
-    if(!'shape' %in% colnames(X)){
-      if(verbose){ cat("Pre-calculating shape \n") }
-      X[['shape']] <- fs_shape(X, unit=controlUnits$areaUnit)
-    } else{
-      if(verbose){ cat("Shape data column already exists \n") }
-    }
-  }
-  
-  if('compact' %in% uchars){
-    if(!'compact' %in% colnames(X)){
-      if(verbose){ cat("Pre-calculating compactness \n") }
-      X[['compact']] <- fs_compact(X)
-    } else{
-      if(verbose){ cat("Shape data column already exists \n") }
-    }
-  }
-  
-  if('settled' %in% uchars){
-    if(!'settled' %in% colnames(X)){
-      X[['settled']] <- 1
-    } 
-  }
-  
-  if('nndist' %in% uchars & calcD){
-    if(!'dist' %in% colnames(X)){
-      if(verbose){ cat("Pre-calculating nearest neighbour distances \n") }
-        X[['nndist']] <- fs_nndist(X, 
-                                   maxSearch=controlDist$maxSearch, 
-                                   method=controlDist$method, 
-                                   unit=controlUnits$distUnit)
-    } else{
-      if(verbose){ cat("NN distance data column already exists. \n") }
-    }
   }
   
   if(is.null(how)){
