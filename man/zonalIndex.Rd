@@ -6,7 +6,7 @@
 \alias{zonalIndex.sfc}
 \alias{zonalIndex.sp}
 \alias{zonalIndex.stars}
-\alias{zonalIndex.raster}
+\alias{zonalIndex.Raster}
 \alias{zonalIndex.character}
 \title{Index buildings footprints to 'zones'}
 \usage{
@@ -20,7 +20,7 @@ zonalIndex(X, zone, zoneField = NULL, method = "centroid", returnObject = TRUE)
 
 \method{zonalIndex}{stars}(X, zone, zoneField = NULL, method = "centroid", returnObject = TRUE)
 
-\method{zonalIndex}{raster}(X, zone, zoneField = NULL, method = "centroid", returnObject = TRUE)
+\method{zonalIndex}{Raster}(X, zone, zoneField = NULL, method = "centroid", returnObject = TRUE)
 
 \method{zonalIndex}{character}(X, zone, zoneField = NULL, method = "centroid", returnObject = TRUE)
 }
@@ -28,7 +28,7 @@ zonalIndex(X, zone, zoneField = NULL, method = "centroid", returnObject = TRUE)
 \item{X}{Spatial data (or path to file) with building footprint polygons}
 
 \item{zone}{Spatial data (or path to file) with polygon zones or a spatial
-grid ("raster")}
+grid (i.e. "raster")}
 
 \item{zoneField}{(Optional) Column name of unique identifiers in \code{zone}
 to use. If omitted, the 'zoneID' will be numbered \code{1:nrow(zone)}.}
@@ -64,6 +64,10 @@ Zone assignments for building footprints can be done using three
   footprints so that only that area of the polygon intersecting the zone is
   include. This method is more time consuming because the geometries are
   modified.
+  
+  When \code{zone} is a multi-layer \code{stars} or \code{Raster*},
+  \code{zoneField} can be used to select a specific layer to define the
+  areas, or \code{NULL} to use each pixel as a unique zone.
 }
 \examples{
 data("kampala", package="foot")

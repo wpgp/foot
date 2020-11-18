@@ -285,7 +285,7 @@ calc_fs_px_internal <- function(X, what, how,
   } 
   
   # set defaults for controls
-  if(verbose){ cat("Setting control values. \n") }
+  if(verbose){ cat("Setting control values \n") }
   # defaults for zonal indexing
   providedZone <- controlZone
   controlZone <- list(zoneName="zoneID", method="centroid")
@@ -318,7 +318,7 @@ calc_fs_px_internal <- function(X, what, how,
     controlDist[names(controlDist) %in% names(providedDist)] <- providedDist
   }
   
-  if(verbose){ cat("Creating template output grids \n") }
+  if(verbose){ cat("Creating output grids \n") }
   # create empty output grids to match template
   outTemplate <- stars::st_as_stars(matrix(NA_real_, 
                                            nrow=nrow(template), 
