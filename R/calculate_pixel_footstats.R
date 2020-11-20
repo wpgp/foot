@@ -45,8 +45,11 @@
 #'   beginning of the output name for the gridded files.
 #' @param tries (optional). The number of attempts to write a tile to the output
 #'   file. Default is 100.
-#' @param verbose logical. Should progress messages be printed. Default
-#'   \code{TRUE}.
+#' @param restart (optional). A tile index (or vector of tile indices) from
+#'   which to restart processing. Default is \code{NULL} to always process from
+#'   the beginning.
+#' @param verbose logical. Should progress messages be printed and a log of
+#'   processed tiles be created. Default \code{TRUE}.
 #' 
 #' @details \code{calculate_bigfoot} provides a wrapper for a workflow to
 #'   process vector polygons of structures to create a gridded output summary of
@@ -117,6 +120,7 @@ calculate_bigfoot <- function(X,
                               outputPath=getwd(),
                               outputTag=NULL,
                               tries=100,
+                              restart=NULL,
                               verbose=TRUE) UseMethod("calculate_bigfoot")
 
 
@@ -142,6 +146,7 @@ calculate_bigfoot.sf <- function(X,
                                  outputPath=getwd(),
                                  outputTag=NULL,
                                  tries=100,
+                                 restart=NULL,
                                  verbose=TRUE){
 
   if(any(!sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON") )){
@@ -155,7 +160,7 @@ calculate_bigfoot.sf <- function(X,
                                 template, tileSize,
                                 parallel, nCores,
                                 outputPath, outputTag,
-                                tries, verbose)
+                                tries, restart, verbose)
   
   invisible(result)
 }
@@ -183,6 +188,7 @@ calculate_bigfoot.sp <- function(X,
                                  outputPath=getwd(),
                                  outputTag=NULL,
                                  tries=100,
+                                 restart=NULL,
                                  verbose=TRUE){
   
   # convert to sf
@@ -199,7 +205,7 @@ calculate_bigfoot.sp <- function(X,
                                 template, tileSize,
                                 parallel, nCores,
                                 outputPath, outputTag,
-                                tries, verbose)
+                                tries, restart, verbose)
   
   invisible(result)
 }
@@ -227,6 +233,7 @@ calculate_bigfoot.character <- function(X,
                                         outputPath=getwd(),
                                         outputTag=NULL,
                                         tries=100,
+                                        restart=NULL,
                                         verbose=TRUE){
         
   result <- calc_fs_px_internal(X, what, how,
@@ -235,7 +242,7 @@ calculate_bigfoot.character <- function(X,
                                 template, tileSize,
                                 parallel, nCores,
                                 outputPath, outputTag,
-                                tries, verbose)
+                                tries, restart, verbose)
   
   invisible(result)
 }
@@ -248,7 +255,7 @@ calc_fs_px_internal <- function(X, what, how,
                                 template, tileSize,
                                 parallel, nCores,
                                 outputPath, outputTag,
-                                tries, verbose){
+                                tries, restart, verbose){
 
   if(is.null(template)){
     stop("Template raster or grid required.")
@@ -278,7 +285,7 @@ calc_fs_px_internal <- function(X, what, how,
   } 
   
   # set defaults for controls
-  if(verbose){ cat("Setting control values. \n") }
+  if(verbose){ cat("Setting control values \n") }
   # defaults for zonal indexing
   providedZone <- controlZone
   controlZone <- list(zoneName="zoneID", method="centroid")
@@ -311,7 +318,7 @@ calc_fs_px_internal <- function(X, what, how,
     controlDist[names(controlDist) %in% names(providedDist)] <- providedDist
   }
   
-  if(verbose){ cat("Creating template output grids \n") }
+  if(verbose){ cat("Creating output grids \n") }
   # create empty output grids to match template
   outTemplate <- stars::st_as_stars(matrix(NA_real_, 
                                            nrow=nrow(template), 
@@ -329,16 +336,23 @@ calc_fs_px_internal <- function(X, what, how,
     
     outName <- file.path(outputPath, 
                          paste0(outputTag, mTag, ".tif"))
-    tmp <- stars::write_stars(outTemplate, 
-                              outName) # default is float32
+    if(is.null(restart)){
+      tmp <- stars::write_stars(outTemplate, 
+                                outName) # default is float32
+      rm(tmp)
+    }
     allOutPath[[i]] <- outName
   }
-  rm(tmp, outTemplate)
+  rm(outTemplate)
   # print(allOutPath)
 
   # tiles for processing
   if(verbose){ cat("Creating list of processing tiles \n") }
   tiles <- gridTiles(template, px=tileSize)
+  
+  if(verbose){ 
+    file.create(tile_log <- file.path(outputPath, "tile.log"))
+  }
   
   if(focalRadius > 0){
     # convert focal radius to pixels for extraction (approximation)
@@ -352,6 +366,19 @@ calc_fs_px_internal <- function(X, what, how,
     tilesBuff <- gridTiles(template, px=tileSize, overlap=pxLap)    
   } else{
     tilesBuff <- tiles
+  }
+  
+  if(!is.null(restart)){
+    if(verbose){ cat("Restarting tile processing \n") }
+    if(length(restart) == 1){
+      tiles <- tiles[tiles$tid >= restart, ]
+      tilesBuff <- tilesBuff[tilesBuff$tid >= restart, ]
+    }
+    
+    if(length(restart) > 1){
+      tiles <- tiles[tiles$tid %in% restart, ]
+      tilesBuff <- tilesBuff[tilesBuff$tid %in% restart, ]
+    }
   }
   
   # processing loop
@@ -372,7 +399,9 @@ calc_fs_px_internal <- function(X, what, how,
                                         "focalRadius",
                                         "filter",
                                         "allOutPath",
-                                        "tries"),
+                                        "tries",
+                                        "verbose",
+                                        "tile_log"),
                               envir=environment())
     }
     doParallel::registerDoParallel(cl)
@@ -381,28 +410,41 @@ calc_fs_px_internal <- function(X, what, how,
     
     if(verbose){ cat(paste0("Begin parallel tile processing: ", 
                             Sys.time(), "\n"))}
-
-    foreach::foreach(job=iterators::iter(tiles, by="row"),
-                     jobBuff=iterators::iter(tilesBuff, by="row"),
+    
+    foreach::foreach(js=iterators::isplit(tiles, rep(1:nCores, length=nrow(tiles))),
+                     jBs=iterators::isplit(tilesBuff, rep(1:nCores, length=nrow(tilesBuff))),
                      .inorder=FALSE
-                     # .verbose=TRUE
-                     # .export="process_tile"
-                     ) %dopar% {
-      # on.exit({ rm(list=ls()); gc() })
-      mgTile <- stars::st_as_stars(template[,job$xl:job$xu, job$yl:job$yu])
-      mgBuffTile <- stars::st_as_stars(template[,jobBuff$xl:jobBuff$xu, 
-                                                jobBuff$yl:jobBuff$yu])
-      process_tile(mgTile, mgBuffTile, 
-                   X, what, how, 
-                   focalRadius, 
-                   controlZone, controlUnits, constrolDist,
-                   allOutPath,
-                   tries,
-                   filter,
-                   verbose=FALSE) 
+    ) %dopar%{
+      on.exit({ rm(list=ls()); gc() })
       
+      jobs <- js$value
+      jobsBuff <- jBs$value
+      
+      for(i in 1:nrow(jobs)){
+        job <- jobs[i,]
+        jobBuff <- jobsBuff[i,]
+        
+        mgTile <- stars::st_as_stars(template[,job$xl:job$xu, job$yl:job$yu])
+        mgBuffTile <- stars::st_as_stars(template[,jobBuff$xl:jobBuff$xu, 
+                                                  jobBuff$yl:jobBuff$yu])
+        process_tile(mgTile, mgBuffTile, 
+                     X, what, how, 
+                     focalRadius, 
+                     controlZone, controlUnits, constrolDist,
+                     allOutPath,
+                     tries,
+                     filter,
+                     verbose=FALSE) 
+        # logging completed tiles
+        if(verbose){
+          lck <- filelock::lock(file.path(tempdir(), "tile.log.lock"))
+          write(job$tid, file=tile_log, append=TRUE)
+          filelock::unlock(lck)
+        }
+      }
       NULL
     }
+
     parallel::stopCluster(cl)
     
   } else{
@@ -425,6 +467,10 @@ calc_fs_px_internal <- function(X, what, how,
                    tries,
                    filter,
                    verbose)
+      
+      if(verbose){
+        write(job$tid, file=tile_log, append=TRUE)
+      }
     } # end for loop on tiles
   }
   if(verbose){ cat(paste0("\nFinished processing all tiles: ", 

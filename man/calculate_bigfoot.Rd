@@ -25,6 +25,7 @@ calculate_bigfoot(
   outputPath = getwd(),
   outputTag = NULL,
   tries = 100,
+  restart = NULL,
   verbose = TRUE
 )
 
@@ -45,6 +46,7 @@ calculate_bigfoot(
   outputPath = getwd(),
   outputTag = NULL,
   tries = 100,
+  restart = NULL,
   verbose = TRUE
 )
 
@@ -65,6 +67,7 @@ calculate_bigfoot(
   outputPath = getwd(),
   outputTag = NULL,
   tries = 100,
+  restart = NULL,
   verbose = TRUE
 )
 
@@ -85,6 +88,7 @@ calculate_bigfoot(
   outputPath = getwd(),
   outputTag = NULL,
   tries = 100,
+  restart = NULL,
   verbose = TRUE
 )
 }
@@ -145,8 +149,12 @@ beginning of the output name for the gridded files.}
 \item{tries}{(optional). The number of attempts to write a tile to the output
 file. Default is 100.}
 
-\item{verbose}{logical. Should progress messages be printed. Default
-\code{TRUE}.}
+\item{restart}{(optional). A tile index (or vector of tile indices) from
+which to restart processing. Default is \code{NULL} to always process from
+the beginning.}
+
+\item{verbose}{logical. Should progress messages be printed and a log of
+processed tiles be created. Default \code{TRUE}.}
 }
 \value{
 Invisible. Returns a vector of paths to the output files.

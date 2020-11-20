@@ -5,7 +5,7 @@
 #'   intersection.
 #' @param X Spatial data (or path to file) with building footprint polygons
 #' @param zone Spatial data (or path to file) with polygon zones or a spatial
-#'   grid ("raster")
+#'   grid (i.e. "raster")
 #' @param zoneField (Optional) Column name of unique identifiers in \code{zone}
 #'   to use. If omitted, the 'zoneID' will be numbered \code{1:nrow(zone)}.
 #' @param method One of \code{'centroid', 'intersect', 'clip'} to determine how
@@ -30,6 +30,10 @@
 #'   footprints so that only that area of the polygon intersecting the zone is
 #'   include. This method is more time consuming because the geometries are
 #'   modified.
+#'   
+#'   When \code{zone} is a multi-layer \code{stars} or \code{Raster*},
+#'   \code{zoneField} can be used to select a specific layer to define the
+#'   areas, or \code{NULL} to use each pixel as a unique zone.
 #'   
 #' @examples 
 #' data("kampala", package="foot")
@@ -64,13 +68,6 @@ zonalIndex <- function(X,
 zonalIndex.sf <- function(X, zone, 
                           zoneField=NULL, method='centroid', 
                           returnObject=TRUE){
-  if(any(class(X) == "sp") | any(class(X) == "stars")){
-    # convert to sf
-    X <- sf::st_as_sf(X)
-  } else if (all(class(X) != "sf")) {
-    stop("Object format not valid.")
-  }
-  
   if(is.list(method) & length(method) > 1){
     message("Using the first element of argument 'method'")
     method <- method[[1]]
@@ -136,6 +133,17 @@ zonalIndex.stars <- function(X, zone,
                              zoneField=NULL, method='centroid', 
                              returnObject=TRUE){
   zone <- sf::st_as_sf(zone)
+  
+  if(!is.null(zoneField)){
+    # create zones by merging grid cells (polygons)
+    zsplits <- split(zone, f=factor(zone[[zoneField]], 
+                                    levels=unique(zone[[zoneField]])))
+    zunion <- lapply(zsplits, sf::st_union)
+    zgeom <- do.call(c, zunion)
+    
+    zone <- sf::st_sf(unique(zone[[zoneField]]), geometry=zgeom)
+    names(zone)[1] <- zoneField
+  }
   result <- zonalIndex(X, zone, zoneField, method, returnObject)
   return(result)
 }
@@ -143,9 +151,13 @@ zonalIndex.stars <- function(X, zone,
 
 #' @name zonalIndex
 #' @export
-zonalIndex.raster <- function(X, zone, 
+zonalIndex.Raster <- function(X, zone, 
                               zoneField=NULL, method='centroid', 
                               returnObject=TRUE){
+  if(!is.null(zoneField)){
+    zone <- zone[[zoneField]]
+  }
+  
   zone <- stars::st_as_stars(zone)
   result <- zonalIndex(X, zone, zoneField, method, returnObject)
   return(result)
@@ -183,7 +195,7 @@ get_zonal_index <- function(X, zone,
   }
 
   if(any(sf::st_geometry_type(X) == "MULTIPOLYGON")){
-    X <- sf::st_cast(X, "POLYGON")
+    suppressWarnings(X <- sf::st_cast(X, "POLYGON"))
   }
 
   if(any(sf::st_geometry_type(zone) == "MULTIPOLYGON")){
@@ -207,25 +219,31 @@ get_zonal_index <- function(X, zone,
   # intersects - binary predicate
   suppressMessages(ints <- sf::st_intersects(zone, X))
   hits <- which(lengths(ints)>0)
+  ll <- lengths(ints)
   
   if(length(hits) > 0){
-    geomDT <- list(xID=ints[hits])
-    data.table::setDT(geomDT)
-    # geomDT <- data.table::data.table(xID=ints[hits])
-    # geomDT[, (zoneField) := hits]
-    geomDT[, zID := hits]
-    data.table::setkey(geomDT, zID)
+    intDT <- data.table::data.table("zID" = rep(hits, ll[hits]), 
+                                    "xID" = unlist(ints, use.names=F))
+    
+    # geomDT <- list(xID=ints[hits])
+    # data.table::setDT(geomDT)
+    # # geomDT <- data.table::data.table(xID=ints[hits])
+    # # geomDT[, (zoneField) := hits]
+    # geomDT[, zID := hits]
+    # data.table::setkey(geomDT, zID) # geomDT
+    data.table::setkey(intDT, zID) # geomDT
     
     # get zone ID values
     zDT <- data.table::data.table(zone)
     zDT[, zID := 1:.N]
     data.table::setkey(zDT, zID)
-    geomDT[zDT, (zoneField) := mget(zoneField)]
+    intDT[zDT, (zoneField) := mget(zoneField)]
+    intDT[, zID := NULL]
 
-    # expand list of intersected features
-    intDT <- geomDT[, setNames(c(xID), "xID"), by=zoneField]
-    data.table::setcolorder(intDT, c("xID", zoneField))
-    data.table::setkey(intDT, xID)
+    # # expand list of intersected features
+    # intDT <- geomDT[, setNames(c(xID), "xID"), by=zID]
+    # data.table::setcolorder(intDT, c("xID", zoneField))
+    # data.table::setkey(intDT, xID)
     
     if(returnObject){
       # join
