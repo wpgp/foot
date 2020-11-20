@@ -32,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">foot</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6</span>
       </span>
     </div>
 
@@ -88,7 +88,7 @@
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Basic building footprint calculations</h1>
             
-            <h4 class="date">October 23, 2020</h4>
+            <h4 class="date">November 20, 2020</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/wpgp/foot/blob/master/vignettes/footsteps.Rmd"><code>vignettes/footsteps.Rmd</code></a></small>
       <div class="hidden name"><code>footsteps.Rmd</code></div>
@@ -265,37 +265,37 @@ Sample buildings and zones in Kampala
 <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">buildings</span><span class="op">$</span><span class="va">id</span><span class="op">)</span>  <span class="co"># splitting observations into 10 groups</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;   1   2   3   4   5   6   7   8   9  10 </span>
-<span class="co">#&gt; 506 469 463 487 463 497 511 490 500 454</span>
+<span class="co">#&gt; 491 498 473 498 503 495 490 455 453 484</span>
 
 <span class="co"># 1. pass the index by name</span>
 <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">buildings</span><span class="op">)</span>
 <span class="co">#&gt; [1] "FID_1"    "geometry" "id"</span>
 <span class="fu"><a href="../reference/calculate_footstats.html">calculate_footstats</a></span><span class="op">(</span><span class="va">buildings</span>, <span class="st">"id"</span>, what <span class="op">=</span> <span class="st">"area"</span>, how <span class="op">=</span> <span class="st">"mean"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 <span class="co">#&gt;     id      area_mean</span>
-<span class="co">#&gt;  1:  1 227.5561 [m^2]</span>
-<span class="co">#&gt;  2:  2 287.8912 [m^2]</span>
-<span class="co">#&gt;  3:  3 243.0087 [m^2]</span>
-<span class="co">#&gt;  4:  4 252.2376 [m^2]</span>
-<span class="co">#&gt;  5:  5 247.8959 [m^2]</span>
-<span class="co">#&gt;  6:  6 286.5005 [m^2]</span>
-<span class="co">#&gt;  7:  7 264.4540 [m^2]</span>
-<span class="co">#&gt;  8:  8 293.5032 [m^2]</span>
-<span class="co">#&gt;  9:  9 251.6161 [m^2]</span>
-<span class="co">#&gt; 10: 10 278.3670 [m^2]</span>
+<span class="co">#&gt;  1:  1 221.3901 [m^2]</span>
+<span class="co">#&gt;  2:  2 255.7267 [m^2]</span>
+<span class="co">#&gt;  3:  3 264.5996 [m^2]</span>
+<span class="co">#&gt;  4:  4 241.0398 [m^2]</span>
+<span class="co">#&gt;  5:  5 262.5743 [m^2]</span>
+<span class="co">#&gt;  6:  6 214.1892 [m^2]</span>
+<span class="co">#&gt;  7:  7 248.8263 [m^2]</span>
+<span class="co">#&gt;  8:  8 283.6734 [m^2]</span>
+<span class="co">#&gt;  9:  9 355.9950 [m^2]</span>
+<span class="co">#&gt; 10: 10 293.8315 [m^2]</span>
 
 <span class="co"># 2. pass the index as a standalone vector</span>
 <span class="fu"><a href="../reference/calculate_footstats.html">calculate_footstats</a></span><span class="op">(</span><span class="va">buildings</span>, <span class="va">idx</span>, what <span class="op">=</span> <span class="st">"settled"</span>, how <span class="op">=</span> <span class="st">"count"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 <span class="co">#&gt;     zoneID settled_count</span>
-<span class="co">#&gt;  1:      1           506</span>
-<span class="co">#&gt;  2:      2           469</span>
-<span class="co">#&gt;  3:      3           463</span>
-<span class="co">#&gt;  4:      4           487</span>
-<span class="co">#&gt;  5:      5           463</span>
-<span class="co">#&gt;  6:      6           497</span>
-<span class="co">#&gt;  7:      7           511</span>
-<span class="co">#&gt;  8:      8           490</span>
-<span class="co">#&gt;  9:      9           500</span>
-<span class="co">#&gt; 10:     10           454</span>
+<span class="co">#&gt;  1:      1           491</span>
+<span class="co">#&gt;  2:      2           498</span>
+<span class="co">#&gt;  3:      3           473</span>
+<span class="co">#&gt;  4:      4           498</span>
+<span class="co">#&gt;  5:      5           503</span>
+<span class="co">#&gt;  6:      6           495</span>
+<span class="co">#&gt;  7:      7           490</span>
+<span class="co">#&gt;  8:      8           455</span>
+<span class="co">#&gt;  9:      9           453</span>
+<span class="co">#&gt; 10:     10           484</span>
 
 <span class="co"># 3. pass a separate spatial object of zones</span>
 <span class="fu"><a href="../reference/calculate_footstats.html">calculate_footstats</a></span><span class="op">(</span><span class="va">buildings</span>, zone <span class="op">=</span> <span class="va">adminzones</span>, what <span class="op">=</span> <span class="st">"angle"</span>, how <span class="op">=</span> <span class="st">"entropy"</span>, 
@@ -374,16 +374,16 @@ Sample buildings and zones in Kampala
 <span class="va">zID</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/zonalIndex.html">zonalIndex</a></span><span class="op">(</span><span class="va">buildings</span>, <span class="va">adminzones</span>, returnObject <span class="op">=</span> <span class="cn">F</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">zID</span>, <span class="fl">10</span><span class="op">)</span>  <span class="co"># the xID column are row numbers to object X</span>
 <span class="co">#&gt;      xID zoneID</span>
-<span class="co">#&gt;  1:  145      1</span>
-<span class="co">#&gt;  2:  338      1</span>
-<span class="co">#&gt;  3:  655      1</span>
-<span class="co">#&gt;  4:  995      1</span>
-<span class="co">#&gt;  5: 2869      1</span>
-<span class="co">#&gt;  6: 3164      1</span>
-<span class="co">#&gt;  7: 3263      1</span>
-<span class="co">#&gt;  8: 3314      1</span>
-<span class="co">#&gt;  9: 3407      1</span>
-<span class="co">#&gt; 10: 3454      1</span>
+<span class="co">#&gt;  1:  101      1</span>
+<span class="co">#&gt;  2:  369      1</span>
+<span class="co">#&gt;  3: 1404      1</span>
+<span class="co">#&gt;  4: 1477      1</span>
+<span class="co">#&gt;  5: 1534      1</span>
+<span class="co">#&gt;  6: 1896      1</span>
+<span class="co">#&gt;  7: 1925      1</span>
+<span class="co">#&gt;  8: 2348      1</span>
+<span class="co">#&gt;  9: 2922      1</span>
+<span class="co">#&gt; 10: 3247      1</span>
 
 <span class="co"># Alternatively (and preferably), join zones to create a new footprint object A</span>
 <span class="co"># custom zone name can be used but must be specificed to the summary functions</span>
@@ -395,17 +395,17 @@ Sample buildings and zones in Kampala
 <span class="co">#&gt; bbox:           xmin: 32.60631 ymin: 0.328119 xmax: 32.63543 ymax: 0.349785</span>
 <span class="co">#&gt; geographic CRS: WGS 84</span>
 <span class="co">#&gt; First 10 features:</span>
-<span class="co">#&gt;    FID_1 id Id                       geometry</span>
-<span class="co">#&gt; 1   6293  4  1 POLYGON ((32.60744 0.338575...</span>
-<span class="co">#&gt; 2  17706  2  1 POLYGON ((32.60664 0.339347...</span>
-<span class="co">#&gt; 3  29106  8  1 POLYGON ((32.60719 0.339276...</span>
-<span class="co">#&gt; 4  53393  1  1 POLYGON ((32.60779 0.339691...</span>
-<span class="co">#&gt; 5  57187  5  1 POLYGON ((32.60826 0.338663...</span>
-<span class="co">#&gt; 6  59496  1  1 POLYGON ((32.60692 0.339387...</span>
-<span class="co">#&gt; 7  68588  6  1 POLYGON ((32.60791 0.338896...</span>
-<span class="co">#&gt; 8  68590  5  1 POLYGON ((32.60768 0.339633...</span>
-<span class="co">#&gt; 9  72387  4  1 POLYGON ((32.60777 0.338962...</span>
-<span class="co">#&gt; 10 78504  1  1 POLYGON ((32.60702 0.338636...</span></pre></div>
+<span class="co">#&gt;     FID_1 id Id                       geometry</span>
+<span class="co">#&gt; 1  342558  1  1 POLYGON ((32.60765 0.338418...</span>
+<span class="co">#&gt; 2  346362  1  1 POLYGON ((32.60787 0.33845,...</span>
+<span class="co">#&gt; 3   68588  2  1 POLYGON ((32.60791 0.338896...</span>
+<span class="co">#&gt; 4   72387  2  1 POLYGON ((32.60777 0.338962...</span>
+<span class="co">#&gt; 5   78504  2  1 POLYGON ((32.60702 0.338636...</span>
+<span class="co">#&gt; 6  274020  2  1 POLYGON ((32.60767 0.339219...</span>
+<span class="co">#&gt; 7  361577  2  1 POLYGON ((32.60825 0.339422...</span>
+<span class="co">#&gt; 8  379094  2  1 POLYGON ((32.60678 0.339284...</span>
+<span class="co">#&gt; 9  257296  3  1 POLYGON ((32.60692 0.338909...</span>
+<span class="co">#&gt; 10  59496  4  1 POLYGON ((32.60692 0.339387...</span></pre></div>
 <p>When using a new spatial object which has been joined to its zones, remember to supply the name of the zone field to <code>calculate_foostats</code>.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit">
 <span class="co"># use the new object and zone field 'Id' in a summary calculation</span>
@@ -640,23 +640,23 @@ Sample buildings and zones in Kampala
 <span class="co">#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; other attached packages:</span>
-<span class="co">#&gt; [1] sf_0.9-6 foot_0.5</span>
+<span class="co">#&gt; [1] sf_0.9-6 foot_0.6</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; loaded via a namespace (and not attached):</span>
-<span class="co">#&gt;  [1] tidyselect_1.0.0   xfun_0.18          purrr_0.3.4        vctrs_0.2.4       </span>
-<span class="co">#&gt;  [5] htmltools_0.4.0    stars_0.4-3        yaml_2.2.1         rlang_0.4.8       </span>
-<span class="co">#&gt;  [9] e1071_1.7-4        pkgdown_1.6.1      pillar_1.4.3       glue_1.4.0        </span>
-<span class="co">#&gt; [13] DBI_1.1.0          foreach_1.5.1      lifecycle_0.2.0    stringr_1.4.0     </span>
-<span class="co">#&gt; [17] ragg_0.3.1         codetools_0.2-16   memoise_1.1.0      evaluate_0.14     </span>
-<span class="co">#&gt; [21] knitr_1.30         doParallel_1.0.16  parallel_3.6.3     class_7.3-16      </span>
-<span class="co">#&gt; [25] highr_0.8          Rcpp_1.0.5         KernSmooth_2.23-16 backports_1.1.5   </span>
-<span class="co">#&gt; [29] classInt_0.4-3     filelock_1.0.2     formatR_1.7        lwgeom_0.2-5      </span>
-<span class="co">#&gt; [33] desc_1.2.0         abind_1.4-5        systemfonts_0.3.2  fs_1.3.1          </span>
-<span class="co">#&gt; [37] digest_0.6.25      stringi_1.4.6      dplyr_0.8.5        grid_3.6.3        </span>
-<span class="co">#&gt; [41] rprojroot_1.3-2    tools_3.6.3        magrittr_1.5       tibble_3.0.1      </span>
-<span class="co">#&gt; [45] crayon_1.3.4       pkgconfig_2.0.3    ellipsis_0.3.0     data.table_1.13.2 </span>
-<span class="co">#&gt; [49] assertthat_0.2.1   rmarkdown_2.1      rstudioapi_0.11    iterators_1.0.13  </span>
-<span class="co">#&gt; [53] R6_2.4.1           units_0.6-7        compiler_3.6.3</span></pre></div>
+<span class="co">#&gt;  [1] tidyselect_1.1.0   xfun_0.18          purrr_0.3.4        vctrs_0.3.4       </span>
+<span class="co">#&gt;  [5] generics_0.0.2     htmltools_0.4.0    stars_0.4-3        yaml_2.2.1        </span>
+<span class="co">#&gt;  [9] rlang_0.4.8        e1071_1.7-4        pkgdown_1.6.1      pillar_1.4.3      </span>
+<span class="co">#&gt; [13] glue_1.4.2         DBI_1.1.0          foreach_1.5.1      lifecycle_0.2.0   </span>
+<span class="co">#&gt; [17] stringr_1.4.0      ragg_0.3.1         codetools_0.2-16   memoise_1.1.0     </span>
+<span class="co">#&gt; [21] evaluate_0.14      knitr_1.30         doParallel_1.0.16  parallel_3.6.3    </span>
+<span class="co">#&gt; [25] class_7.3-16       highr_0.8          Rcpp_1.0.5         KernSmooth_2.23-16</span>
+<span class="co">#&gt; [29] backports_1.1.5    classInt_0.4-3     filelock_1.0.2     formatR_1.7       </span>
+<span class="co">#&gt; [33] lwgeom_0.2-5       desc_1.2.0         abind_1.4-5        systemfonts_0.3.2 </span>
+<span class="co">#&gt; [37] fs_1.3.1           digest_0.6.27      stringi_1.4.6      dplyr_1.0.2       </span>
+<span class="co">#&gt; [41] grid_3.6.3         rprojroot_1.3-2    tools_3.6.3        magrittr_1.5      </span>
+<span class="co">#&gt; [45] tibble_3.0.1       crayon_1.3.4       pkgconfig_2.0.3    ellipsis_0.3.1    </span>
+<span class="co">#&gt; [49] data.table_1.13.2  assertthat_0.2.1   rmarkdown_2.1      rstudioapi_0.11   </span>
+<span class="co">#&gt; [53] iterators_1.0.13   R6_2.5.0           units_0.6-7        compiler_3.6.3</span></pre></div>
 </div>
   </div>
 

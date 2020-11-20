@@ -75,7 +75,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">foot</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6</span>
       </span>
     </div>
 
@@ -157,6 +157,7 @@
   outputPath <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/getwd.html'>getwd</a></span><span class='op'>(</span><span class='op'>)</span>,
   outputTag <span class='op'>=</span> <span class='cn'>NULL</span>,
   tries <span class='op'>=</span> <span class='fl'>100</span>,
+  restart <span class='op'>=</span> <span class='cn'>NULL</span>,
   verbose <span class='op'>=</span> <span class='cn'>TRUE</span>
 <span class='op'>)</span>
 
@@ -178,6 +179,7 @@
   outputPath <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/getwd.html'>getwd</a></span><span class='op'>(</span><span class='op'>)</span>,
   outputTag <span class='op'>=</span> <span class='cn'>NULL</span>,
   tries <span class='op'>=</span> <span class='fl'>100</span>,
+  restart <span class='op'>=</span> <span class='cn'>NULL</span>,
   verbose <span class='op'>=</span> <span class='cn'>TRUE</span>
 <span class='op'>)</span>
 
@@ -199,6 +201,7 @@
   outputPath <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/getwd.html'>getwd</a></span><span class='op'>(</span><span class='op'>)</span>,
   outputTag <span class='op'>=</span> <span class='cn'>NULL</span>,
   tries <span class='op'>=</span> <span class='fl'>100</span>,
+  restart <span class='op'>=</span> <span class='cn'>NULL</span>,
   verbose <span class='op'>=</span> <span class='cn'>TRUE</span>
 <span class='op'>)</span>
 
@@ -220,6 +223,7 @@
   outputPath <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/getwd.html'>getwd</a></span><span class='op'>(</span><span class='op'>)</span>,
   outputTag <span class='op'>=</span> <span class='cn'>NULL</span>,
   tries <span class='op'>=</span> <span class='fl'>100</span>,
+  restart <span class='op'>=</span> <span class='cn'>NULL</span>,
   verbose <span class='op'>=</span> <span class='cn'>TRUE</span>
 <span class='op'>)</span></pre>
 
@@ -313,9 +317,15 @@ beginning of the output name for the gridded files.</p></td>
 file. Default is 100.</p></td>
     </tr>
     <tr>
+      <th>restart</th>
+      <td><p>(optional). A tile index (or vector of tile indices) from
+which to restart processing. Default is <code>NULL</code> to always process from
+the beginning.</p></td>
+    </tr>
+    <tr>
       <th>verbose</th>
-      <td><p>logical. Should progress messages be printed. Default
-<code>TRUE</code>.</p></td>
+      <td><p>logical. Should progress messages be printed and a log of
+processed tiles be created. Default <code>TRUE</code>.</p></td>
     </tr>
     </table>
 

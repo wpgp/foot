@@ -32,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">foot</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6</span>
       </span>
     </div>
 
@@ -88,7 +88,7 @@
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Gridded footprint calculation layers</h1>
             
-            <h4 class="date">October 23, 2020</h4>
+            <h4 class="date">November 20, 2020</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/wpgp/foot/blob/master/vignettes/bigfoot.Rmd"><code>vignettes/bigfoot.Rmd</code></a></small>
       <div class="hidden name"><code>bigfoot.Rmd</code></div>
@@ -126,16 +126,27 @@
 <span class="fu"><a href="../reference/calculate_bigfoot.html">calculate_bigfoot</a></span><span class="op">(</span>X<span class="op">=</span><span class="va">buildings</span>,
                   template<span class="op">=</span><span class="va">mgrid</span>,
                   what<span class="op">=</span><span class="st">"settled"</span>, how<span class="op">=</span><span class="st">"binary"</span>,
-                  verbose<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>
+                  parallel<span class="op">=</span><span class="cn">FALSE</span>, verbose<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>
 <span class="co">#&gt; trying to read file: C:\Users\Admin\Documents\GitHub\foot\wd\in\kampala_grid.tif</span>
 <span class="co">#&gt; Selecting metrics </span>
-<span class="co">#&gt; Setting control values. </span>
-<span class="co">#&gt; Creating template output grids </span>
+<span class="co">#&gt; Setting control values </span>
+<span class="co">#&gt; Creating output grids </span>
 <span class="co">#&gt; Creating list of processing tiles </span>
-<span class="co">#&gt; Setting up cluster...</span>
-<span class="co">#&gt; Begin parallel tile processing: 2020-10-23 12:14:30</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Finished processing all tiles: 2020-10-23 12:14:32</span></pre></div>
+<span class="co">#&gt; Tile: 1 of 1</span>
+<span class="co">#&gt; Reading footprints </span>
+<span class="co">#&gt; Reading template grid </span>
+<span class="co">#&gt; Selecting metrics </span>
+<span class="co">#&gt; Setting control values. </span>
+<span class="co">#&gt; Creating zonal index </span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Calculating  1  metrics ... </span>
+<span class="co">#&gt;    settled binary  </span>
+<span class="co">#&gt; Finished calculating metrics. </span>
+<span class="co">#&gt; Writing output tiles </span>
+<span class="co">#&gt; Finished writing grids</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Finished processing all tiles: 2020-11-20 17:00:10</span></pre></div>
 <p>The documentation and default parameters are available from <code><a href="../reference/calculate_bigfoot.html">?foot::calculate_bigfoot</a></code>.</p>
 <p>The arguments <code>what</code> and <code>how</code> are the same as for <code>calculate_footstats</code>. They provide a character or list list of character names or characteristics (i.e. columns within the building footprint attributes) and summary functions, respectively. The available metrics can be retrieved with <code><a href="../reference/list_fs.html">list_fs()</a></code>.</p>
 </div>
@@ -161,16 +172,28 @@ Binary settled raster at 100m resolution
                   what<span class="op">=</span><span class="st">"settled"</span>, how<span class="op">=</span><span class="st">"binary"</span>,
                   outputPath<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span><span class="op">(</span><span class="op">)</span>,
                   outputTag<span class="op">=</span><span class="st">"TAG"</span>,
-                  verbose<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>
+                  parallel<span class="op">=</span><span class="cn">FALSE</span>, verbose<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>
 <span class="co">#&gt; trying to read file: C:\Users\Admin\Documents\GitHub\foot\wd\in\kampala_grid.tif</span>
 <span class="co">#&gt; Selecting metrics </span>
-<span class="co">#&gt; Setting control values. </span>
-<span class="co">#&gt; Creating template output grids </span>
+<span class="co">#&gt; Setting control values </span>
+<span class="co">#&gt; Creating output grids </span>
 <span class="co">#&gt; Creating list of processing tiles </span>
-<span class="co">#&gt; Setting up cluster...</span>
-<span class="co">#&gt; Begin parallel tile processing: 2020-10-23 12:14:33</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Finished processing all tiles: 2020-10-23 12:14:35</span></pre></div>
+<span class="co">#&gt; Tile: 1 of 1</span>
+<span class="co">#&gt; Reading footprints</span>
+<span class="co">#&gt; although coordinates are longitude/latitude, st_intersects assumes that they are planar</span>
+<span class="co">#&gt; Reading template grid </span>
+<span class="co">#&gt; Selecting metrics </span>
+<span class="co">#&gt; Setting control values. </span>
+<span class="co">#&gt; Creating zonal index </span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Calculating  1  metrics ... </span>
+<span class="co">#&gt;    settled binary  </span>
+<span class="co">#&gt; Finished calculating metrics. </span>
+<span class="co">#&gt; Writing output tiles </span>
+<span class="co">#&gt; Finished writing grids</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Finished processing all tiles: 2020-11-20 17:00:13</span></pre></div>
 </div>
 <div id="multiple-metrics" class="section level3">
 <h3 class="hasAnchor">
@@ -183,16 +206,29 @@ Binary settled raster at 100m resolution
                   what<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="st">"settled"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="st">"area"</span><span class="op">)</span><span class="op">)</span>,
                   how<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="st">"binary"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="st">"cv"</span><span class="op">)</span><span class="op">)</span>,
                   outputPath<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span><span class="op">(</span><span class="op">)</span>,  
-                  outputTag<span class="op">=</span><span class="st">"TAG"</span><span class="op">)</span>  
+                  outputTag<span class="op">=</span><span class="st">"TAG"</span>, parallel<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span>  
 <span class="co">#&gt; trying to read file: C:\Users\Admin\Documents\GitHub\foot\wd\in\kampala_grid.tif</span>
 <span class="co">#&gt; Selecting metrics </span>
-<span class="co">#&gt; Setting control values. </span>
-<span class="co">#&gt; Creating template output grids </span>
+<span class="co">#&gt; Setting control values </span>
+<span class="co">#&gt; Creating output grids </span>
 <span class="co">#&gt; Creating list of processing tiles </span>
-<span class="co">#&gt; Setting up cluster...</span>
-<span class="co">#&gt; Begin parallel tile processing: 2020-10-23 12:14:35</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Finished processing all tiles: 2020-10-23 12:14:38</span></pre></div>
+<span class="co">#&gt; Tile: 1 of 1</span>
+<span class="co">#&gt; Reading footprints </span>
+<span class="co">#&gt; Reading template grid </span>
+<span class="co">#&gt; Selecting metrics </span>
+<span class="co">#&gt; Setting control values. </span>
+<span class="co">#&gt; Pre-calculating areas </span>
+<span class="co">#&gt; Creating zonal index </span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Calculating  2  metrics ... </span>
+<span class="co">#&gt;    settled binary  </span>
+<span class="co">#&gt;    area cv  </span>
+<span class="co">#&gt; Finished calculating metrics. </span>
+<span class="co">#&gt; Writing output tiles </span>
+<span class="co">#&gt; Finished writing grids</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Finished processing all tiles: 2020-11-20 17:00:16</span></pre></div>
 <div class="sourceCode" id="cb6"><pre class="downlit">
 <span class="co"># retrieve the gridded outputs Note: must add the 'tag' to the filename</span>
 <span class="va">outGrid</span> <span class="op">&lt;-</span> <span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"TAG_area_cv.tif"</span><span class="op">)</span><span class="op">)</span>
@@ -225,16 +261,31 @@ Example of 300 m focal radius. Selected footprints are highlighted in red
                   how<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="st">"mean"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="st">"sum"</span><span class="op">)</span><span class="op">)</span>,
                   focalRadius<span class="op">=</span><span class="fl">300</span>,  <span class="co"># buffer radius in meters</span>
                   outputPath<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span><span class="op">(</span><span class="op">)</span>, 
-                  outputTag<span class="op">=</span><span class="st">"TAG"</span><span class="op">)</span>
+                  outputTag<span class="op">=</span><span class="st">"TAG"</span>, parallel<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span>
 <span class="co">#&gt; trying to read file: C:\Users\Admin\Documents\GitHub\foot\wd\in\kampala_grid.tif</span>
 <span class="co">#&gt; Selecting metrics </span>
-<span class="co">#&gt; Setting control values. </span>
-<span class="co">#&gt; Creating template output grids </span>
+<span class="co">#&gt; Setting control values </span>
+<span class="co">#&gt; Creating output grids </span>
 <span class="co">#&gt; Creating list of processing tiles </span>
-<span class="co">#&gt; Setting up cluster...</span>
-<span class="co">#&gt; Begin parallel tile processing: 2020-10-23 12:14:41</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Finished processing all tiles: 2020-10-23 12:14:51</span></pre></div>
+<span class="co">#&gt; Tile: 1 of 1</span>
+<span class="co">#&gt; Reading footprints </span>
+<span class="co">#&gt; Reading template grid </span>
+<span class="co">#&gt; Buffering processing sites </span>
+<span class="co">#&gt; Selecting metrics </span>
+<span class="co">#&gt; Setting control values. </span>
+<span class="co">#&gt; Pre-calculating areas </span>
+<span class="co">#&gt; Pre-calculating perimeters </span>
+<span class="co">#&gt; Creating zonal index </span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Calculating  2  metrics ... </span>
+<span class="co">#&gt;    area mean  </span>
+<span class="co">#&gt;    perimeter sum  </span>
+<span class="co">#&gt; Finished calculating metrics. </span>
+<span class="co">#&gt; Writing output tiles </span>
+<span class="co">#&gt; Finished writing grids</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Finished processing all tiles: 2020-11-20 17:00:22</span></pre></div>
 <p>Creating the focal window is handled by <code>calculate_bigfoot</code>. The focal window is also taken into consideration by the function when creating processing tiles - the footprints are extract from outside the tile, in neighbouring areas, to prevent edge effects</p>
 <p>Note that when a focal radius is specified, this value is always appended to the end of the file names so that the outputs can be identified.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit">
@@ -272,8 +323,8 @@ Total building perimeter in a 300m radius window. Output at a 100m resolution
                   verbose<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>  
 <span class="co">#&gt; trying to read file: C:\Users\Admin\Documents\GitHub\foot\wd\in\kampala_grid.tif</span>
 <span class="co">#&gt; Selecting metrics </span>
-<span class="co">#&gt; Setting control values. </span>
-<span class="co">#&gt; Creating template output grids </span>
+<span class="co">#&gt; Setting control values </span>
+<span class="co">#&gt; Creating output grids </span>
 <span class="co">#&gt; Creating list of processing tiles </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Tile: 1 of 1</span>
@@ -281,9 +332,9 @@ Total building perimeter in a 300m radius window. Output at a 100m resolution
 <span class="co">#&gt; Reading template grid </span>
 <span class="co">#&gt; Selecting metrics </span>
 <span class="co">#&gt; Setting control values. </span>
-<span class="co">#&gt; Creating zonal index </span>
 <span class="co">#&gt; Pre-calculating areas </span>
 <span class="co">#&gt; Pre-calculating perimeters </span>
+<span class="co">#&gt; Creating zonal index </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Calculating  2  metrics ... </span>
 <span class="co">#&gt;    area mean  </span>
@@ -292,7 +343,7 @@ Total building perimeter in a 300m radius window. Output at a 100m resolution
 <span class="co">#&gt; Writing output tiles </span>
 <span class="co">#&gt; Finished writing grids</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Finished processing all tiles: 2020-10-23 12:14:54</span>
+<span class="co">#&gt; Finished processing all tiles: 2020-11-20 17:00:26</span>
 
 <span class="co"># plot the total perimeter, measured in kilometres</span>
 <span class="va">outGrid</span> <span class="op">&lt;-</span> <span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"TAG_perimeter_sum.tif"</span><span class="op">)</span><span class="op">)</span>
@@ -320,8 +371,8 @@ Total building perimeter in KM
                   verbose<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>  
 <span class="co">#&gt; trying to read file: C:\Users\Admin\Documents\GitHub\foot\wd\in\kampala_grid.tif</span>
 <span class="co">#&gt; Selecting metrics </span>
-<span class="co">#&gt; Setting control values. </span>
-<span class="co">#&gt; Creating template output grids </span>
+<span class="co">#&gt; Setting control values </span>
+<span class="co">#&gt; Creating output grids </span>
 <span class="co">#&gt; Creating list of processing tiles </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Tile: 1 of 1</span>
@@ -329,12 +380,12 @@ Total building perimeter in KM
 <span class="co">#&gt; Reading template grid </span>
 <span class="co">#&gt; Selecting metrics </span>
 <span class="co">#&gt; Setting control values. </span>
-<span class="co">#&gt; Creating zonal index </span>
 <span class="co">#&gt; Pre-calculating areas </span>
-<span class="co">#&gt;  Filtering features larger than 50 </span>
-<span class="co">#&gt;  Filtering features smaller than 1000 </span>
 <span class="co">#&gt; Pre-calculating perimeters </span>
 <span class="co">#&gt; Pre-calculating shape </span>
+<span class="co">#&gt; Creating zonal index </span>
+<span class="co">#&gt;  Filtering features larger than 50 </span>
+<span class="co">#&gt;  Filtering features smaller than 1000 </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Calculating  3  metrics ... </span>
 <span class="co">#&gt;    shape mean  </span>
@@ -344,7 +395,7 @@ Total building perimeter in KM
 <span class="co">#&gt; Writing output tiles </span>
 <span class="co">#&gt; Finished writing grids</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Finished processing all tiles: 2020-10-23 12:15:01</span></pre></div>
+<span class="co">#&gt; Finished processing all tiles: 2020-11-20 17:00:33</span></pre></div>
 <p>In the map of the results below, each pixel is the count of footprints present. Note the smaller number of structures and sparseness of structures in pixels around the centre portions of the image. This corresponds with the a business district and industrial areas with fewer, but larger structures.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit">
 <span class="va">outGrid</span> <span class="op">&lt;-</span> <span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"settled_count.tif"</span><span class="op">)</span><span class="op">)</span>
@@ -370,8 +421,8 @@ Count of buildings with area &gt;50 m^2 and &lt;1000 m^2
                   verbose<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>
 <span class="co">#&gt; trying to read file: C:\Users\Admin\Documents\GitHub\foot\wd\in\kampala_grid.tif</span>
 <span class="co">#&gt; Selecting metrics </span>
-<span class="co">#&gt; Setting control values. </span>
-<span class="co">#&gt; Creating template output grids </span>
+<span class="co">#&gt; Setting control values </span>
+<span class="co">#&gt; Creating output grids </span>
 <span class="co">#&gt; Creating list of processing tiles </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Tile: 1 of 4</span>
@@ -379,8 +430,8 @@ Count of buildings with area &gt;50 m^2 and &lt;1000 m^2
 <span class="co">#&gt; Reading template grid </span>
 <span class="co">#&gt; Selecting metrics </span>
 <span class="co">#&gt; Setting control values. </span>
-<span class="co">#&gt; Creating zonal index </span>
 <span class="co">#&gt; Pre-calculating compactness </span>
+<span class="co">#&gt; Creating zonal index </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Calculating  1  metrics ... </span>
 <span class="co">#&gt;    compact mean  </span>
@@ -393,8 +444,8 @@ Count of buildings with area &gt;50 m^2 and &lt;1000 m^2
 <span class="co">#&gt; Reading template grid </span>
 <span class="co">#&gt; Selecting metrics </span>
 <span class="co">#&gt; Setting control values. </span>
-<span class="co">#&gt; Creating zonal index </span>
 <span class="co">#&gt; Pre-calculating compactness </span>
+<span class="co">#&gt; Creating zonal index </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Calculating  1  metrics ... </span>
 <span class="co">#&gt;    compact mean  </span>
@@ -407,8 +458,8 @@ Count of buildings with area &gt;50 m^2 and &lt;1000 m^2
 <span class="co">#&gt; Reading template grid </span>
 <span class="co">#&gt; Selecting metrics </span>
 <span class="co">#&gt; Setting control values. </span>
-<span class="co">#&gt; Creating zonal index </span>
 <span class="co">#&gt; Pre-calculating compactness </span>
+<span class="co">#&gt; Creating zonal index </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Calculating  1  metrics ... </span>
 <span class="co">#&gt;    compact mean  </span>
@@ -421,8 +472,8 @@ Count of buildings with area &gt;50 m^2 and &lt;1000 m^2
 <span class="co">#&gt; Reading template grid </span>
 <span class="co">#&gt; Selecting metrics </span>
 <span class="co">#&gt; Setting control values. </span>
-<span class="co">#&gt; Creating zonal index </span>
 <span class="co">#&gt; Pre-calculating compactness </span>
+<span class="co">#&gt; Creating zonal index </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Calculating  1  metrics ... </span>
 <span class="co">#&gt;    compact mean  </span>
@@ -430,7 +481,13 @@ Count of buildings with area &gt;50 m^2 and &lt;1000 m^2
 <span class="co">#&gt; Writing output tiles </span>
 <span class="co">#&gt; Finished writing grids</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Finished processing all tiles: 2020-10-23 12:15:07</span></pre></div>
+<span class="co">#&gt; Finished processing all tiles: 2020-11-20 17:00:39</span></pre></div>
+</div>
+<div id="restarting" class="section level3">
+<h3 class="hasAnchor">
+<a href="#restarting" class="anchor"></a>Restarting</h3>
+<p>When running parallel processes on clusters, it is not currently possible to show a progress bar. This issue will hopefully be addressed in the future. However, when <code>verbose=TRUE</code>, <code>bigfoot</code> will write a log file to the output directory with the gridded data. This file is a list of tile ID numbers that have been processed. Tiles (created with <code>gridTiles</code>) are numbered sequentially from top-left to bottom-right of the template grid. On long-running jobs, the log of completed tiles can be used to monitor progress. Note that each processor will write its results as they are finished, so tiles may not be completed in order.</p>
+<p>If a processing job crashes, the log file can also be used to restart the job. Setting the argument <code>restart</code> to a number will restart processing from that tile. Alternatively a sequence of numbers, given as a vector, can be used to re-run only certain tiles. The output grids will not be overwritten when restarting.</p>
 </div>
 </div>
 <div id="next-steps" class="section level2">
@@ -460,24 +517,24 @@ Count of buildings with area &gt;50 m^2 and &lt;1000 m^2
 <span class="co">#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; other attached packages:</span>
-<span class="co">#&gt; [1] sf_0.9-6     raster_3.1-5 sp_1.4-1     foot_0.5    </span>
+<span class="co">#&gt; [1] sf_0.9-6     raster_3.1-5 sp_1.4-4     foot_0.6    </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; loaded via a namespace (and not attached):</span>
-<span class="co">#&gt;  [1] tidyselect_1.0.0   xfun_0.18          purrr_0.3.4        lattice_0.20-40   </span>
-<span class="co">#&gt;  [5] vctrs_0.2.4        htmltools_0.4.0    stars_0.4-3        yaml_2.2.1        </span>
-<span class="co">#&gt;  [9] rlang_0.4.8        e1071_1.7-4        pkgdown_1.6.1      pillar_1.4.3      </span>
-<span class="co">#&gt; [13] glue_1.4.0         DBI_1.1.0          foreach_1.5.1      lifecycle_0.2.0   </span>
-<span class="co">#&gt; [17] stringr_1.4.0      ragg_0.3.1         codetools_0.2-16   memoise_1.1.0     </span>
-<span class="co">#&gt; [21] evaluate_0.14      knitr_1.30         doParallel_1.0.16  parallel_3.6.3    </span>
-<span class="co">#&gt; [25] class_7.3-16       highr_0.8          Rcpp_1.0.5         KernSmooth_2.23-16</span>
-<span class="co">#&gt; [29] backports_1.1.5    classInt_0.4-3     filelock_1.0.2     formatR_1.7       </span>
-<span class="co">#&gt; [33] lwgeom_0.2-5       desc_1.2.0         abind_1.4-5        systemfonts_0.3.2 </span>
-<span class="co">#&gt; [37] fs_1.3.1           digest_0.6.25      stringi_1.4.6      dplyr_0.8.5       </span>
-<span class="co">#&gt; [41] grid_3.6.3         rprojroot_1.3-2    rgdal_1.4-8        tools_3.6.3       </span>
-<span class="co">#&gt; [45] magrittr_1.5       tibble_3.0.1       crayon_1.3.4       pkgconfig_2.0.3   </span>
-<span class="co">#&gt; [49] ellipsis_0.3.0     data.table_1.13.2  assertthat_0.2.1   rmarkdown_2.1     </span>
-<span class="co">#&gt; [53] rstudioapi_0.11    iterators_1.0.13   R6_2.4.1           units_0.6-7       </span>
-<span class="co">#&gt; [57] compiler_3.6.3</span></pre></div>
+<span class="co">#&gt;  [1] tidyselect_1.1.0   xfun_0.18          purrr_0.3.4        lattice_0.20-41   </span>
+<span class="co">#&gt;  [5] vctrs_0.3.4        generics_0.0.2     htmltools_0.4.0    stars_0.4-3       </span>
+<span class="co">#&gt;  [9] yaml_2.2.1         rlang_0.4.8        e1071_1.7-4        pkgdown_1.6.1     </span>
+<span class="co">#&gt; [13] pillar_1.4.3       glue_1.4.2         DBI_1.1.0          foreach_1.5.1     </span>
+<span class="co">#&gt; [17] lifecycle_0.2.0    stringr_1.4.0      ragg_0.3.1         codetools_0.2-16  </span>
+<span class="co">#&gt; [21] memoise_1.1.0      evaluate_0.14      knitr_1.30         doParallel_1.0.16 </span>
+<span class="co">#&gt; [25] parallel_3.6.3     class_7.3-16       highr_0.8          Rcpp_1.0.5        </span>
+<span class="co">#&gt; [29] KernSmooth_2.23-16 backports_1.1.5    classInt_0.4-3     filelock_1.0.2    </span>
+<span class="co">#&gt; [33] formatR_1.7        lwgeom_0.2-5       desc_1.2.0         abind_1.4-5       </span>
+<span class="co">#&gt; [37] systemfonts_0.3.2  fs_1.3.1           digest_0.6.27      stringi_1.4.6     </span>
+<span class="co">#&gt; [41] dplyr_1.0.2        grid_3.6.3         rprojroot_1.3-2    rgdal_1.4-8       </span>
+<span class="co">#&gt; [45] tools_3.6.3        magrittr_1.5       tibble_3.0.1       crayon_1.3.4      </span>
+<span class="co">#&gt; [49] pkgconfig_2.0.3    ellipsis_0.3.1     data.table_1.13.2  assertthat_0.2.1  </span>
+<span class="co">#&gt; [53] rmarkdown_2.1      rstudioapi_0.11    iterators_1.0.13   R6_2.5.0          </span>
+<span class="co">#&gt; [57] units_0.6-7        compiler_3.6.3</span></pre></div>
 </div>
   </div>
 
