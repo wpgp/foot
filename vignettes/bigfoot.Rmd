@@ -297,6 +297,25 @@ calculate_bigfoot(X=buildings,
                   parallel=FALSE,
                   verbose=TRUE)
 ```
+
+### Restarting
+
+When running parallel processes on clusters, it is not currently possible to
+show a progress bar. This issue will hopefully be addressed in the future.
+However, when `verbose=TRUE`, `bigfoot` will write a log file to the output
+directory with the gridded data. This file is a list of tile ID numbers that
+have been processed. Tiles (created with `gridTiles`) are numbered sequentially
+from top-left to bottom-right of the template grid. On long-running jobs, the
+log of completed tiles can be used to monitor progress. Note that each processor
+will write its results as they are finished, so tiles may not be completed in
+order.
+
+If a processing job crashes, the log file can also be used to restart the job.
+Setting the argument `restart` to a number will restart processing from that
+tile. Alternatively a sequence of numbers, given as a vector, can be used to
+re-run only certain tiles. The output grids will not be overwritten when
+restarting.
+
 ## Next steps
 
 This vignette has provided an overview of how to create gridded outputs layers
