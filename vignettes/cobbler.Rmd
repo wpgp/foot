@@ -176,7 +176,7 @@ pa <- function(p, a){
 # note that fs_varlist is still within a list
 calculate_footstats(buildings,
                     adminzones,
-                    what=list(list("compact"), fs_varlist("area","perimeter")),
+                    what=list(list("compact"), fs_varlist("perimeter","area")),
                     how=list(list("mean"), list("pa")),
                     verbose=T
                    )
