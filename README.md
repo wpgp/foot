@@ -38,7 +38,7 @@ intersections and tiled reading/writing of data.
 The `foot` package can be installed directly from Github.
 
 ``` r
-devtools::install_github("wgpg/foot", build_vignettes=TRUE)
+devtools::install_github("wpgp/foot", build_vignettes=TRUE)
 ```
 
 Note that building and running the code may require additional packages:
