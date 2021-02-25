@@ -88,7 +88,7 @@
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Basic building footprint calculations</h1>
             
-            <h4 class="date">November 20, 2020</h4>
+            <h4 class="date">February 25, 2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/wpgp/foot/blob/master/vignettes/footsteps.Rmd"><code>vignettes/footsteps.Rmd</code></a></small>
       <div class="hidden name"><code>footsteps.Rmd</code></div>
@@ -265,37 +265,37 @@ Sample buildings and zones in Kampala
 <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">buildings</span><span class="op">$</span><span class="va">id</span><span class="op">)</span>  <span class="co"># splitting observations into 10 groups</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;   1   2   3   4   5   6   7   8   9  10 </span>
-<span class="co">#&gt; 491 498 473 498 503 495 490 455 453 484</span>
+<span class="co">#&gt; 529 470 504 472 496 470 479 447 512 461</span>
 
 <span class="co"># 1. pass the index by name</span>
 <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">buildings</span><span class="op">)</span>
 <span class="co">#&gt; [1] "FID_1"    "geometry" "id"</span>
 <span class="fu"><a href="../reference/calculate_footstats.html">calculate_footstats</a></span><span class="op">(</span><span class="va">buildings</span>, <span class="st">"id"</span>, what <span class="op">=</span> <span class="st">"area"</span>, how <span class="op">=</span> <span class="st">"mean"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 <span class="co">#&gt;     id      area_mean</span>
-<span class="co">#&gt;  1:  1 221.3901 [m^2]</span>
-<span class="co">#&gt;  2:  2 255.7267 [m^2]</span>
-<span class="co">#&gt;  3:  3 264.5996 [m^2]</span>
-<span class="co">#&gt;  4:  4 241.0398 [m^2]</span>
-<span class="co">#&gt;  5:  5 262.5743 [m^2]</span>
-<span class="co">#&gt;  6:  6 214.1892 [m^2]</span>
-<span class="co">#&gt;  7:  7 248.8263 [m^2]</span>
-<span class="co">#&gt;  8:  8 283.6734 [m^2]</span>
-<span class="co">#&gt;  9:  9 355.9950 [m^2]</span>
-<span class="co">#&gt; 10: 10 293.8315 [m^2]</span>
+<span class="co">#&gt;  1:  1 261.9491 [m^2]</span>
+<span class="co">#&gt;  2:  2 227.1724 [m^2]</span>
+<span class="co">#&gt;  3:  3 264.3924 [m^2]</span>
+<span class="co">#&gt;  4:  4 247.1852 [m^2]</span>
+<span class="co">#&gt;  5:  5 277.7044 [m^2]</span>
+<span class="co">#&gt;  6:  6 228.0344 [m^2]</span>
+<span class="co">#&gt;  7:  7 257.6704 [m^2]</span>
+<span class="co">#&gt;  8:  8 272.9944 [m^2]</span>
+<span class="co">#&gt;  9:  9 261.2773 [m^2]</span>
+<span class="co">#&gt; 10: 10 334.9492 [m^2]</span>
 
 <span class="co"># 2. pass the index as a standalone vector</span>
 <span class="fu"><a href="../reference/calculate_footstats.html">calculate_footstats</a></span><span class="op">(</span><span class="va">buildings</span>, <span class="va">idx</span>, what <span class="op">=</span> <span class="st">"settled"</span>, how <span class="op">=</span> <span class="st">"count"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 <span class="co">#&gt;     zoneID settled_count</span>
-<span class="co">#&gt;  1:      1           491</span>
-<span class="co">#&gt;  2:      2           498</span>
-<span class="co">#&gt;  3:      3           473</span>
-<span class="co">#&gt;  4:      4           498</span>
-<span class="co">#&gt;  5:      5           503</span>
-<span class="co">#&gt;  6:      6           495</span>
-<span class="co">#&gt;  7:      7           490</span>
-<span class="co">#&gt;  8:      8           455</span>
-<span class="co">#&gt;  9:      9           453</span>
-<span class="co">#&gt; 10:     10           484</span>
+<span class="co">#&gt;  1:      1           529</span>
+<span class="co">#&gt;  2:      2           470</span>
+<span class="co">#&gt;  3:      3           504</span>
+<span class="co">#&gt;  4:      4           472</span>
+<span class="co">#&gt;  5:      5           496</span>
+<span class="co">#&gt;  6:      6           470</span>
+<span class="co">#&gt;  7:      7           479</span>
+<span class="co">#&gt;  8:      8           447</span>
+<span class="co">#&gt;  9:      9           512</span>
+<span class="co">#&gt; 10:     10           461</span>
 
 <span class="co"># 3. pass a separate spatial object of zones</span>
 <span class="fu"><a href="../reference/calculate_footstats.html">calculate_footstats</a></span><span class="op">(</span><span class="va">buildings</span>, zone <span class="op">=</span> <span class="va">adminzones</span>, what <span class="op">=</span> <span class="st">"angle"</span>, how <span class="op">=</span> <span class="st">"entropy"</span>, 
@@ -374,16 +374,16 @@ Sample buildings and zones in Kampala
 <span class="va">zID</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/zonalIndex.html">zonalIndex</a></span><span class="op">(</span><span class="va">buildings</span>, <span class="va">adminzones</span>, returnObject <span class="op">=</span> <span class="cn">F</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">zID</span>, <span class="fl">10</span><span class="op">)</span>  <span class="co"># the xID column are row numbers to object X</span>
 <span class="co">#&gt;      xID zoneID</span>
-<span class="co">#&gt;  1:  101      1</span>
-<span class="co">#&gt;  2:  369      1</span>
-<span class="co">#&gt;  3: 1404      1</span>
-<span class="co">#&gt;  4: 1477      1</span>
-<span class="co">#&gt;  5: 1534      1</span>
-<span class="co">#&gt;  6: 1896      1</span>
-<span class="co">#&gt;  7: 1925      1</span>
-<span class="co">#&gt;  8: 2348      1</span>
-<span class="co">#&gt;  9: 2922      1</span>
-<span class="co">#&gt; 10: 3247      1</span>
+<span class="co">#&gt;  1:   30      1</span>
+<span class="co">#&gt;  2:  356      1</span>
+<span class="co">#&gt;  3:  397      1</span>
+<span class="co">#&gt;  4:  902      1</span>
+<span class="co">#&gt;  5:  965      1</span>
+<span class="co">#&gt;  6: 1013      1</span>
+<span class="co">#&gt;  7: 1409      1</span>
+<span class="co">#&gt;  8: 1832      1</span>
+<span class="co">#&gt;  9: 1902      1</span>
+<span class="co">#&gt; 10: 2394      1</span>
 
 <span class="co"># Alternatively (and preferably), join zones to create a new footprint object A</span>
 <span class="co"># custom zone name can be used but must be specificed to the summary functions</span>
@@ -396,16 +396,16 @@ Sample buildings and zones in Kampala
 <span class="co">#&gt; geographic CRS: WGS 84</span>
 <span class="co">#&gt; First 10 features:</span>
 <span class="co">#&gt;     FID_1 id Id                       geometry</span>
-<span class="co">#&gt; 1  342558  1  1 POLYGON ((32.60765 0.338418...</span>
-<span class="co">#&gt; 2  346362  1  1 POLYGON ((32.60787 0.33845,...</span>
-<span class="co">#&gt; 3   68588  2  1 POLYGON ((32.60791 0.338896...</span>
-<span class="co">#&gt; 4   72387  2  1 POLYGON ((32.60777 0.338962...</span>
-<span class="co">#&gt; 5   78504  2  1 POLYGON ((32.60702 0.338636...</span>
-<span class="co">#&gt; 6  274020  2  1 POLYGON ((32.60767 0.339219...</span>
-<span class="co">#&gt; 7  361577  2  1 POLYGON ((32.60825 0.339422...</span>
-<span class="co">#&gt; 8  379094  2  1 POLYGON ((32.60678 0.339284...</span>
-<span class="co">#&gt; 9  257296  3  1 POLYGON ((32.60692 0.338909...</span>
-<span class="co">#&gt; 10  59496  4  1 POLYGON ((32.60692 0.339387...</span></pre></div>
+<span class="co">#&gt; 1   29106  1  1 POLYGON ((32.60719 0.339276...</span>
+<span class="co">#&gt; 2  152325  1  1 POLYGON ((32.60837 0.339845...</span>
+<span class="co">#&gt; 3  216992  1  1 POLYGON ((32.60818 0.339228...</span>
+<span class="co">#&gt; 4    6293  2  1 POLYGON ((32.60744 0.338575...</span>
+<span class="co">#&gt; 5   59496  2  1 POLYGON ((32.60692 0.339387...</span>
+<span class="co">#&gt; 6  101340  2  1 POLYGON ((32.6071 0.338821,...</span>
+<span class="co">#&gt; 7  127999  2  1 POLYGON ((32.60704 0.339857...</span>
+<span class="co">#&gt; 8  342558  2  1 POLYGON ((32.60765 0.338418...</span>
+<span class="co">#&gt; 9  376783  2  1 POLYGON ((32.60747 0.338611...</span>
+<span class="co">#&gt; 10 379094  2  1 POLYGON ((32.60678 0.339284...</span></pre></div>
 <p>When using a new spatial object which has been joined to its zones, remember to supply the name of the zone field to <code>calculate_foostats</code>.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit">
 <span class="co"># use the new object and zone field 'Id' in a summary calculation</span>
@@ -622,7 +622,7 @@ Sample buildings and zones in Kampala
 <span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span><span class="op">(</span><span class="op">)</span>
 <span class="co">#&gt; R version 3.6.3 (2020-02-29)</span>
 <span class="co">#&gt; Platform: x86_64-pc-linux-gnu (64-bit)</span>
-<span class="co">#&gt; Running under: Ubuntu 20.04.1 LTS</span>
+<span class="co">#&gt; Running under: Ubuntu 20.04.2 LTS</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Matrix products: default</span>
 <span class="co">#&gt; BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.9.0</span>

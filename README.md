@@ -119,8 +119,8 @@ admin_area <- calculate_footstats(building_zone,
                                   what="area", how="mean")
 #> Selecting metrics 
 #> Setting control values. 
-#> Creating zonal index 
 #> Pre-calculating areas 
+#> Creating zonal index 
 #> 
 #> Calculating  1  metrics ... 
 #>    area mean  
@@ -145,14 +145,15 @@ gridded <- calculate_bigfoot(buildings,
                              focalRadius=200,
                              template=grid,
                              outputPath=tempdir())
+#> trying to read file: C:\Users\Admin\Documents\GitHub\foot\wd\in\kampala_grid.tif
 #> Selecting metrics 
-#> Setting control values. 
-#> Creating template output grids 
+#> Setting control values 
+#> Creating output grids 
 #> Creating list of processing tiles 
 #> Setting up cluster...
-#> Begin parallel tile processing: 2020-10-21 16:14:52
+#> Begin parallel tile processing: 2021-02-25 14:42:51
 #> 
-#> Finished processing all tiles: 2020-10-21 16:14:56
+#> Finished processing all tiles: 2021-02-25 14:42:54
 
   raster::plot(raster::raster(gridded))
   plot(sf::st_geometry(buildings), add=TRUE)
@@ -189,17 +190,17 @@ citation("foot")
 #> 
 #> To cite package 'foot' in publications use:
 #> 
-#>   WorldPop Research Group, University of Southampton (2020). foot: An R package for processing building footprints morphometrics. R package version 0.5.
-#>   https://github.com/wpgp/foot
+#>   WorldPop Research Group, University of Southampton (2020). foot: An R
+#>   package for processing building footprint morphometrics.
+#>   https://github.com/wpgp/foot, https://wpgp.github.io/foot/.
 #> 
 #> A BibTeX entry for LaTeX users is
 #> 
 #>   @Manual{,
-#>     title = {foot: An R package for processing building footprints morphometrics},
+#>     title = {foot: An R package for processing building footprint morphometrics},
 #>     author = {{WorldPop Research Group, University of Southampton}},
 #>     year = {2020},
-#>     note = {R package version 0.5},
-#>     url = {https://github.com/wpgp/foot},
+#>     note = {https://github.com/wpgp/foot, https://wpgp.github.io/foot/},
 #>   }
 ```
 
