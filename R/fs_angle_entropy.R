@@ -144,7 +144,7 @@ fs_angle_entropy_calc <- function(X, index, normalize=TRUE){
   if(normalize){ # based on Boeing (2019)
     hmax <- 3.584
     hg <- 1.386
-    result[, entropy := 1 - ((entropy-hg) / (hmax - hg))^2, by=index]
+    result[, entropy := 1 - ((entropy-hg) / (hmax - hg))^2, by=indexCol]
   } 
   data.table::setnames(result, "entropy", colNam)
   
