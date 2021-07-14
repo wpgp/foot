@@ -17,6 +17,9 @@ usethis::use_package("iterators")
 usethis::use_package("units")
 usethis::use_package("mmap")
 
+usethis::use_package('geosphere')
+usethis::use_package('geos')
+
 # library("roxygen2")
 # package documentation
 devtools::document()
