@@ -42,7 +42,7 @@ entropy <- function(x){
   hmax <- 3.584
   hg <- 1.386
   
-  calc_ent <- 1 - ((calc_ent-hg) / (hmax - hg))^2
+  calc_ent <- 1 - ((calc_ent - hg) / (hmax - hg))^2
   return(calc_ent)
 }
 
@@ -50,6 +50,12 @@ entropy <- function(x){
 #' @rdname fs_functions
 majority <- function(x){
   return(names(which.max(table(x))))
+}
+
+
+#' @rdname fs_functions
+iqr <- function(x){
+  return(IQR(x, na.rm = TRUE))
 }
 
 
