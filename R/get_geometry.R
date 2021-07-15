@@ -47,6 +47,79 @@ fs_perimeter <- function(X, unit=NULL){
 }
 
 
+  return(calc[,1] / calc[,2])
+}
+
+
+#' @title Length to equivalent-width ratio
+#' @description Helper geometry function to measure calculate the ratio between
+#'   the length and the equivalent width.
+#' @param X polygons of building footprints of type \code{sf}.
+#' @param unit string indicating unit of measure. Passed to
+#'   \code{units::set_units}.
+#' @return numeric vector of length / width measured for each item in \code{X}.
+#' @details The length is defined as the longest side of the rotated minimum
+#'   bounding rectangle. The equivalent width is defined as the area of the
+#'   footprint divided by its length.
+#'
+#' @rdname fs_lengthwidth
+#' @export
+fs_leqw <- function(X, unit=NULL){
+  if(!inherits(X, "sf")){
+    X <- sf::st_as_sf(X)
+  }
+  
+  if(any(!sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON"))){
+    stop("Shape index requires polygons")
+  } 
+  
+  if(is.null(unit)){
+    unit <- "m^2"
+  }
+  
+  if(!"fs_area" %in% names(X)){
+    X[["fs_area"]] <- fs_area(X, unit=unit)
+  } else{
+    units(X$fs_area) <- units::as_units(unit)
+  }
+
+  mbr <- fs_mbr(X, returnShape = TRUE)
+  calc <- calc_lw(mbr)
+  ww <- units::drop_units(X$fs_area / calc[,1])
+  
+  return(calc[,1] / ww)
+}
+
+
+#' @title Length and width calculator
+#' @description Internal helper geometry function.
+#' @param X minimum bounding rectangles of building footprints of type \code{sf}.
+#' @return numeric vectors of length and width measured for each item in \code{X}.
+#'
+#' @keywords internal
+calc_lw <- function(X){
+  # find edges
+  gpts <- sf::st_cast(X, 'POINT')
+  lagpts <- c(gpts[-1], gpts[1])
+  # get edge lengths
+  alld <- sf::st_distance(gpts, lagpts, by_element = T)
+  d <- alld[-seq(5, length(alld), by = 5)]
+  ids <- rep(1:length(X), each = 4)
+  
+  # get length of mbr
+  mx <- aggregate(list('maxID' = d), by = list('id' = ids), which.max)
+  mx$did <- (mx$id - 1) * 4 + mx$maxID
+  ll <- d[mx$did]
+  
+  # get width of mbr
+  mn <- aggregate(list('minID' = d), by = list('id' = ids), which.min)
+  mn$did <- (mn$id - 1) * 4 + mn$minID
+  ww <- d[mn$did]
+  
+  return(cbind(ll, ww))
+}
+
+
 #' @title Compactness index
 #' 
 #' @description Calculates an approximate measure of shape "compactness".
