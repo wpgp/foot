@@ -55,9 +55,9 @@ fs_perimeter <- function(X, unit=NULL){
 #' @details The length is defined as the longest side of the rotated minimum
 #'   bounding rectangle and the width is the shorter side.
 #'
-#' @name fs_lw
+#' @name fs_lwratio
 #' @export
-fs_lw <- function(X){
+fs_lwratio <- function(X){
   if(!inherits(X, "sf")){
     X <- sf::st_as_sf(X)
   }
@@ -84,9 +84,9 @@ fs_lw <- function(X){
 #'   bounding rectangle. The equivalent width is defined as the area of the
 #'   footprint divided by its length.
 #'
-#' @rdname fs_lengthwidth
+#' @rdname fs_lwratio
 #' @export
-fs_leqw <- function(X, unit=NULL){
+fs_leqwratio <- function(X, unit=NULL){
   if(!inherits(X, "sf")){
     X <- sf::st_as_sf(X)
   }
