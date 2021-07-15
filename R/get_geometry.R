@@ -283,7 +283,7 @@ fs_mbr <- function(X, returnShape=FALSE){
     mx <- aggregate(list('maxID' = d), by = list('id' = ids), which.max)
     mx$did <- (mx$id - 1) * 4 + mx$maxID
 
-    if(st_is_longlat(b)){
+    if(sf::st_is_longlat(X)){
       bears <- geosphere::bearing(sf::st_coordinates(gpts[mx$did]), 
                                   sf::st_coordinates(lagpts[mx$did]))
     } else{
