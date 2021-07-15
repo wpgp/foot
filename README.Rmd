@@ -67,12 +67,12 @@ kampala$buildings
 ### Vignettes
 
 Vignettes are provided as an introduction to `foot`. The vignette on basic usage
-is available from `vignette("footsteps", package = "foot")`. The supplied datasets
-can be used to replicate this vignette. For a discussion and example of creating
-gridded data layers, see `vignette("bigfoot", package = "foot")`. Finally,
-techniques for using custom morphology metric functions with `foot` is
-demonstrated in `vignette("cobbler", package = "foot")`. These vignettes are also
-available from this package website.
+is available from `vignette("footsteps", package = "foot")`. The supplied
+datasets can be used to replicate this vignette. For a discussion and example of
+creating gridded data layers, see `vignette("bigfoot", package = "foot")`.
+Finally, techniques for using custom morphology metric functions with `foot` is
+demonstrated in `vignette("cobbler", package = "foot")`. These vignettes are
+also available from this package website.
 
 ### Basic Usage
 
@@ -137,6 +137,7 @@ Rasters in GeoTiff format or data tables:
 7. Structure orientation angle (normalised entropy)
 8. Compactness (Polsby-Popper) 
 9. Roundness
+10. Length to (equivalent-) width ratio
 
 A full list of characteristics and summary function names can be retrieved with
 `foot::list_fs()`.

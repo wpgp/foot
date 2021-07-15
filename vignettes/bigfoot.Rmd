@@ -33,6 +33,10 @@ produce gridded summaries of buildings measures. In particular, the focus is on
 using `foot::calculate_bigfoot()` in order how to handle very large (i.e. 
 national-scale) datasets of building footprints.
 
+An example of this type of processing and how it can be used in settlement
+classification is available in this paper (open access):
+[https://doi.org/10.1371/journal.pone.0247535](https://doi.org/10.1371/journal.pone.0247535).
+
 ```{r setup}
 library(foot)
 ```

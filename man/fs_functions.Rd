@@ -7,6 +7,7 @@
 \alias{cv}
 \alias{entropy}
 \alias{majority}
+\alias{iqr}
 \title{Built-in 'foot' functions}
 \usage{
 binary(x)
@@ -18,6 +19,8 @@ cv(x)
 entropy(x)
 
 majority(x)
+
+iqr(x)
 }
 \arguments{
 \item{x}{numeric vector of values to summarize.}
