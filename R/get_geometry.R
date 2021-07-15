@@ -47,6 +47,28 @@ fs_perimeter <- function(X, unit=NULL){
 }
 
 
+#' @title Length-width ratio
+#' @description Helper geometry function to measure calculate the ratio between
+#'   the length and width.
+#' @param X polygons of building footprints of type \code{sf}.
+#' @return numeric vector of length / width measured for each item in \code{X}.
+#' @details The length is defined as the longest side of the rotated minimum
+#'   bounding rectangle and the width is the shorter side.
+#'
+#' @name fs_lw
+#' @export
+fs_lw <- function(X){
+  if(!inherits(X, "sf")){
+    X <- sf::st_as_sf(X)
+  }
+  
+  if(any(!sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON"))){
+    stop("Shape index requires polygons")
+  } 
+  
+  mbr <- fs_mbr(X, returnShape = TRUE)
+  calc <- calc_lw(mbr)
+
   return(calc[,1] / calc[,2])
 }
 
@@ -237,7 +259,9 @@ fs_shape <- function(X, unit=NULL){
 #'   of the rotated bounding rectangle or should it return the angle (in degrees).
 #' @return a numeric angle from 0 to 360 degrees or the rotated rectangle as a
 #'   polygon of type \code{sf}.
-#'   
+#'
+#' @name fs_mbr
+#' @export   
 fs_mbr <- function(X, returnShape=FALSE){
   if(any(!sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON"))){
     stop("Bounding rectangle requires polygons.")
@@ -249,12 +273,12 @@ fs_mbr <- function(X, returnShape=FALSE){
     return(mbr)
   } else{
     # find edges
-    gpts <- sf::st_cast(grr, 'POINT')
+    gpts <- sf::st_cast(mbr, 'POINT')
     lagpts <- c(gpts[-1], gpts[1])
     # get edge lengths
     alld <- sf::st_distance(gpts, lagpts, by_element = T)
     d <- alld[-seq(5, length(alld), by = 5)]
-    ids <- rep(1:length(grr), each = 4)
+    ids <- rep(1:length(mbr), each = 4)
     
     mx <- aggregate(list('maxID' = d), by = list('id' = ids), which.max)
     mx$did <- (mx$id - 1) * 4 + mx$maxID
