@@ -9,13 +9,14 @@ Southampton](https://www.worldpop.org/)*
 While remote sensing has long been used to monitor urbanisation
 patterns, in recent years there has been an increasing availability in
 finer resolution satellite data covering large areas of the globe. This
-very high resolution imagery (often \<1 m spatial resolution), combined
-with increased computing power is producing new datasets on urban areas.
-In particular, machine learning algorithms are being applied to detect,
-automatically extract, and map full sets of building features in a
-scene. These automated methods add to the manually digitised information
-such as from [OpenStreetMap](http://www.openstreetmap.org) and the
-property datasets available from some city governments.
+very high resolution imagery (often &lt;1 m spatial resolution),
+combined with increased computing power is producing new datasets on
+urban areas. In particular, machine learning algorithms are being
+applied to detect, automatically extract, and map full sets of building
+features in a scene. These automated methods add to the manually
+digitised information such as from
+[OpenStreetMap](http://www.openstreetmap.org) and the property datasets
+available from some city governments.
 
 Such building footprint datasets provide a new level of detail on urban
 areas, particularly in places which might otherwise lack detailed maps
@@ -38,7 +39,7 @@ intersections and tiled reading/writing of data.
 The `foot` package can be installed directly from Github.
 
 ``` r
-devtools::install_github("wpgp/foot", build_vignettes=TRUE)
+devtools::install_github("wpgp/foot", build_vignettes = TRUE)
 ```
 
 Note that building and running the code may require additional packages:
@@ -50,19 +51,19 @@ A sample dataset of building footprints is provided:
 
     # load the sample
     data("kampala", package="foot")
-    
+
     # 2D vector building polygons
     kampala$buildings
 
 ### Vignettes
 
 Vignettes are provided as an introduction to `foot`. The vignette on
-basic usage is available from `vignette("footsteps", package="foot")`.
+basic usage is available from `vignette("footsteps", package = "foot")`.
 The supplied datasets can be used to replicate this vignette. For a
 discussion and example of creating gridded data layers, see
-`vignette("bigfoot", package="foot")`. Finally, techniques for using
+`vignette("bigfoot", package = "foot")`. Finally, techniques for using
 custom morphology metric functions with `foot` is demonstrated in
-`vignette("cobbler", package="foot")`. These vignettes are also
+`vignette("cobbler", package = "foot")`. These vignettes are also
 available from this package website.
 
 ### Basic Usage
@@ -71,7 +72,7 @@ available from this package website.
 library(foot)
 
 # load sample data
-data("kampala", package="foot")
+data("kampala", package = "foot")
 buildings <- kampala$buildings
 zones <- kampala$adminZones
 grid <- kampala$mastergrid
@@ -83,24 +84,24 @@ geometry measures.
 
 ``` r
 # building-level metrics
-buildings$built_area <- calculate_footstats(buildings, what="area")
+buildings$built_area <- calculate_footstats(buildings, what = "area")
 #> Selecting metrics 
 #> Setting control values. 
 #> Pre-calculating areas 
 #> No summary functions found, returning metrics.
   head(buildings)
 #> Simple feature collection with 6 features and 2 fields
-#> geometry type:  POLYGON
-#> dimension:      XY
-#> bbox:           xmin: 32.60765 ymin: 0.341117 xmax: 32.61288 ymax: 0.345773
-#> geographic CRS: WGS 84
+#> Geometry type: POLYGON
+#> Dimension:     XY
+#> Bounding box:  xmin: 32.60765 ymin: 0.341117 xmax: 32.61288 ymax: 0.345773
+#> Geodetic CRS:  WGS 84
 #>   FID_1                       geometry            area
-#> 1   130 POLYGON ((32.61282 0.341132...  22.00824 [m^2]
-#> 2   132 POLYGON ((32.61229 0.341693... 220.39011 [m^2]
-#> 3   133 POLYGON ((32.60817 0.342753...  38.95750 [m^2]
-#> 4   135 POLYGON ((32.60808 0.343578... 386.74429 [m^2]
-#> 5   137 POLYGON ((32.60786 0.344552... 349.57765 [m^2]
-#> 6   138 POLYGON ((32.60765 0.345604... 164.00931 [m^2]
+#> 1   130 POLYGON ((32.61287 0.341117...  22.10707 [m^2]
+#> 2   132 POLYGON ((32.6123 0.341771,... 221.37976 [m^2]
+#> 3   133 POLYGON ((32.60812 0.34277,...  39.13247 [m^2]
+#> 4   135 POLYGON ((32.60784 0.343618... 388.48091 [m^2]
+#> 5   137 POLYGON ((32.608 0.344555, ... 351.14738 [m^2]
+#> 6   138 POLYGON ((32.60772 0.345582... 164.74579 [m^2]
 ```
 
 As well as area-level summaries within spatial zones.
@@ -115,8 +116,8 @@ building_zone <- zonalIndex(buildings,
 
 # summarise metrics within small areal units
 admin_area <- calculate_footstats(building_zone, 
-                                  zone="Id", 
-                                  what="area", how="mean")
+                                  zone = "Id", 
+                                  what = "area", how = "mean")
 #> Selecting metrics 
 #> Setting control values. 
 #> Pre-calculating areas 
@@ -127,12 +128,12 @@ admin_area <- calculate_footstats(building_zone,
 #> Finished calculating metrics.
   head(admin_area)
 #>    Id       area_mean
-#> 1:  1  402.5984 [m^2]
-#> 2:  2  211.0534 [m^2]
-#> 3:  3  525.0747 [m^2]
-#> 4:  4  555.0931 [m^2]
-#> 5:  5  568.7154 [m^2]
-#> 6:  6 1021.9529 [m^2]
+#> 1:  1  404.4062 [m^2]
+#> 2:  2  212.0011 [m^2]
+#> 3:  3  527.4325 [m^2]
+#> 4:  4  557.5857 [m^2]
+#> 5:  5  571.2692 [m^2]
+#> 6:  6 1026.5419 [m^2]
 ```
 
 Or gridded summary outputs, with the options to include a circular focal
@@ -141,22 +142,23 @@ window.
 ``` r
 # calculated along a raster within a circular focal window
 gridded <- calculate_bigfoot(buildings, 
-                             what="area", how="mean",
-                             focalRadius=200,
-                             template=grid,
-                             outputPath=tempdir())
+                             what = "area", 
+                             how = "mean",
+                             focalRadius = 200,
+                             template = grid,
+                             outputPath = tempdir())
 #> trying to read file: C:\Users\Admin\Documents\GitHub\foot\wd\in\kampala_grid.tif
 #> Selecting metrics 
 #> Setting control values 
 #> Creating output grids 
 #> Creating list of processing tiles 
 #> Setting up cluster...
-#> Begin parallel tile processing: 2021-02-25 14:42:51
+#> Begin parallel tile processing: 2021-07-15 11:44:02
 #> 
-#> Finished processing all tiles: 2021-02-25 14:42:54
+#> Finished processing all tiles: 2021-07-15 11:44:06
 
   raster::plot(raster::raster(gridded))
-  plot(sf::st_geometry(buildings), add=TRUE)
+  plot(sf::st_geometry(buildings), add = TRUE)
 ```
 
 <img src="man/figures/REAsDME-unnamed-chunk-4-1.png" width="100%" />
@@ -174,6 +176,7 @@ Rasters in GeoTiff format or data tables:
 7.  Structure orientation angle (normalised entropy)
 8.  Compactness (Polsby-Popper)
 9.  Roundness
+10. Length to (equivalent-) width ratio
 
 A full list of characteristics and summary function names can be
 retrieved with `foot::list_fs()`.
@@ -190,16 +193,15 @@ citation("foot")
 #> 
 #> To cite package 'foot' in publications use:
 #> 
-#>   WorldPop Research Group, University of Southampton (2020). foot: An R
-#>   package for processing building footprint morphometrics.
-#>   https://github.com/wpgp/foot, https://wpgp.github.io/foot/.
+#>   WorldPop Research Group, University of Southampton (2021). foot: An R package for processing building footprint morphometrics. https://github.com/wpgp/foot,
+#>   https://wpgp.github.io/foot/.
 #> 
 #> A BibTeX entry for LaTeX users is
 #> 
 #>   @Manual{,
 #>     title = {foot: An R package for processing building footprint morphometrics},
 #>     author = {{WorldPop Research Group, University of Southampton}},
-#>     year = {2020},
+#>     year = {2021},
 #>     note = {https://github.com/wpgp/foot, https://wpgp.github.io/foot/},
 #>   }
 ```

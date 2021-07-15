@@ -32,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">foot</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7</span>
       </span>
     </div>
 
@@ -65,11 +65,14 @@
     </li>
   </ul>
 </li>
+<li>
+  <a href="../news/index.html">News</a>
+</li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
   <a href="https://github.com/wpgp/foot/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -83,13 +86,13 @@
 
       
 
-      </header><div class="row">
+      </header><script src="cobbler_files/header-attrs-2.9/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Using custom summary functions in <code>foot</code>
 </h1>
             
-            <h4 class="date">February 25, 2021</h4>
+            <h4 class="date">July 15, 2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/wpgp/foot/blob/master/vignettes/cobbler.Rmd"><code>vignettes/cobbler.Rmd</code></a></small>
       <div class="hidden name"><code>cobbler.Rmd</code></div>
@@ -99,8 +102,8 @@
     
     
 <p>The <code>foot</code> package was developed by WorldPop at the University of Southampton (<a href="https://www.worldpop.org">www.worldpop.org</a>) to support geometric calculations and summaries of measures from building footprint polygons. This vignette demonstrates how users can extend the basic functionality of <code>calculate_footstats</code> and <code>calculate_bigfoot</code> by making and supplying their own functions to summarise footprint characteristics. For an introduction to the package, see <code><a href="../articles/footsteps.html">vignette("footsteps")</a></code>.</p>
-<div class="sourceCode" id="cb1"><pre class="downlit">
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/wpgp/foot">foot</a></span><span class="op">)</span></pre></div>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/wpgp/foot">foot</a></span><span class="op">)</span></code></pre></div>
 <div id="calculations-with-foot" class="section level2">
 <h2 class="hasAnchor">
 <a href="#calculations-with-foot" class="anchor"></a>Calculations with <code>foot</code>
@@ -110,8 +113,8 @@
 <h3 class="hasAnchor">
 <a href="#data-preparation" class="anchor"></a>Data preparation</h3>
 <p>To demonstrate using custom functions, we will first add some additional attribute “data” to the footprints which we will use.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit">
-<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"kampala"</span>, package <span class="op">=</span> <span class="st">"foot"</span><span class="op">)</span>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"kampala"</span>, package <span class="op">=</span> <span class="st">"foot"</span><span class="op">)</span>
 
 <span class="va">buildings</span> <span class="op">&lt;-</span> <span class="va">kampala</span><span class="op">$</span><span class="va">buildings</span>
 <span class="va">adminzones</span> <span class="op">&lt;-</span> <span class="va">kampala</span><span class="op">$</span><span class="va">adminZones</span>
@@ -119,97 +122,97 @@
 <span class="co"># Adding random data categorical variable</span>
 <span class="va">buildings</span><span class="op">$</span><span class="va">category</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html">sample</a></span><span class="op">(</span><span class="va">LETTERS</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>, size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">buildings</span><span class="op">)</span>, replace <span class="op">=</span> <span class="cn">T</span><span class="op">)</span>
 <span class="co"># continuous variable</span>
-<span class="va">buildings</span><span class="op">$</span><span class="va">mult</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">buildings</span><span class="op">)</span>, mean <span class="op">=</span> <span class="fl">10</span>, sd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span></pre></div>
+<span class="va">buildings</span><span class="op">$</span><span class="va">mult</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">buildings</span><span class="op">)</span>, mean <span class="op">=</span> <span class="fl">10</span>, sd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p>We can use any attributes of the footprints within <code>calculate_footstats</code> and <code>calculate_bigfoot</code>, not only the built-in morphology measures listed by <code><a href="../reference/list_fs.html">list_fs(what='all')</a></code>.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit">
-<span class="co"># summarising a new data value</span>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># summarising a new data value</span>
 <span class="fu"><a href="../reference/calculate_footstats.html">calculate_footstats</a></span><span class="op">(</span><span class="va">buildings</span>,
                     <span class="va">adminzones</span>,
                     what<span class="op">=</span><span class="st">"mult"</span>, <span class="co"># new attribute to summarise</span>
                     how<span class="op">=</span><span class="st">"mean"</span>,
                     verbose<span class="op">=</span><span class="cn">F</span><span class="op">)</span>
 <span class="co">#&gt;     zoneID mult_mean</span>
-<span class="co">#&gt;  1:      1  9.872990</span>
-<span class="co">#&gt;  2:      2  9.910890</span>
-<span class="co">#&gt;  3:      3 10.393417</span>
-<span class="co">#&gt;  4:      4 10.091612</span>
-<span class="co">#&gt;  5:      5 10.585050</span>
-<span class="co">#&gt;  6:      6  9.974855</span>
-<span class="co">#&gt;  7:      7  9.824896</span>
-<span class="co">#&gt;  8:      8  9.702396</span>
-<span class="co">#&gt;  9:      9 10.127202</span>
-<span class="co">#&gt; 10:     10 10.323138</span>
-<span class="co">#&gt; 11:     11 10.158242</span>
-<span class="co">#&gt; 12:     12  9.591684</span>
-<span class="co">#&gt; 13:     13  8.786357</span>
-<span class="co">#&gt; 14:     14  9.803301</span>
-<span class="co">#&gt; 15:     15  9.859322</span>
-<span class="co">#&gt; 16:     16 10.129179</span>
-<span class="co">#&gt; 17:     17 10.093079</span>
-<span class="co">#&gt; 18:     18  9.832519</span>
-<span class="co">#&gt; 19:     19  9.908892</span>
-<span class="co">#&gt; 20:     20 10.098435</span>
-<span class="co">#&gt; 21:     21 10.230970</span>
-<span class="co">#&gt; 22:     22  9.596068</span>
-<span class="co">#&gt; 23:     23 10.142006</span>
-<span class="co">#&gt; 24:     24  9.909569</span>
-<span class="co">#&gt; 25:     25 10.303245</span>
-<span class="co">#&gt; 26:     26  9.975938</span>
-<span class="co">#&gt; 27:     27 10.160555</span>
-<span class="co">#&gt; 28:     29  9.944686</span>
-<span class="co">#&gt; 29:     30  9.964874</span>
-<span class="co">#&gt; 30:     31 12.686388</span>
-<span class="co">#&gt; 31:     32  9.814629</span>
-<span class="co">#&gt; 32:     33  9.513476</span>
-<span class="co">#&gt; 33:     34  9.964375</span>
-<span class="co">#&gt;     zoneID mult_mean</span></pre></div>
+<span class="co">#&gt;  1:      1  9.548635</span>
+<span class="co">#&gt;  2:      2 10.057912</span>
+<span class="co">#&gt;  3:      3 10.120641</span>
+<span class="co">#&gt;  4:      4  9.798350</span>
+<span class="co">#&gt;  5:      5 10.103866</span>
+<span class="co">#&gt;  6:      6  9.777139</span>
+<span class="co">#&gt;  7:      7 10.113873</span>
+<span class="co">#&gt;  8:      8  9.643146</span>
+<span class="co">#&gt;  9:      9 10.066914</span>
+<span class="co">#&gt; 10:     10  9.836346</span>
+<span class="co">#&gt; 11:     11  9.405008</span>
+<span class="co">#&gt; 12:     12  9.367433</span>
+<span class="co">#&gt; 13:     13 11.183757</span>
+<span class="co">#&gt; 14:     14 10.117020</span>
+<span class="co">#&gt; 15:     15 10.032894</span>
+<span class="co">#&gt; 16:     16 10.088606</span>
+<span class="co">#&gt; 17:     17 10.056084</span>
+<span class="co">#&gt; 18:     18  9.894523</span>
+<span class="co">#&gt; 19:     19 10.114003</span>
+<span class="co">#&gt; 20:     20  9.935174</span>
+<span class="co">#&gt; 21:     21  9.755820</span>
+<span class="co">#&gt; 22:     22 10.289006</span>
+<span class="co">#&gt; 23:     23  9.913538</span>
+<span class="co">#&gt; 24:     24 10.028339</span>
+<span class="co">#&gt; 25:     25 10.585430</span>
+<span class="co">#&gt; 26:     26 10.056423</span>
+<span class="co">#&gt; 27:     27 10.199779</span>
+<span class="co">#&gt; 28:     29  9.960945</span>
+<span class="co">#&gt; 29:     30 10.028416</span>
+<span class="co">#&gt; 30:     31 12.691788</span>
+<span class="co">#&gt; 31:     32 10.162500</span>
+<span class="co">#&gt; 32:     33  9.058304</span>
+<span class="co">#&gt; 33:     34  9.917238</span>
+<span class="co">#&gt;     zoneID mult_mean</span></code></pre></div>
 </div>
 <div id="additional-built-in-functions" class="section level3">
 <h3 class="hasAnchor">
 <a href="#additional-built-in-functions" class="anchor"></a>Additional built-in functions</h3>
 <p>The internal <code>foot</code> functions are documented in <code><a href="../reference/fs_functions.html">?fs_functions</a></code>; however, these functions are intended to be used within the wrapper functions of <code>foot</code> and are rarely intended to be used as standalone functions. One built-in summary function, not applied by default, is <code>majority</code>. It is designed to summarise categorical data. This function is available for users in the same manner of specifying the <code>how</code> argument.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit">
-<span class="co"># get the majority category in each zone</span>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># get the majority category in each zone</span>
 <span class="fu"><a href="../reference/calculate_footstats.html">calculate_footstats</a></span><span class="op">(</span><span class="va">buildings</span>, 
                     <span class="va">adminzones</span>, 
                     what<span class="op">=</span><span class="st">"category"</span>, 
                     how<span class="op">=</span><span class="st">"majority"</span>, 
                     verbose<span class="op">=</span><span class="cn">F</span><span class="op">)</span>
 <span class="co">#&gt;     zoneID category_majority</span>
-<span class="co">#&gt;  1:      1                 E</span>
-<span class="co">#&gt;  2:      2                 A</span>
-<span class="co">#&gt;  3:      3                 E</span>
+<span class="co">#&gt;  1:      1                 D</span>
+<span class="co">#&gt;  2:      2                 D</span>
+<span class="co">#&gt;  3:      3                 D</span>
 <span class="co">#&gt;  4:      4                 E</span>
 <span class="co">#&gt;  5:      5                 A</span>
 <span class="co">#&gt;  6:      6                 D</span>
 <span class="co">#&gt;  7:      7                 E</span>
 <span class="co">#&gt;  8:      8                 B</span>
 <span class="co">#&gt;  9:      9                 D</span>
-<span class="co">#&gt; 10:     10                 C</span>
-<span class="co">#&gt; 11:     11                 C</span>
+<span class="co">#&gt; 10:     10                 D</span>
+<span class="co">#&gt; 11:     11                 D</span>
 <span class="co">#&gt; 12:     12                 B</span>
-<span class="co">#&gt; 13:     13                 D</span>
-<span class="co">#&gt; 14:     14                 C</span>
-<span class="co">#&gt; 15:     15                 C</span>
-<span class="co">#&gt; 16:     16                 B</span>
+<span class="co">#&gt; 13:     13                 B</span>
+<span class="co">#&gt; 14:     14                 A</span>
+<span class="co">#&gt; 15:     15                 D</span>
+<span class="co">#&gt; 16:     16                 C</span>
 <span class="co">#&gt; 17:     17                 D</span>
-<span class="co">#&gt; 18:     18                 A</span>
-<span class="co">#&gt; 19:     19                 E</span>
-<span class="co">#&gt; 20:     20                 A</span>
-<span class="co">#&gt; 21:     21                 E</span>
-<span class="co">#&gt; 22:     22                 A</span>
-<span class="co">#&gt; 23:     23                 D</span>
-<span class="co">#&gt; 24:     24                 A</span>
-<span class="co">#&gt; 25:     25                 A</span>
+<span class="co">#&gt; 18:     18                 B</span>
+<span class="co">#&gt; 19:     19                 C</span>
+<span class="co">#&gt; 20:     20                 E</span>
+<span class="co">#&gt; 21:     21                 C</span>
+<span class="co">#&gt; 22:     22                 D</span>
+<span class="co">#&gt; 23:     23                 B</span>
+<span class="co">#&gt; 24:     24                 C</span>
+<span class="co">#&gt; 25:     25                 C</span>
 <span class="co">#&gt; 26:     26                 C</span>
-<span class="co">#&gt; 27:     27                 D</span>
-<span class="co">#&gt; 28:     29                 C</span>
-<span class="co">#&gt; 29:     30                 C</span>
-<span class="co">#&gt; 30:     31                 E</span>
-<span class="co">#&gt; 31:     32                 B</span>
-<span class="co">#&gt; 32:     33                 A</span>
-<span class="co">#&gt; 33:     34                 C</span>
-<span class="co">#&gt;     zoneID category_majority</span></pre></div>
+<span class="co">#&gt; 27:     27                 B</span>
+<span class="co">#&gt; 28:     29                 B</span>
+<span class="co">#&gt; 29:     30                 B</span>
+<span class="co">#&gt; 30:     31                 A</span>
+<span class="co">#&gt; 31:     32                 A</span>
+<span class="co">#&gt; 32:     33                 B</span>
+<span class="co">#&gt; 33:     34                 A</span>
+<span class="co">#&gt;     zoneID category_majority</span></code></pre></div>
 <p>The <code>majority</code> function is similar to the idea of supplying a user-defined function which is demonstrated in the next section.</p>
 </div>
 </div>
@@ -219,8 +222,8 @@
 <p>Creating functions for use with <code>foot</code> follows the same procedures and syntax for functions in <code>R</code> in general. They must be declared with <code>&lt;- function()</code> and they must be available within the environment where <code>foot</code> functions are being used. When the functions are used internally by <code>calculate_footstats</code>, they are applied to footprints by zone index. Therefore they should return a single, summary value since the function for that group of footprints in the zone.</p>
 <p>The name of the function is what is passed to <code>foot</code> as an argument to <code>how</code>. The argument(s) to the custom function can be named anything, but they will typically be values present within the footprint attributes to be summarised.</p>
 <p>The example below shows a simple function that calculates the sum of the square root of the values. We will apply it to ‘area’, and <code>foot</code> will automatically pre-calculate this characteristic since it is not present in the column names of the footprints.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit">
-<span class="co"># simple function example 1</span>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># simple function example 1</span>
 <span class="va">f1</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">v</span><span class="op">)</span><span class="op">{</span>
   <span class="fu"><a href="https://rdrr.io/r/base/difftime.html">units</a></span><span class="op">(</span><span class="va">v</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="cn">NULL</span> <span class="co"># ignore units in our function</span>
   <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">v</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
@@ -231,86 +234,86 @@
                     <span class="va">adminzones</span>,
                     what<span class="op">=</span><span class="st">"area"</span>, how<span class="op">=</span><span class="st">"f1"</span>,
                     verbose<span class="op">=</span><span class="cn">F</span><span class="op">)</span>
-<span class="co">#&gt; Linking to GEOS 3.8.0, GDAL 3.0.4, PROJ 6.3.1</span>
-<span class="co">#&gt; WARNING: different compile-time and runtime versions for GEOS found:</span>
-<span class="co">#&gt; Linked against: 3.8.0-CAPI-1.13.1  compiled against: 3.8.1-CAPI-1.13.3</span>
-<span class="co">#&gt; It is probably a good idea to reinstall sf, and maybe rgeos and rgdal too</span>
 <span class="co">#&gt;     zoneID    area_f1</span>
-<span class="co">#&gt;  1:      1  364.18909</span>
-<span class="co">#&gt;  2:      2 1823.23957</span>
-<span class="co">#&gt;  3:      3  871.63637</span>
-<span class="co">#&gt;  4:      4 1966.54994</span>
-<span class="co">#&gt;  5:      5  867.92154</span>
-<span class="co">#&gt;  6:      6  822.51869</span>
-<span class="co">#&gt;  7:      7  485.66087</span>
-<span class="co">#&gt;  8:      8 1194.46899</span>
-<span class="co">#&gt;  9:      9 3048.19689</span>
-<span class="co">#&gt; 10:     10  385.24272</span>
-<span class="co">#&gt; 11:     11 1404.13211</span>
-<span class="co">#&gt; 12:     12  294.77870</span>
-<span class="co">#&gt; 13:     13   73.79837</span>
-<span class="co">#&gt; 14:     14  730.25610</span>
-<span class="co">#&gt; 15:     15 2014.66636</span>
-<span class="co">#&gt; 16:     16 1154.35602</span>
-<span class="co">#&gt; 17:     17 1133.49662</span>
-<span class="co">#&gt; 18:     18 3472.56857</span>
-<span class="co">#&gt; 19:     19 5905.48635</span>
-<span class="co">#&gt; 20:     20 5262.66216</span>
-<span class="co">#&gt; 21:     21  998.62900</span>
-<span class="co">#&gt; 22:     22  722.37587</span>
-<span class="co">#&gt; 23:     23 3441.00032</span>
-<span class="co">#&gt; 24:     24 3882.17755</span>
-<span class="co">#&gt; 25:     25  435.66830</span>
-<span class="co">#&gt; 26:     26 3426.43477</span>
-<span class="co">#&gt; 27:     27 2283.48433</span>
-<span class="co">#&gt; 28:     29 1910.57791</span>
-<span class="co">#&gt; 29:     30  989.77450</span>
-<span class="co">#&gt; 30:     31   11.92210</span>
-<span class="co">#&gt; 31:     32 1913.14204</span>
-<span class="co">#&gt; 32:     33  309.58519</span>
-<span class="co">#&gt; 33:     34 9839.29584</span>
-<span class="co">#&gt;     zoneID    area_f1</span></pre></div>
+<span class="co">#&gt;  1:      1  365.00586</span>
+<span class="co">#&gt;  2:      2 1827.32853</span>
+<span class="co">#&gt;  3:      3  873.59117</span>
+<span class="co">#&gt;  4:      4 1970.96031</span>
+<span class="co">#&gt;  5:      5  869.86802</span>
+<span class="co">#&gt;  6:      6  824.36335</span>
+<span class="co">#&gt;  7:      7  486.75006</span>
+<span class="co">#&gt;  8:      8 1197.14781</span>
+<span class="co">#&gt;  9:      9 3055.03307</span>
+<span class="co">#&gt; 10:     10  386.10669</span>
+<span class="co">#&gt; 11:     11 1407.28115</span>
+<span class="co">#&gt; 12:     12  295.43981</span>
+<span class="co">#&gt; 13:     13   73.96388</span>
+<span class="co">#&gt; 14:     14  731.89385</span>
+<span class="co">#&gt; 15:     15 2019.18463</span>
+<span class="co">#&gt; 16:     16 1156.94489</span>
+<span class="co">#&gt; 17:     17 1136.03871</span>
+<span class="co">#&gt; 18:     18 3480.35645</span>
+<span class="co">#&gt; 19:     19 5918.73046</span>
+<span class="co">#&gt; 20:     20 5274.46461</span>
+<span class="co">#&gt; 21:     21 1000.86861</span>
+<span class="co">#&gt; 22:     22  723.99592</span>
+<span class="co">#&gt; 23:     23 3448.71743</span>
+<span class="co">#&gt; 24:     24 3890.88401</span>
+<span class="co">#&gt; 25:     25  436.64536</span>
+<span class="co">#&gt; 26:     26 3434.11917</span>
+<span class="co">#&gt; 27:     27 2288.60545</span>
+<span class="co">#&gt; 28:     29 1914.86276</span>
+<span class="co">#&gt; 29:     30  991.99424</span>
+<span class="co">#&gt; 30:     31   11.94884</span>
+<span class="co">#&gt; 31:     32 1917.43260</span>
+<span class="co">#&gt; 32:     33  310.27950</span>
+<span class="co">#&gt; 33:     34 9861.36237</span>
+<span class="co">#&gt;     zoneID    area_f1</span></code></pre></div>
 <p>Although this function was just used to process area, the function can be used for any continuous value. It can also be used on multiple characteristics or combined with other lists of functions, just like any other built-in function in <code>foot</code>.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit">
-<span class="fu"><a href="../reference/calculate_footstats.html">calculate_footstats</a></span><span class="op">(</span><span class="va">buildings</span>,
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/calculate_footstats.html">calculate_footstats</a></span><span class="op">(</span><span class="va">buildings</span>,
                     <span class="va">adminzones</span>,
                     what<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="st">"area"</span>,<span class="st">"perimeter"</span><span class="op">)</span>, how<span class="op">=</span><span class="st">"f1"</span>,
                     verbose<span class="op">=</span><span class="cn">F</span><span class="op">)</span>
+<span class="co">#&gt; Linking to GEOS 3.9.0, GDAL 3.2.1, PROJ 7.2.1</span>
+<span class="co">#&gt; WARNING: different compile-time and runtime versions for GEOS found:</span>
+<span class="co">#&gt; Linked against: 3.9.0-CAPI-1.16.2 compiled against: 3.8.1-CAPI-1.13.3</span>
+<span class="co">#&gt; It is probably a good idea to reinstall sf, and maybe rgeos and rgdal too</span>
 <span class="co">#&gt;     zoneID    area_f1 perimeter_f1</span>
-<span class="co">#&gt;  1:      1  364.18909   183.488651</span>
-<span class="co">#&gt;  2:      2 1823.23957  1048.879091</span>
-<span class="co">#&gt;  3:      3  871.63637   426.068457</span>
-<span class="co">#&gt;  4:      4 1966.54994   968.615609</span>
-<span class="co">#&gt;  5:      5  867.92154   412.069737</span>
-<span class="co">#&gt;  6:      6  822.51869   337.518569</span>
-<span class="co">#&gt;  7:      7  485.66087   171.066602</span>
-<span class="co">#&gt;  8:      8 1194.46899   515.464525</span>
-<span class="co">#&gt;  9:      9 3048.19689  1911.775834</span>
-<span class="co">#&gt; 10:     10  385.24272   226.579855</span>
-<span class="co">#&gt; 11:     11 1404.13211   857.273283</span>
-<span class="co">#&gt; 12:     12  294.77870   214.216882</span>
-<span class="co">#&gt; 13:     13   73.79837    35.239420</span>
-<span class="co">#&gt; 14:     14  730.25610   500.492421</span>
-<span class="co">#&gt; 15:     15 2014.66636  1407.986177</span>
-<span class="co">#&gt; 16:     16 1154.35602   835.883724</span>
-<span class="co">#&gt; 17:     17 1133.49662   716.240827</span>
-<span class="co">#&gt; 18:     18 3472.56857  2477.699320</span>
-<span class="co">#&gt; 19:     19 5905.48635  3199.202606</span>
-<span class="co">#&gt; 20:     20 5262.66216  2994.324208</span>
-<span class="co">#&gt; 21:     21  998.62900   552.056838</span>
-<span class="co">#&gt; 22:     22  722.37587   400.124081</span>
-<span class="co">#&gt; 23:     23 3441.00032  1548.754569</span>
-<span class="co">#&gt; 24:     24 3882.17755  2167.419552</span>
-<span class="co">#&gt; 25:     25  435.66830   207.129346</span>
-<span class="co">#&gt; 26:     26 3426.43477  1360.146927</span>
-<span class="co">#&gt; 27:     27 2283.48433  1300.818322</span>
-<span class="co">#&gt; 28:     29 1910.57791  1117.788513</span>
-<span class="co">#&gt; 29:     30  989.77450   569.928890</span>
-<span class="co">#&gt; 30:     31   11.92210     6.938055</span>
-<span class="co">#&gt; 31:     32 1913.14204  1042.133260</span>
-<span class="co">#&gt; 32:     33  309.58519   155.175160</span>
-<span class="co">#&gt; 33:     34 9839.29584  6005.424628</span>
-<span class="co">#&gt;     zoneID    area_f1 perimeter_f1</span></pre></div>
+<span class="co">#&gt;  1:      1  365.00586   183.488651</span>
+<span class="co">#&gt;  2:      2 1827.32853  1048.879091</span>
+<span class="co">#&gt;  3:      3  873.59117   426.068457</span>
+<span class="co">#&gt;  4:      4 1970.96031   968.615609</span>
+<span class="co">#&gt;  5:      5  869.86802   412.069737</span>
+<span class="co">#&gt;  6:      6  824.36335   337.518569</span>
+<span class="co">#&gt;  7:      7  486.75006   171.066602</span>
+<span class="co">#&gt;  8:      8 1197.14781   515.464525</span>
+<span class="co">#&gt;  9:      9 3055.03307  1911.775834</span>
+<span class="co">#&gt; 10:     10  386.10669   226.579855</span>
+<span class="co">#&gt; 11:     11 1407.28115   857.273283</span>
+<span class="co">#&gt; 12:     12  295.43981   214.216882</span>
+<span class="co">#&gt; 13:     13   73.96388    35.239420</span>
+<span class="co">#&gt; 14:     14  731.89385   500.492421</span>
+<span class="co">#&gt; 15:     15 2019.18463  1407.986177</span>
+<span class="co">#&gt; 16:     16 1156.94489   835.883724</span>
+<span class="co">#&gt; 17:     17 1136.03871   716.240827</span>
+<span class="co">#&gt; 18:     18 3480.35645  2477.699320</span>
+<span class="co">#&gt; 19:     19 5918.73046  3199.202606</span>
+<span class="co">#&gt; 20:     20 5274.46461  2994.324208</span>
+<span class="co">#&gt; 21:     21 1000.86861   552.056838</span>
+<span class="co">#&gt; 22:     22  723.99592   400.124081</span>
+<span class="co">#&gt; 23:     23 3448.71743  1548.754569</span>
+<span class="co">#&gt; 24:     24 3890.88401  2167.419552</span>
+<span class="co">#&gt; 25:     25  436.64536   207.129346</span>
+<span class="co">#&gt; 26:     26 3434.11917  1360.146927</span>
+<span class="co">#&gt; 27:     27 2288.60545  1300.818322</span>
+<span class="co">#&gt; 28:     29 1914.86276  1117.788513</span>
+<span class="co">#&gt; 29:     30  991.99424   569.928890</span>
+<span class="co">#&gt; 30:     31   11.94884     6.938055</span>
+<span class="co">#&gt; 31:     32 1917.43260  1042.133260</span>
+<span class="co">#&gt; 32:     33  310.27950   155.175160</span>
+<span class="co">#&gt; 33:     34 9861.36237  6005.424628</span>
+<span class="co">#&gt;     zoneID    area_f1 perimeter_f1</span></code></pre></div>
 </div>
 <div id="functions-with-multiple-arguments" class="section level2">
 <h2 class="hasAnchor">
@@ -321,8 +324,8 @@
 <h3 class="hasAnchor">
 <a href="#creating-a-perimeterarea-ratio" class="anchor"></a>Creating a Perimeter/Area ratio</h3>
 <p>An example of a custom function using two characteristics is the average perimeter-area ratio. We can compare this to the built-in function which uses a Polsby-Popper metric (<code>fs_compact</code>).</p>
-<div class="sourceCode" id="cb7"><pre class="downlit">
-<span class="co"># average perimeter-area ratio</span>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># average perimeter-area ratio</span>
 <span class="va">pa</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span>, <span class="va">a</span><span class="op">)</span><span class="op">{</span>
   <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">p</span> <span class="op">/</span> <span class="va">a</span><span class="op">)</span><span class="op">)</span>
 <span class="op">}</span>
@@ -347,40 +350,40 @@
 <span class="co">#&gt;    perimeter area pa  </span>
 <span class="co">#&gt; Finished calculating metrics.</span>
 <span class="co">#&gt;     zoneID compact_mean perimeter_area_pa</span>
-<span class="co">#&gt;  1:      1    0.5991569   0.3678351 [1/m]</span>
-<span class="co">#&gt;  2:      2    0.6575220   0.4310395 [1/m]</span>
-<span class="co">#&gt;  3:      3    0.6126862   0.3865439 [1/m]</span>
-<span class="co">#&gt;  4:      4    0.6272569   0.3997248 [1/m]</span>
-<span class="co">#&gt;  5:      5    0.6053632   0.4032383 [1/m]</span>
-<span class="co">#&gt;  6:      6    0.6255586   0.3133090 [1/m]</span>
-<span class="co">#&gt;  7:      7    0.5447738   0.2699737 [1/m]</span>
-<span class="co">#&gt;  8:      8    0.5516914   0.3056295 [1/m]</span>
-<span class="co">#&gt;  9:      9    0.6113972   0.5041525 [1/m]</span>
-<span class="co">#&gt; 10:     10    0.6219757   0.5085339 [1/m]</span>
-<span class="co">#&gt; 11:     11    0.5777758   0.4693639 [1/m]</span>
-<span class="co">#&gt; 12:     12    0.6591031   0.6469146 [1/m]</span>
-<span class="co">#&gt; 13:     13    0.5629929   0.5594556 [1/m]</span>
-<span class="co">#&gt; 14:     14    0.7122782   0.4881872 [1/m]</span>
-<span class="co">#&gt; 15:     15    0.7247100   0.5306499 [1/m]</span>
-<span class="co">#&gt; 16:     16    0.6982459   0.5678706 [1/m]</span>
-<span class="co">#&gt; 17:     17    0.6518730   0.5087060 [1/m]</span>
-<span class="co">#&gt; 18:     18    0.6869924   0.6245742 [1/m]</span>
-<span class="co">#&gt; 19:     19    0.6686708   0.3519480 [1/m]</span>
-<span class="co">#&gt; 20:     20    0.6810544   0.3832515 [1/m]</span>
-<span class="co">#&gt; 21:     21    0.6926037   0.3695641 [1/m]</span>
-<span class="co">#&gt; 22:     22    0.7113827   0.3252631 [1/m]</span>
-<span class="co">#&gt; 23:     23    0.6151105   0.4001308 [1/m]</span>
-<span class="co">#&gt; 24:     24    0.6682211   0.3709533 [1/m]</span>
-<span class="co">#&gt; 25:     25    0.6304162   0.3606033 [1/m]</span>
-<span class="co">#&gt; 26:     26    0.6118970   0.3036161 [1/m]</span>
-<span class="co">#&gt; 27:     27    0.6831782   0.3904080 [1/m]</span>
-<span class="co">#&gt; 28:     29    0.6616867   0.4517787 [1/m]</span>
-<span class="co">#&gt; 29:     30    0.6448110   0.3991052 [1/m]</span>
-<span class="co">#&gt; 30:     31    0.7708405   0.3386647 [1/m]</span>
-<span class="co">#&gt; 31:     32    0.6358119   0.3916160 [1/m]</span>
-<span class="co">#&gt; 32:     33    0.5847305   0.3451821 [1/m]</span>
-<span class="co">#&gt; 33:     34    0.6413189   0.4558177 [1/m]</span>
-<span class="co">#&gt;     zoneID compact_mean perimeter_area_pa</span></pre></div>
+<span class="co">#&gt;  1:      1    0.6018474   0.3661908 [1/m]</span>
+<span class="co">#&gt;  2:      2    0.6604745   0.4291126 [1/m]</span>
+<span class="co">#&gt;  3:      3    0.6154374   0.3848159 [1/m]</span>
+<span class="co">#&gt;  4:      4    0.6300735   0.3979379 [1/m]</span>
+<span class="co">#&gt;  5:      5    0.6080815   0.4014357 [1/m]</span>
+<span class="co">#&gt;  6:      6    0.6283676   0.3119084 [1/m]</span>
+<span class="co">#&gt;  7:      7    0.5472201   0.2687669 [1/m]</span>
+<span class="co">#&gt;  8:      8    0.5541688   0.3042632 [1/m]</span>
+<span class="co">#&gt;  9:      9    0.6141427   0.5018987 [1/m]</span>
+<span class="co">#&gt; 10:     10    0.6247686   0.5062606 [1/m]</span>
+<span class="co">#&gt; 11:     11    0.5803702   0.4672657 [1/m]</span>
+<span class="co">#&gt; 12:     12    0.6620628   0.6440226 [1/m]</span>
+<span class="co">#&gt; 13:     13    0.5655211   0.5569546 [1/m]</span>
+<span class="co">#&gt; 14:     14    0.7154767   0.4860048 [1/m]</span>
+<span class="co">#&gt; 15:     15    0.7279642   0.5282777 [1/m]</span>
+<span class="co">#&gt; 16:     16    0.7013814   0.5653320 [1/m]</span>
+<span class="co">#&gt; 17:     17    0.6548002   0.5064319 [1/m]</span>
+<span class="co">#&gt; 18:     18    0.6900773   0.6217822 [1/m]</span>
+<span class="co">#&gt; 19:     19    0.6716734   0.3503747 [1/m]</span>
+<span class="co">#&gt; 20:     20    0.6841125   0.3815382 [1/m]</span>
+<span class="co">#&gt; 21:     21    0.6957138   0.3679120 [1/m]</span>
+<span class="co">#&gt; 22:     22    0.7145771   0.3238091 [1/m]</span>
+<span class="co">#&gt; 23:     23    0.6178726   0.3983421 [1/m]</span>
+<span class="co">#&gt; 24:     24    0.6712216   0.3692950 [1/m]</span>
+<span class="co">#&gt; 25:     25    0.6332470   0.3589913 [1/m]</span>
+<span class="co">#&gt; 26:     26    0.6146447   0.3022588 [1/m]</span>
+<span class="co">#&gt; 27:     27    0.6862459   0.3886627 [1/m]</span>
+<span class="co">#&gt; 28:     29    0.6646580   0.4497591 [1/m]</span>
+<span class="co">#&gt; 29:     30    0.6477064   0.3973210 [1/m]</span>
+<span class="co">#&gt; 30:     31    0.7743018   0.3371508 [1/m]</span>
+<span class="co">#&gt; 31:     32    0.6386669   0.3898653 [1/m]</span>
+<span class="co">#&gt; 32:     33    0.5873562   0.3436390 [1/m]</span>
+<span class="co">#&gt; 33:     34    0.6441987   0.4537800 [1/m]</span>
+<span class="co">#&gt;     zoneID compact_mean perimeter_area_pa</span></code></pre></div>
 </div>
 </div>
 <div id="accessing-r-objects-other-than-the-footprints" class="section level2">
@@ -388,8 +391,8 @@
 <a href="#accessing-r-objects-other-than-the-footprints" class="anchor"></a>Accessing <code>R</code> objects other than the footprints</h2>
 <p>A more complicated scenario exists when a user-defined function needs to access data which is not an attribute of the footprints dataset. In order to access the non-footprint data, a partial function must be created first and then supplied to calculation function.</p>
 <p>In the example below, a simple constant value is supplied to a summary function; however, the idea extends to any object in the <code>R</code> environment. This process is how the nearest neighbour index is calculated in <code>foot</code> by drawing on the spatial zones object as well as the footprints.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit">
-<span class="co"># external "data"</span>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># external "data"</span>
 <span class="va">d1</span> <span class="op">&lt;-</span> <span class="fl">0.001</span>
 
 <span class="co"># This will NOT work because argument 'd' is not found</span>
@@ -419,45 +422,45 @@
                     verbose<span class="op">=</span><span class="cn">F</span>
                    <span class="op">)</span>
 <span class="co">#&gt;     zoneID           area_f3</span>
-<span class="co">#&gt;  1:      1   8.4545661 [m^2]</span>
-<span class="co">#&gt;  2:      2  29.7585314 [m^2]</span>
-<span class="co">#&gt;  3:      3  25.7286600 [m^2]</span>
-<span class="co">#&gt;  4:      4  63.8357113 [m^2]</span>
-<span class="co">#&gt;  5:      5  26.7296259 [m^2]</span>
-<span class="co">#&gt;  6:      6  35.7683531 [m^2]</span>
-<span class="co">#&gt;  7:      7  28.3878563 [m^2]</span>
-<span class="co">#&gt;  8:      8  44.5041537 [m^2]</span>
-<span class="co">#&gt;  9:      9  48.1457825 [m^2]</span>
-<span class="co">#&gt; 10:     10   7.5599164 [m^2]</span>
-<span class="co">#&gt; 11:     11  24.2123780 [m^2]</span>
-<span class="co">#&gt; 12:     12   3.1098042 [m^2]</span>
-<span class="co">#&gt; 13:     13   2.6464756 [m^2]</span>
-<span class="co">#&gt; 14:     14   6.7120641 [m^2]</span>
-<span class="co">#&gt; 15:     15  19.2269062 [m^2]</span>
-<span class="co">#&gt; 16:     16   9.9002318 [m^2]</span>
-<span class="co">#&gt; 17:     17  14.7525754 [m^2]</span>
-<span class="co">#&gt; 18:     18  36.8954355 [m^2]</span>
-<span class="co">#&gt; 19:     19  96.4900399 [m^2]</span>
-<span class="co">#&gt; 20:     20  80.3556287 [m^2]</span>
-<span class="co">#&gt; 21:     21  18.0633304 [m^2]</span>
-<span class="co">#&gt; 22:     22  10.1969657 [m^2]</span>
-<span class="co">#&gt; 23:     23 132.6730618 [m^2]</span>
-<span class="co">#&gt; 24:     24  61.8347854 [m^2]</span>
-<span class="co">#&gt; 25:     25  11.6430956 [m^2]</span>
-<span class="co">#&gt; 26:     26 150.2087190 [m^2]</span>
-<span class="co">#&gt; 27:     27  33.8168355 [m^2]</span>
-<span class="co">#&gt; 28:     29  37.0078380 [m^2]</span>
-<span class="co">#&gt; 29:     30  15.2761021 [m^2]</span>
-<span class="co">#&gt; 30:     31   0.1421365 [m^2]</span>
-<span class="co">#&gt; 31:     32  35.7328487 [m^2]</span>
-<span class="co">#&gt; 32:     33   7.1172864 [m^2]</span>
-<span class="co">#&gt; 33:     34 146.9351905 [m^2]</span>
-<span class="co">#&gt;     zoneID           area_f3</span></pre></div>
+<span class="co">#&gt;  1:      1   8.4925307 [m^2]</span>
+<span class="co">#&gt;  2:      2  29.8921595 [m^2]</span>
+<span class="co">#&gt;  3:      3  25.8441923 [m^2]</span>
+<span class="co">#&gt;  4:      4  64.1223606 [m^2]</span>
+<span class="co">#&gt;  5:      5  26.8496529 [m^2]</span>
+<span class="co">#&gt;  6:      6  35.9289675 [m^2]</span>
+<span class="co">#&gt;  7:      7  28.5153292 [m^2]</span>
+<span class="co">#&gt;  8:      8  44.7039953 [m^2]</span>
+<span class="co">#&gt;  9:      9  48.3619770 [m^2]</span>
+<span class="co">#&gt; 10:     10   7.5938634 [m^2]</span>
+<span class="co">#&gt; 11:     11  24.3211016 [m^2]</span>
+<span class="co">#&gt; 12:     12   3.1237687 [m^2]</span>
+<span class="co">#&gt; 13:     13   2.6583596 [m^2]</span>
+<span class="co">#&gt; 14:     14   6.7422042 [m^2]</span>
+<span class="co">#&gt; 15:     15  19.3132428 [m^2]</span>
+<span class="co">#&gt; 16:     16   9.9446881 [m^2]</span>
+<span class="co">#&gt; 17:     17  14.8188207 [m^2]</span>
+<span class="co">#&gt; 18:     18  37.0611108 [m^2]</span>
+<span class="co">#&gt; 19:     19  96.9233173 [m^2]</span>
+<span class="co">#&gt; 20:     20  80.7164561 [m^2]</span>
+<span class="co">#&gt; 21:     21  18.1444417 [m^2]</span>
+<span class="co">#&gt; 22:     22  10.2427539 [m^2]</span>
+<span class="co">#&gt; 23:     23 133.2688176 [m^2]</span>
+<span class="co">#&gt; 24:     24  62.1124473 [m^2]</span>
+<span class="co">#&gt; 25:     25  11.6953775 [m^2]</span>
+<span class="co">#&gt; 26:     26 150.8832148 [m^2]</span>
+<span class="co">#&gt; 27:     27  33.9686861 [m^2]</span>
+<span class="co">#&gt; 28:     29  37.1740182 [m^2]</span>
+<span class="co">#&gt; 29:     30  15.3446975 [m^2]</span>
+<span class="co">#&gt; 30:     31   0.1427747 [m^2]</span>
+<span class="co">#&gt; 31:     32  35.8933028 [m^2]</span>
+<span class="co">#&gt; 32:     33   7.1492461 [m^2]</span>
+<span class="co">#&gt; 33:     34 147.5949907 [m^2]</span>
+<span class="co">#&gt;     zoneID           area_f3</span></code></pre></div>
 <p>In this vignette, the <code>foot</code> package has been extended to incorporate user-defined functions. These functions can use one or more values from within the footprints, or even access other objects in the environment. While the examples used <code>calculate_footstats</code>, the same approaches can be used to create new gridded summary metrics with <code>calculate_bigfoot</code>.</p>
 <hr>
-<div class="sourceCode" id="cb9"><pre class="downlit">
-<span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span><span class="op">(</span><span class="op">)</span>
-<span class="co">#&gt; R version 3.6.3 (2020-02-29)</span>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span><span class="op">(</span><span class="op">)</span>
+<span class="co">#&gt; R version 4.1.0 (2021-05-18)</span>
 <span class="co">#&gt; Platform: x86_64-pc-linux-gnu (64-bit)</span>
 <span class="co">#&gt; Running under: Ubuntu 20.04.2 LTS</span>
 <span class="co">#&gt; </span>
@@ -477,23 +480,25 @@
 <span class="co">#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; other attached packages:</span>
-<span class="co">#&gt; [1] sf_0.9-6 foot_0.6</span>
+<span class="co">#&gt; [1] sf_1.0-0 foot_0.7</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; loaded via a namespace (and not attached):</span>
-<span class="co">#&gt;  [1] tidyselect_1.1.0   xfun_0.18          purrr_0.3.4        vctrs_0.3.4       </span>
-<span class="co">#&gt;  [5] generics_0.0.2     htmltools_0.4.0    stars_0.4-3        yaml_2.2.1        </span>
-<span class="co">#&gt;  [9] rlang_0.4.8        e1071_1.7-4        pkgdown_1.6.1      pillar_1.4.3      </span>
-<span class="co">#&gt; [13] glue_1.4.2         DBI_1.1.0          foreach_1.5.1      lifecycle_0.2.0   </span>
-<span class="co">#&gt; [17] stringr_1.4.0      ragg_0.3.1         codetools_0.2-16   memoise_1.1.0     </span>
-<span class="co">#&gt; [21] evaluate_0.14      knitr_1.30         doParallel_1.0.16  parallel_3.6.3    </span>
-<span class="co">#&gt; [25] class_7.3-16       Rcpp_1.0.5         KernSmooth_2.23-16 backports_1.1.5   </span>
-<span class="co">#&gt; [29] classInt_0.4-3     filelock_1.0.2     formatR_1.7        lwgeom_0.2-5      </span>
-<span class="co">#&gt; [33] desc_1.2.0         abind_1.4-5        systemfonts_0.3.2  fs_1.3.1          </span>
-<span class="co">#&gt; [37] digest_0.6.27      stringi_1.4.6      dplyr_1.0.2        grid_3.6.3        </span>
-<span class="co">#&gt; [41] rprojroot_1.3-2    tools_3.6.3        magrittr_1.5       tibble_3.0.1      </span>
-<span class="co">#&gt; [45] crayon_1.3.4       pkgconfig_2.0.3    ellipsis_0.3.1     data.table_1.13.2 </span>
-<span class="co">#&gt; [49] assertthat_0.2.1   rmarkdown_2.1      rstudioapi_0.11    iterators_1.0.13  </span>
-<span class="co">#&gt; [53] R6_2.5.0           units_0.6-7        compiler_3.6.3</span></pre></div>
+<span class="co">#&gt;  [1] tidyselect_1.1.0   xfun_0.24          bslib_0.2.4        purrr_0.3.4       </span>
+<span class="co">#&gt;  [5] vctrs_0.3.8        generics_0.1.0     stars_0.5-3        htmltools_0.5.1.1 </span>
+<span class="co">#&gt;  [9] s2_1.0.6           yaml_2.2.1         utf8_1.2.1         rlang_0.4.11      </span>
+<span class="co">#&gt; [13] e1071_1.7-7        pkgdown_1.6.1      jquerylib_0.1.3    pillar_1.6.1      </span>
+<span class="co">#&gt; [17] glue_1.4.2         DBI_1.1.1          wk_0.4.1           foreach_1.5.1     </span>
+<span class="co">#&gt; [21] lifecycle_1.0.0    stringr_1.4.0      ragg_1.1.3         codetools_0.2-18  </span>
+<span class="co">#&gt; [25] memoise_2.0.0      evaluate_0.14      knitr_1.33         fastmap_1.1.0     </span>
+<span class="co">#&gt; [29] doParallel_1.0.16  parallel_4.1.0     class_7.3-19       fansi_0.5.0       </span>
+<span class="co">#&gt; [33] Rcpp_1.0.6         KernSmooth_2.23-20 classInt_0.4-3     filelock_1.0.2    </span>
+<span class="co">#&gt; [37] formatR_1.11       lwgeom_0.2-6       cachem_1.0.5       desc_1.3.0        </span>
+<span class="co">#&gt; [41] jsonlite_1.7.2     abind_1.4-5        systemfonts_1.0.2  fs_1.5.0          </span>
+<span class="co">#&gt; [45] textshaping_0.3.5  digest_0.6.27      stringi_1.6.2      dplyr_1.0.5       </span>
+<span class="co">#&gt; [49] rprojroot_2.0.2    grid_4.1.0         tools_4.1.0        magrittr_2.0.1    </span>
+<span class="co">#&gt; [53] sass_0.3.1         proxy_0.4-26       tibble_3.1.2       pkgconfig_2.0.3   </span>
+<span class="co">#&gt; [57] crayon_1.4.1       ellipsis_0.3.2     data.table_1.14.0  rmarkdown_2.9     </span>
+<span class="co">#&gt; [61] iterators_1.0.13   R6_2.5.0           units_0.7-2        compiler_4.1.0</span></code></pre></div>
 </div>
   </div>
 

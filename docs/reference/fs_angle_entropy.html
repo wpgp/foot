@@ -73,7 +73,7 @@ polygons within zones." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">foot</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7</span>
       </span>
     </div>
 
@@ -106,11 +106,14 @@ polygons within zones." />
     </li>
   </ul>
 </li>
+<li>
+  <a href="../news/index.html">News</a>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/wpgp/foot/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -208,8 +211,8 @@ Default is <code>TRUE</code>.</p></td>
 <span class='va'>idx</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/sample.html'>sample</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>10</span>, <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>b</span><span class='op'>)</span>, replace<span class='op'>=</span><span class='cn'>T</span><span class='op'>)</span>
 
 <span class='va'>angles</span> <span class='op'>&lt;-</span> <span class='fu'>fs_angle_entropy</span><span class='op'>(</span><span class='va'>b</span>, index<span class='op'>=</span><span class='va'>idx</span>, normalize<span class='op'>=</span><span class='cn'>FALSE</span><span class='op'>)</span>
-<span class='va'>angle_norm</span> <span class='op'>&lt;-</span> <span class='fu'>fs_angle_entropy</span><span class='op'>(</span><span class='va'>b</span>, index<span class='op'>=</span><span class='va'>idx</span>, normalize<span class='op'>=</span><span class='cn'>TRUE</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in `[.data.table`(result, , `:=`(entropy, 1 - ((entropy - hg)/(hmax -     hg))^2), by = index): The items in the 'by' or 'keyby' list are length(s) (4840). Each must be length 10; the same length as there are rows in x (after subsetting if i is provided).</span></div><div class='input'>
+</div><div class='output co'>#&gt; <span class='error'>Error in UseMethod("as_geos_geometry"): no applicable method for 'as_geos_geometry' applied to an object of class "c('XY', 'POLYGON', 'sfg')"</span></div><div class='input'><span class='va'>angle_norm</span> <span class='op'>&lt;-</span> <span class='fu'>fs_angle_entropy</span><span class='op'>(</span><span class='va'>b</span>, index<span class='op'>=</span><span class='va'>idx</span>, normalize<span class='op'>=</span><span class='cn'>TRUE</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in UseMethod("as_geos_geometry"): no applicable method for 'as_geos_geometry' applied to an object of class "c('XY', 'POLYGON', 'sfg')"</span></div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

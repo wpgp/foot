@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">foot</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7</span>
       </span>
     </div>
 
@@ -64,11 +64,14 @@
     </li>
   </ul>
 </li>
+<li>
+  <a href="news/index.html">News</a>
+</li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
   <a href="https://github.com/wpgp/foot/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -95,59 +98,59 @@
 <h2 class="hasAnchor">
 <a href="#installation" class="anchor"></a>Installation</h2>
 <p>The <code>foot</code> package can be installed directly from Github.</p>
-<div class="sourceCode" id="cb1"><pre class="downlit">
-<span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span><span class="op">(</span><span class="st">"wpgp/foot"</span>, build_vignettes<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></pre></div>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span><span class="op">(</span><span class="st">"wpgp/foot"</span>, build_vignettes <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <p>Note that building and running the code may require additional packages: <code>stars</code>, <code>raster</code>, <code>sf</code>, <code>data.table</code>, <code>lwgeom</code>, <code>mmap</code>. et al.</p>
 </div>
 <div id="quick-start" class="section level2">
 <h2 class="hasAnchor">
 <a href="#quick-start" class="anchor"></a>Quick Start</h2>
 <p>A sample dataset of building footprints is provided:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># load the sample</span></span>
-<span id="cb2-2"><a href="#cb2-2"></a><span class="kw">data</span>(<span class="st">"kampala"</span>, <span class="dt">package=</span><span class="st">"foot"</span>)</span>
-<span id="cb2-3"><a href="#cb2-3"></a></span>
-<span id="cb2-4"><a href="#cb2-4"></a><span class="co"># 2D vector building polygons</span></span>
-<span id="cb2-5"><a href="#cb2-5"></a>kampala<span class="op">$</span>buildings</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># load the sample</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"kampala"</span>, <span class="at">package=</span><span class="st">"foot"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 2D vector building polygons</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>kampala<span class="sc">$</span>buildings</span></code></pre></div>
 <div id="vignettes" class="section level3">
 <h3 class="hasAnchor">
 <a href="#vignettes" class="anchor"></a>Vignettes</h3>
-<p>Vignettes are provided as an introduction to <code>foot</code>. The vignette on basic usage is available from <code><a href="articles/footsteps.html">vignette("footsteps", package="foot")</a></code>. The supplied datasets can be used to replicate this vignette. For a discussion and example of creating gridded data layers, see <code><a href="articles/bigfoot.html">vignette("bigfoot", package="foot")</a></code>. Finally, techniques for using custom morphology metric functions with <code>foot</code> is demonstrated in <code><a href="articles/cobbler.html">vignette("cobbler", package="foot")</a></code>. These vignettes are also available from this package website.</p>
+<p>Vignettes are provided as an introduction to <code>foot</code>. The vignette on basic usage is available from <code><a href="articles/footsteps.html">vignette("footsteps", package = "foot")</a></code>. The supplied datasets can be used to replicate this vignette. For a discussion and example of creating gridded data layers, see <code><a href="articles/bigfoot.html">vignette("bigfoot", package = "foot")</a></code>. Finally, techniques for using custom morphology metric functions with <code>foot</code> is demonstrated in <code><a href="articles/cobbler.html">vignette("cobbler", package = "foot")</a></code>. These vignettes are also available from this package website.</p>
 </div>
 <div id="basic-usage" class="section level3">
 <h3 class="hasAnchor">
 <a href="#basic-usage" class="anchor"></a>Basic Usage</h3>
-<div class="sourceCode" id="cb3"><pre class="downlit">
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/wpgp/foot">foot</a></span><span class="op">)</span>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/wpgp/foot">foot</a></span><span class="op">)</span>
 
 <span class="co"># load sample data</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"kampala"</span>, package<span class="op">=</span><span class="st">"foot"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"kampala"</span>, package <span class="op">=</span> <span class="st">"foot"</span><span class="op">)</span>
 <span class="va">buildings</span> <span class="op">&lt;-</span> <span class="va">kampala</span><span class="op">$</span><span class="va">buildings</span>
 <span class="va">zones</span> <span class="op">&lt;-</span> <span class="va">kampala</span><span class="op">$</span><span class="va">adminZones</span>
-<span class="va">grid</span> <span class="op">&lt;-</span> <span class="va">kampala</span><span class="op">$</span><span class="va">mastergrid</span></pre></div>
+<span class="va">grid</span> <span class="op">&lt;-</span> <span class="va">kampala</span><span class="op">$</span><span class="va">mastergrid</span></code></pre></div>
 <p>The <code>foot</code> package provides tools to calculate and summarise building morphology measures at multiple scales. These include building-level geometry measures.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit">
-<span class="co"># building-level metrics</span>
-<span class="va">buildings</span><span class="op">$</span><span class="va">built_area</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/calculate_footstats.html">calculate_footstats</a></span><span class="op">(</span><span class="va">buildings</span>, what<span class="op">=</span><span class="st">"area"</span><span class="op">)</span>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># building-level metrics</span>
+<span class="va">buildings</span><span class="op">$</span><span class="va">built_area</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/calculate_footstats.html">calculate_footstats</a></span><span class="op">(</span><span class="va">buildings</span>, what <span class="op">=</span> <span class="st">"area"</span><span class="op">)</span>
 <span class="co">#&gt; Selecting metrics </span>
 <span class="co">#&gt; Setting control values. </span>
 <span class="co">#&gt; Pre-calculating areas </span>
 <span class="co">#&gt; No summary functions found, returning metrics.</span>
   <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">buildings</span><span class="op">)</span>
 <span class="co">#&gt; Simple feature collection with 6 features and 2 fields</span>
-<span class="co">#&gt; geometry type:  POLYGON</span>
-<span class="co">#&gt; dimension:      XY</span>
-<span class="co">#&gt; bbox:           xmin: 32.60765 ymin: 0.341117 xmax: 32.61288 ymax: 0.345773</span>
-<span class="co">#&gt; geographic CRS: WGS 84</span>
+<span class="co">#&gt; Geometry type: POLYGON</span>
+<span class="co">#&gt; Dimension:     XY</span>
+<span class="co">#&gt; Bounding box:  xmin: 32.60765 ymin: 0.341117 xmax: 32.61288 ymax: 0.345773</span>
+<span class="co">#&gt; Geodetic CRS:  WGS 84</span>
 <span class="co">#&gt;   FID_1                       geometry            area</span>
-<span class="co">#&gt; 1   130 POLYGON ((32.61282 0.341132...  22.00824 [m^2]</span>
-<span class="co">#&gt; 2   132 POLYGON ((32.61229 0.341693... 220.39011 [m^2]</span>
-<span class="co">#&gt; 3   133 POLYGON ((32.60817 0.342753...  38.95750 [m^2]</span>
-<span class="co">#&gt; 4   135 POLYGON ((32.60808 0.343578... 386.74429 [m^2]</span>
-<span class="co">#&gt; 5   137 POLYGON ((32.60786 0.344552... 349.57765 [m^2]</span>
-<span class="co">#&gt; 6   138 POLYGON ((32.60765 0.345604... 164.00931 [m^2]</span></pre></div>
+<span class="co">#&gt; 1   130 POLYGON ((32.61287 0.341117...  22.10707 [m^2]</span>
+<span class="co">#&gt; 2   132 POLYGON ((32.6123 0.341771,... 221.37976 [m^2]</span>
+<span class="co">#&gt; 3   133 POLYGON ((32.60812 0.34277,...  39.13247 [m^2]</span>
+<span class="co">#&gt; 4   135 POLYGON ((32.60784 0.343618... 388.48091 [m^2]</span>
+<span class="co">#&gt; 5   137 POLYGON ((32.608 0.344555, ... 351.14738 [m^2]</span>
+<span class="co">#&gt; 6   138 POLYGON ((32.60772 0.345582... 164.74579 [m^2]</span></code></pre></div>
 <p>As well as area-level summaries within spatial zones.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit">
-<span class="co"># Area-level summary metrics</span>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># Area-level summary metrics</span>
 <span class="co"># Optionally, create an index for the buildings to zones</span>
 <span class="va">building_zone</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/zonalIndex.html">zonalIndex</a></span><span class="op">(</span><span class="va">buildings</span>, 
                             <span class="va">zones</span>, 
@@ -156,8 +159,8 @@
 
 <span class="co"># summarise metrics within small areal units</span>
 <span class="va">admin_area</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/calculate_footstats.html">calculate_footstats</a></span><span class="op">(</span><span class="va">building_zone</span>, 
-                                  zone<span class="op">=</span><span class="st">"Id"</span>, 
-                                  what<span class="op">=</span><span class="st">"area"</span>, how<span class="op">=</span><span class="st">"mean"</span><span class="op">)</span>
+                                  zone <span class="op">=</span> <span class="st">"Id"</span>, 
+                                  what <span class="op">=</span> <span class="st">"area"</span>, how <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span>
 <span class="co">#&gt; Selecting metrics </span>
 <span class="co">#&gt; Setting control values. </span>
 <span class="co">#&gt; Pre-calculating areas </span>
@@ -168,32 +171,33 @@
 <span class="co">#&gt; Finished calculating metrics.</span>
   <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">admin_area</span><span class="op">)</span>
 <span class="co">#&gt;    Id       area_mean</span>
-<span class="co">#&gt; 1:  1  402.5984 [m^2]</span>
-<span class="co">#&gt; 2:  2  211.0534 [m^2]</span>
-<span class="co">#&gt; 3:  3  525.0747 [m^2]</span>
-<span class="co">#&gt; 4:  4  555.0931 [m^2]</span>
-<span class="co">#&gt; 5:  5  568.7154 [m^2]</span>
-<span class="co">#&gt; 6:  6 1021.9529 [m^2]</span></pre></div>
+<span class="co">#&gt; 1:  1  404.4062 [m^2]</span>
+<span class="co">#&gt; 2:  2  212.0011 [m^2]</span>
+<span class="co">#&gt; 3:  3  527.4325 [m^2]</span>
+<span class="co">#&gt; 4:  4  557.5857 [m^2]</span>
+<span class="co">#&gt; 5:  5  571.2692 [m^2]</span>
+<span class="co">#&gt; 6:  6 1026.5419 [m^2]</span></code></pre></div>
 <p>Or gridded summary outputs, with the options to include a circular focal window.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit">
-<span class="co"># calculated along a raster within a circular focal window</span>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># calculated along a raster within a circular focal window</span>
 <span class="va">gridded</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/calculate_bigfoot.html">calculate_bigfoot</a></span><span class="op">(</span><span class="va">buildings</span>, 
-                             what<span class="op">=</span><span class="st">"area"</span>, how<span class="op">=</span><span class="st">"mean"</span>,
-                             focalRadius<span class="op">=</span><span class="fl">200</span>,
-                             template<span class="op">=</span><span class="va">grid</span>,
-                             outputPath<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
+                             what <span class="op">=</span> <span class="st">"area"</span>, 
+                             how <span class="op">=</span> <span class="st">"mean"</span>,
+                             focalRadius <span class="op">=</span> <span class="fl">200</span>,
+                             template <span class="op">=</span> <span class="va">grid</span>,
+                             outputPath <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#&gt; trying to read file: C:\Users\Admin\Documents\GitHub\foot\wd\in\kampala_grid.tif</span>
 <span class="co">#&gt; Selecting metrics </span>
 <span class="co">#&gt; Setting control values </span>
 <span class="co">#&gt; Creating output grids </span>
 <span class="co">#&gt; Creating list of processing tiles </span>
 <span class="co">#&gt; Setting up cluster...</span>
-<span class="co">#&gt; Begin parallel tile processing: 2021-02-25 14:42:51</span>
+<span class="co">#&gt; Begin parallel tile processing: 2021-07-15 11:44:02</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Finished processing all tiles: 2021-02-25 14:42:54</span>
+<span class="co">#&gt; Finished processing all tiles: 2021-07-15 11:44:06</span>
 
   <span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="va">gridded</span><span class="op">)</span><span class="op">)</span>
-  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">buildings</span><span class="op">)</span>, add<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></pre></div>
+  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">buildings</span><span class="op">)</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <p><img src="reference/figures/REAsDME-unnamed-chunk-4-1.png" width="100%"></p>
 </div>
 <div id="outputs" class="section level3">
@@ -210,6 +214,7 @@
 <li>Structure orientation angle (normalised entropy)</li>
 <li>Compactness (Polsby-Popper)</li>
 <li>Roundness</li>
+<li>Length to (equivalent-) width ratio</li>
 </ol>
 <p>A full list of characteristics and summary function names can be retrieved with <code><a href="reference/list_fs.html">foot::list_fs()</a></code>.</p>
 </div>
@@ -222,23 +227,22 @@
 <div id="acknowledgements" class="section level2">
 <h2 class="hasAnchor">
 <a href="#acknowledgements" class="anchor"></a>Acknowledgements</h2>
-<div class="sourceCode" id="cb7"><pre class="downlit">
-<span class="fu"><a href="https://rdrr.io/r/utils/citation.html">citation</a></span><span class="op">(</span><span class="st">"foot"</span><span class="op">)</span>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/citation.html">citation</a></span><span class="op">(</span><span class="st">"foot"</span><span class="op">)</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; To cite package 'foot' in publications use:</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt;   WorldPop Research Group, University of Southampton (2020). foot: An R</span>
-<span class="co">#&gt;   package for processing building footprint morphometrics.</span>
-<span class="co">#&gt;   https://github.com/wpgp/foot, https://wpgp.github.io/foot/.</span>
+<span class="co">#&gt;   WorldPop Research Group, University of Southampton (2021). foot: An R package for processing building footprint morphometrics. https://github.com/wpgp/foot,</span>
+<span class="co">#&gt;   https://wpgp.github.io/foot/.</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; A BibTeX entry for LaTeX users is</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;   @Manual{,</span>
 <span class="co">#&gt;     title = {foot: An R package for processing building footprint morphometrics},</span>
 <span class="co">#&gt;     author = {{WorldPop Research Group, University of Southampton}},</span>
-<span class="co">#&gt;     year = {2020},</span>
+<span class="co">#&gt;     year = {2021},</span>
 <span class="co">#&gt;     note = {https://github.com/wpgp/foot, https://wpgp.github.io/foot/},</span>
-<span class="co">#&gt;   }</span></pre></div>
+<span class="co">#&gt;   }</span></code></pre></div>
 <p>This work was undertaken by members of the WorldPop Research Group at the University of Southampton (Chris Jochem, Edith Darín, Claire Dooley, Doug Leasure) with support from Andy Tatem and Attila Lazar. Funding support comes from the Bill and Melinda Gates Foundation and the United Kingdom Foreign, Commonwealth &amp; Development Office as part of the Geo-Referenced Infrastructure and Demographic Data for Development project (GRID3) (OPP1182408). Project partners in <a href="https://grid3.org/">GRID3</a> include the WorldPop Research Group, the United Nations Population Fund, the Flowminder Foundation, and the Center for International Earth Science Information Network within the Earth Institute at Columbia University.</p>
 </div>
 </div>

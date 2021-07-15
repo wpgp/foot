@@ -15,6 +15,7 @@ reference:
       - '`fs_perimeter`'
       - '`fs_compact`'
       - '`fs_shape`'
+      - '`fs_lwratio`'
   - title: Built-in summary functions
     desc: ~
     contents:
@@ -53,3 +54,5 @@ navbar:
          href: articles/bigfoot.html
       -  text: 'cobbler: Using custom summary functions'
          href: articles/cobbler.html
+    - text: "News"
+      href: news/index.html
