@@ -324,7 +324,7 @@ calc_fs_internal <- function(X, zone, what, how,
     if('leqwratio' %in% uchars){
       if(!'leqwratio' %in% colnames(X)){
         if(verbose){ cat("Pre-calculating length-equivalent-width ratio \n") }
-        X[['leqwratio']] <- fs_leqwratio(X)
+        X[['leqwratio']] <- fs_leqwratio(X, unit = controlUnits$areaUnit)
       } else{
         if(verbose){ cat("Length-equivalent-width ratio column already exists \n") }
       }
