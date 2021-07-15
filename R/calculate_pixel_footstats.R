@@ -573,7 +573,7 @@ process_tile <- function(mgTile, mgBuffTile,
                       by=controlZone$zoneName)
       # output loop
       if(verbose){ cat("Writing output tiles \n") }
-      for(n in names(tileResults)[!names(tileResults) %in% "index"]){
+      for(n in names(tileResults)[!names(tileResults) %in% controlZone$zoneName]){
         units(mgPoly[[n]]) <- NULL
         
         tmpName <- paste0("tempRas_", Sys.getpid(),".tif")
@@ -593,13 +593,13 @@ process_tile <- function(mgTile, mgBuffTile,
         
         # get file name
         n <- sub("fs_", "", n, fixed=T)
-        nsplit <- strsplit(n, "_", fixed=T)[[1]]
-        n <- ifelse(length(nsplit)==3, 
-                    paste(nsplit[1], nsplit[3], sep="_"), 
-                    paste(nsplit, collapse="_"))
-        if(focalRadius > 0){
-          n <- paste(n, focalRadius, sep="_")
-        }
+        # nsplit <- strsplit(n, "_", fixed=T)[[1]]
+        # n <- ifelse(length(nsplit)==3, 
+        #             paste(nsplit[1], nsplit[3], sep="_"), 
+        #             paste(nsplit, collapse="_"))
+        # if(focalRadius > 0){
+        #   n <- paste(n, focalRadius, sep="_")
+        # }
         
         path <- which(grepl(n, allOutPath, fixed=T))
         # print(allOutPath[[path]])
