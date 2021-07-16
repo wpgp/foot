@@ -33,15 +33,15 @@ list_fs <- function(what='all', how='all'){
   if(is.null(what) & is.null(how)){ stop("Both argument cannot be NULL.")}
   
   baseWhats <- c("area","perimeter")
-  baseFuns <- c("sum","mean","median","sd","min","max","cv")
-  shapeWhats <- c("shape","compact")
-  shapeFuns <- c("mean","median","sd","min","max","cv")
+  baseFuns <- c("sum","mean","median","sd","min","max","cv","iqr")
+  shapeWhats <- c("shape","compact", "lwratio", "leqwratio")
+  shapeFuns <- c("mean","median","sd","min","max","cv","iqr")
   settWhats <- c("settled")
   settFuns <- c("binary","count")
   angleWhats <- c("angle")
-  angleFuns <- c("mean","median","sd","min","max","cv","entropy")
+  angleFuns <- c("mean","median","sd","min","max","cv","entropy","iqr")
   distWhats <- c("nndist")
-  distFuns <- c("mean","median","sd","min","max","cv","nnindex")
+  distFuns <- c("mean","median","sd","min","max","cv","nnindex","iqr")
   
   allMetrics <- c(
     crossargs(baseWhats, baseFuns),

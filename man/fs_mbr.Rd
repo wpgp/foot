@@ -3,9 +3,6 @@
 \name{fs_mbr}
 \alias{fs_mbr}
 \title{Rotated minimum bounding rectangle}
-\source{
-\link[https://gis.stackexchange.com/questions/22895/finding-minimum-area-rectangle-for-given-points]{https://gis.stackexchange.com/questions/22895/finding-minimum-area-rectangle-for-given-points}
-}
 \usage{
 fs_mbr(X, returnShape = FALSE)
 }
@@ -23,8 +20,4 @@ a numeric angle from 0 to 360 degrees or the rotated rectangle as a
 Helper function to provide the minimum rotated bounding
   rectangle of a polygon or set of points. Optionally, the function will
   return the bearing angle in degrees from vertical in a clockwise direction.
-}
-\details{
-This function is currently not vectorized and processing is limited
-  to one shape.
 }

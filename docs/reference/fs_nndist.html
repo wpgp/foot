@@ -74,7 +74,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">foot</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7</span>
       </span>
     </div>
 
@@ -107,11 +107,14 @@
     </li>
   </ul>
 </li>
+<li>
+  <a href="../news/index.html">News</a>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/wpgp/foot/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -193,56 +196,60 @@ calculation.</p></td>
 <span class='co'># calculate distance between buildings in m</span>
 <span class='fu'>fs_nndist</span><span class='op'>(</span><span class='va'>buildings</span>, unit<span class='op'>=</span><span class='st'>"m"</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; Units: [m]
-#&gt;   [1] 95.156073 65.601817 93.609789        NA 62.488049        NA        NA
-#&gt;   [8] 59.100124 46.189843        NA        NA 61.047564        NA 99.874799
-#&gt;  [15] 40.838343        NA 49.031866 47.966077 81.864406        NA        NA
-#&gt;  [22] 72.769564 72.769564        NA 40.838343 47.966077        NA 84.452095
-#&gt;  [29] 95.156073 51.058873 81.407425        NA 26.408178        NA        NA
-#&gt;  [36] 26.408178  6.255871 28.996263        NA        NA 74.070750 56.812414
-#&gt;  [43]        NA 33.712512        NA        NA 28.996263        NA        NA
-#&gt;  [50] 65.601817        NA 48.945229 51.058873 56.335511 49.031866 75.466904
-#&gt;  [57]        NA 33.712512 81.407425        NA        NA        NA        NA
-#&gt;  [64]        NA 32.857832        NA 92.682442 54.565714 59.100124 78.789825
-#&gt;  [71]        NA        NA 56.812414        NA        NA        NA        NA
-#&gt;  [78]        NA        NA 75.466904 61.047564        NA        NA        NA
-#&gt;  [85]        NA 68.010798  6.255871 32.857832 70.251191        NA 68.010798
-#&gt;  [92] 13.171564 84.452095 46.189843 13.171564 48.945229 81.864406 93.609789
-#&gt;  [99]        NA        NA</div><div class='input'>
+#&gt;   [1]  95.238821  65.862830  93.530371         NA  62.554247         NA
+#&gt;   [7]         NA  59.355964  46.402483         NA         NA  61.115130
+#&gt;  [13]         NA 100.375712  41.049626         NA  49.057702  48.234197
+#&gt;  [19]  81.850288         NA         NA  73.137286  73.137286         NA
+#&gt;  [25]  41.049626  48.234197         NA  84.573455  95.238821  51.178530
+#&gt;  [31]  81.852329         NA  26.378903         NA         NA  26.378903
+#&gt;  [37]   6.290142  28.980741         NA         NA  74.420835  56.933114
+#&gt;  [43]         NA  33.831274         NA         NA  28.980741         NA
+#&gt;  [49]         NA  65.862830         NA  49.211693  51.178530  56.272673
+#&gt;  [55]  49.057702  75.457648         NA  33.831274  81.852329         NA
+#&gt;  [61]         NA         NA         NA         NA  32.979078         NA
+#&gt;  [67]  93.093458  54.822670  59.355964  79.133947         NA         NA
+#&gt;  [73]  56.933114         NA         NA         NA         NA         NA
+#&gt;  [79]         NA  75.457648  61.115130         NA         NA         NA
+#&gt;  [85]         NA  68.391040   6.290142  32.979078  70.642143         NA
+#&gt;  [91]  68.391040  13.228434  84.573455  46.402483  13.228434  49.211693
+#&gt;  [97]  81.850288  93.530371         NA         NA</div><div class='input'>
 <span class='co'># calculate unrestricted distance </span>
 <span class='co'># between buildings and another set of points</span>
 <span class='fu'>fs_nndist</span><span class='op'>(</span><span class='va'>buildings</span>, <span class='fu'>sf</span><span class='fu'>::</span><span class='fu'><a href='https://r-spatial.github.io/sf/reference/geos_unary.html'>st_centroid</a></span><span class='op'>(</span><span class='va'>clusters</span><span class='op'>)</span>, maxSearch<span class='op'>=</span><span class='cn'>NULL</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='warning'>Warning: st_centroid assumes attributes are constant over geometries of x</span></div><div class='output co'>#&gt; <span class='warning'>Warning: st_centroid does not give correct centroids for longitude/latitude data</span></div><div class='output co'>#&gt; Units: [m]
-#&gt;   [1]  565.3182  575.2489  504.6872  588.2953  347.4469  686.9973  913.9714
-#&gt;   [8]  648.2031  559.8968  625.5754  440.8780  715.5617  541.6824  737.0240
-#&gt;  [15]  493.5160  444.8671  496.0283  720.9820  983.2503  917.4102  732.0587
-#&gt;  [22]  580.3403  621.2782  740.2187  544.3737  756.0986  522.6995  490.5673
-#&gt;  [29]  702.6093  924.0940  647.9873  702.6034  629.1258  621.1267  599.2047
-#&gt;  [36]  671.9687  707.0049  629.2830  745.5526  679.7994  701.4090  327.6876
-#&gt;  [43]  813.2120  691.1722  667.1933  765.7186  660.6861  700.4227  636.3701
-#&gt;  [50]  607.0421  626.7668  342.6762  902.3689  913.9209  463.9412  584.4413
-#&gt;  [57]  708.2913  672.0993  748.4964  707.0380  340.0872 1075.9869  350.3166
-#&gt;  [64]  659.4719  454.7672  599.6658  406.7191  415.9892  651.2843  579.1138
-#&gt;  [71]  641.4879  659.4152  376.9941  483.4831  767.8711  642.5196  590.6956
-#&gt;  [78]  760.1477  582.7286  574.1047  751.5171  908.2384  791.5463  763.0176
-#&gt;  [85]  692.2449  598.3155  699.5359  405.8884  670.7742  530.1799  712.6713
-#&gt;  [92]  592.3538  526.0394  600.8611  610.7973  407.7618 1002.0050  558.2650
-#&gt;  [99]  501.0853  518.0380</div><div class='input'>
+</div><div class='output co'>#&gt; <span class='warning'>Warning: st_centroid assumes attributes are constant over geometries of x</span></div><div class='output co'>#&gt; Units: [m]
+#&gt;   [1]  568.4876  577.2525  504.1517  589.7999  347.0815  686.2325  916.3490
+#&gt;   [8]  648.3701  559.4254  626.7846  440.9420  719.0643  541.6216  738.0852
+#&gt;  [15]  496.2589  446.1988  498.7919  722.1400  988.7665  922.3579  731.2875
+#&gt;  [22]  579.7391  620.7850  739.9889  547.3919  757.6999  525.5561  491.0421
+#&gt;  [29]  706.5455  924.9924  651.5136  702.7503  629.0620  624.1401  602.2785
+#&gt;  [36]  671.8627  706.5082  628.7124  749.4935  679.8699  701.2242  329.5215
+#&gt;  [43]  815.3810  691.0799  666.6609  766.7320  660.0480  701.9236  636.7027
+#&gt;  [50]  609.5639  630.2778  343.6411  907.4347  919.0004  466.5383  587.0146
+#&gt;  [57]  711.7245  672.2750  752.6473  709.5021  339.7149 1078.2246  349.9324
+#&gt;  [64]  662.2130  456.8319  599.8687  406.8348  418.3193  651.7951  578.4820
+#&gt;  [71]  640.7972  661.9564  379.0137  484.4741  772.0906  643.9961  590.2092
+#&gt;  [78]  763.2740  582.9774  576.9785  755.4313  913.3294  795.9783  767.2193
+#&gt;  [85]  694.5095  601.4041  698.9065  407.7409  670.0423  532.1633  716.4485
+#&gt;  [92]  594.4593  526.0539  600.5147  613.1508  409.0461 1006.2988  557.7273
+#&gt;  [99]  500.5282  520.5952</div><div class='input'>
 <span class='co'># use footprint centroids</span>
 <span class='fu'>fs_nndist</span><span class='op'>(</span><span class='va'>buildings</span>, method<span class='op'>=</span><span class='st'>'centroid'</span>, unit<span class='op'>=</span><span class='st'>'m'</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; Units: [m]
-#&gt;   [1]       NA 73.36415       NA       NA 83.76082       NA       NA 66.17950
-#&gt;   [9] 61.77284       NA       NA 71.77209       NA       NA 53.63681       NA
-#&gt;  [17] 63.03600 68.78486 91.96353       NA       NA 83.19872 83.19872       NA
-#&gt;  [25] 53.63681 68.78486       NA 94.12350       NA 65.76860       NA       NA
-#&gt;  [33] 47.35636       NA       NA 47.35636 37.43966 40.41447       NA       NA
-#&gt;  [41] 98.95258 65.42620       NA 52.52931       NA       NA 40.41447       NA
-#&gt;  [49]       NA 73.36415       NA 72.91177 65.76860 74.43525 63.03600 91.90861
-#&gt;  [57]       NA 52.52931       NA       NA       NA       NA       NA       NA
-#&gt;  [65] 45.11204       NA 99.85517 73.54571 66.17950 89.78993       NA       NA
-#&gt;  [73] 65.42620       NA       NA       NA       NA       NA       NA 91.90861
-#&gt;  [81] 71.77209       NA       NA       NA       NA       NA 37.43966 45.11204
-#&gt;  [89] 90.28790       NA       NA 27.67890 94.12350 61.77284 27.67890 72.91177
-#&gt;  [97] 91.96353       NA       NA       NA</div><div class='input'>
+#&gt;   [1]        NA  73.63443        NA        NA  83.84460        NA        NA
+#&gt;   [8]  66.46838  62.04473        NA        NA  71.90399        NA        NA
+#&gt;  [15]  53.91958        NA  63.06241  69.11885  91.97339        NA        NA
+#&gt;  [22]  83.57003  83.57003        NA  53.91958  69.11885        NA  94.25824
+#&gt;  [29]        NA  65.98726        NA        NA  47.33131        NA        NA
+#&gt;  [36]  47.33131  37.64954  40.42602        NA        NA  99.41785  65.57872
+#&gt;  [43]        NA  52.72402        NA        NA  40.42602        NA        NA
+#&gt;  [50]  73.63443        NA  73.28295  65.98726  74.35106  63.06241  91.86391
+#&gt;  [57]        NA  52.72402        NA        NA        NA        NA        NA
+#&gt;  [64]        NA  45.33091        NA 100.27763  73.89221  66.46838  90.16496
+#&gt;  [71]        NA        NA  65.57872        NA        NA        NA        NA
+#&gt;  [78]        NA        NA  91.86391  71.90399        NA        NA        NA
+#&gt;  [85]        NA        NA  37.64954  45.33091  90.76827        NA        NA
+#&gt;  [92]  27.78070  94.25824  62.04473  27.78070  73.28295  91.97339        NA
+#&gt;  [99]        NA        NA</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

@@ -116,6 +116,7 @@ Currently implemented are measures for:
 * nearest neighbour distance
 * angle of rotation
 * compactness and shape
+* length-width ratio
 
 A table of metrics and other packaged summary function names available for each
 is available using `list_fs()`. The results of this function provide "cols" and
@@ -136,15 +137,15 @@ process for identifying zones.
 ## Additional characteristics and geometry measures
 
 Whenever possible, `foot` makes use of generic functions within `R`. Most
-low-level geometry calculations rely on `sf` and `lwgeom` and users need to have
-recent versions of these packages installed. There are other stand-alone
+low-level geometry calculations rely on `sf`, `geos`, `lwgeom` and users need to
+have recent versions of these packages installed. There are other stand-alone
 functions within `foot` to support more complex or less-common measurements.
 
 ### Nearest neighbour distances
 
 Distances can be calculated between footprints, or between footprints and other
-spatial objects. The distances can be measured edge-to-edge (`method="poly"`) or
-the centroids of the building footprints can be used (`method="centroid"`).
+spatial objects. The distances can be measured edge-to-edge (`method = "poly"`)
+or the centroids of the building footprints can be used (`method = "centroid"`).
 
 ```{r, fs8}
 # nearest distance for the first 10 buildings to any other building
@@ -157,9 +158,10 @@ fs_nndist(buildings[1:10,], method="centroid", maxSearch=NULL)
 ```
 
 Note that distance calculations are slower for polygons and for unprojected
-coordinate systems. The centroid-based calculations are fast. It is recommended
-that a maximum search radius is always used. Internally the calculations are
-done with a `data.table` to benefit from multi-threading capabilities.
+coordinate systems. The centroid-based calculations are faster. It is
+recommended that a maximum search radius is always used. Internally the
+calculations are done with a `data.table` to benefit from multi-threading
+capabilities.
 
 ### Rotation angles
 
@@ -182,7 +184,7 @@ fs_mbr(buildings[4502,], returnShape=F)
 
 The angles can be summarised as an entropy measure and normalised to describe
 how much the angles of a set of structures depart from a regular grid pattern 
-(available in `calculate_footstats` where `how="entropy"`). 
+(available in `calculate_footstats` where `how = "entropy"`). 
 
 ## Creating and supplying zone indices
 

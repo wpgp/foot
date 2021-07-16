@@ -47,7 +47,7 @@ reading/writing of data.
 
 The `foot` package can be installed directly from Github.
 ```r
-devtools::install_github("wpgp/foot", build_vignettes=TRUE)
+devtools::install_github("wpgp/foot", build_vignettes = TRUE)
 ```
 
 Note that building and running the code may require additional packages:
@@ -67,12 +67,12 @@ kampala$buildings
 ### Vignettes
 
 Vignettes are provided as an introduction to `foot`. The vignette on basic usage
-is available from `vignette("footsteps", package="foot")`. The supplied datasets
-can be used to replicate this vignette. For a discussion and example of creating
-gridded data layers, see `vignette("bigfoot", package="foot")`. Finally,
-techniques for using custom morphology metric functions with `foot` is
-demonstrated in `vignette("cobbler", package="foot")`. These vignettes are also
-available from this package website.
+is available from `vignette("footsteps", package = "foot")`. The supplied
+datasets can be used to replicate this vignette. For a discussion and example of
+creating gridded data layers, see `vignette("bigfoot", package = "foot")`.
+Finally, techniques for using custom morphology metric functions with `foot` is
+demonstrated in `vignette("cobbler", package = "foot")`. These vignettes are
+also available from this package website.
 
 ### Basic Usage
 
@@ -80,7 +80,7 @@ available from this package website.
 library(foot)
 
 # load sample data
-data("kampala", package="foot")
+data("kampala", package = "foot")
 buildings <- kampala$buildings
 zones <- kampala$adminZones
 grid <- kampala$mastergrid
@@ -90,7 +90,7 @@ The `foot` package provides tools to calculate and summarise building morphology
 measures at multiple scales. These include building-level geometry measures.
 ```{r message=FALSE, warning=FALSE, tidy=FALSE}
 # building-level metrics
-buildings$built_area <- calculate_footstats(buildings, what="area")
+buildings$built_area <- calculate_footstats(buildings, what = "area")
   head(buildings)
 ```
 
@@ -105,8 +105,8 @@ building_zone <- zonalIndex(buildings,
 
 # summarise metrics within small areal units
 admin_area <- calculate_footstats(building_zone, 
-                                  zone="Id", 
-                                  what="area", how="mean")
+                                  zone = "Id", 
+                                  what = "area", how = "mean")
   head(admin_area)
 ```
 
@@ -114,13 +114,14 @@ Or gridded summary outputs, with the options to include a circular focal window.
 ```{r message=FALSE, warning=FALSE, tidy=FALSE}
 # calculated along a raster within a circular focal window
 gridded <- calculate_bigfoot(buildings, 
-                             what="area", how="mean",
-                             focalRadius=200,
-                             template=grid,
-                             outputPath=tempdir())
+                             what = "area", 
+                             how = "mean",
+                             focalRadius = 200,
+                             template = grid,
+                             outputPath = tempdir())
 
   raster::plot(raster::raster(gridded))
-  plot(sf::st_geometry(buildings), add=TRUE)
+  plot(sf::st_geometry(buildings), add = TRUE)
 ```
 
 ### Outputs
@@ -136,6 +137,7 @@ Rasters in GeoTiff format or data tables:
 7. Structure orientation angle (normalised entropy)
 8. Compactness (Polsby-Popper) 
 9. Roundness
+10. Length to (equivalent-) width ratio
 
 A full list of characteristics and summary function names can be retrieved with
 `foot::list_fs()`.

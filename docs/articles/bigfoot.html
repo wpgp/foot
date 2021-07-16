@@ -32,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">foot</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7</span>
       </span>
     </div>
 
@@ -65,11 +65,14 @@
     </li>
   </ul>
 </li>
+<li>
+  <a href="../news/index.html">News</a>
+</li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
   <a href="https://github.com/wpgp/foot/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -83,12 +86,12 @@
 
       
 
-      </header><div class="row">
+      </header><script src="bigfoot_files/header-attrs-2.9/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Gridded footprint calculation layers</h1>
             
-            <h4 class="date">February 25, 2021</h4>
+            <h4 class="date">July 16, 2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/wpgp/foot/blob/master/vignettes/bigfoot.Rmd"><code>vignettes/bigfoot.Rmd</code></a></small>
       <div class="hidden name"><code>bigfoot.Rmd</code></div>
@@ -98,8 +101,9 @@
     
     
 <p>The <code>foot</code> package was developed by WorldPop at the University of Southampton (<a href="https://www.worldpop.org">www.worldpop.org</a>) to support geometric calculations and zonal summaries of measures from building footprint polygons. The <code><a href="../articles/footsteps.html">vignette("footsteps", package="foot")</a></code> provides an introduction to package and the functionality of calculating and summarising morphology measures. This vignette builds on those methods and demonstrates a more advanced workflow to produce gridded summaries of buildings measures. In particular, the focus is on using <code><a href="../reference/calculate_bigfoot.html">foot::calculate_bigfoot()</a></code> in order how to handle very large (i.e.  national-scale) datasets of building footprints.</p>
-<div class="sourceCode" id="cb1"><pre class="downlit">
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/wpgp/foot">foot</a></span><span class="op">)</span></pre></div>
+<p>An example of this type of processing and how it can be used in settlement classification is available in this paper (open access): <a href="https://doi.org/10.1371/journal.pone.0247535">https://doi.org/10.1371/journal.pone.0247535</a>.</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/wpgp/foot">foot</a></span><span class="op">)</span></code></pre></div>
 <div id="calculations-with-foot" class="section level2">
 <h2 class="hasAnchor">
 <a href="#calculations-with-foot" class="anchor"></a>Calculations with <code>foot</code>
@@ -121,12 +125,13 @@
 <h3 class="hasAnchor">
 <a href="#basic-calculations" class="anchor"></a>Basic calculations</h3>
 <p>With the key inputs for the file paths set, the processing can be executed with a single function.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit">
-<span class="co"># basic function call with default parameters</span>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># basic function call with default parameters</span>
 <span class="fu"><a href="../reference/calculate_bigfoot.html">calculate_bigfoot</a></span><span class="op">(</span>X<span class="op">=</span><span class="va">buildings</span>,
                   template<span class="op">=</span><span class="va">mgrid</span>,
                   what<span class="op">=</span><span class="st">"settled"</span>, how<span class="op">=</span><span class="st">"binary"</span>,
                   parallel<span class="op">=</span><span class="cn">FALSE</span>, verbose<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>
+<span class="co">#&gt; Reading template grid </span>
 <span class="co">#&gt; trying to read file: C:\Users\Admin\Documents\GitHub\foot\wd\in\kampala_grid.tif</span>
 <span class="co">#&gt; Selecting metrics </span>
 <span class="co">#&gt; Setting control values </span>
@@ -146,7 +151,7 @@
 <span class="co">#&gt; Writing output tiles </span>
 <span class="co">#&gt; Finished writing grids</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Finished processing all tiles: 2021-02-25 14:44:05</span></pre></div>
+<span class="co">#&gt; Finished processing all tiles: 2021-07-16 11:47:22</span></code></pre></div>
 <p>The documentation and default parameters are available from <code><a href="../reference/calculate_bigfoot.html">?foot::calculate_bigfoot</a></code>.</p>
 <p>The arguments <code>what</code> and <code>how</code> are the same as for <code>calculate_footstats</code>. They provide a character or list list of character names or characteristics (i.e. columns within the building footprint attributes) and summary functions, respectively. The available metrics can be retrieved with <code><a href="../reference/list_fs.html">list_fs()</a></code>.</p>
 </div>
@@ -154,25 +159,26 @@
 <h3 class="hasAnchor">
 <a href="#specifying-outputs" class="anchor"></a>Specifying outputs</h3>
 <p>By default the outputs of <code>bigfoot</code> are saved as GeoTiffs in the user’s working directory (<code><a href="https://rdrr.io/r/base/getwd.html">getwd()</a></code>). Each grid is named by the combination of characteristics and summary function. The example below shows how to retrieve an output of <code>calculate_bigfoot</code>.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit">
-<span class="co"># retrieve the gridded outputs</span>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># retrieve the gridded outputs</span>
 <span class="va">outGrid</span> <span class="op">&lt;-</span> <span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html">getwd</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"settled_binary.tif"</span><span class="op">)</span><span class="op">)</span>
 
-<span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="va">outGrid</span><span class="op">)</span></pre></div>
+<span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="va">outGrid</span><span class="op">)</span></code></pre></div>
 <div class="figure">
 <img src="bigfoot_files/figure-html/Fig1-1.png" alt="Binary settled raster at 100m resolution" width="576"><p class="caption">
 Binary settled raster at 100m resolution
 </p>
 </div>
 <p>Users can specify an output path to another folder location (<code>outputPath=</code>). Additionally a “tag” can be specified as a parameter to the function (<code>outputTag=</code>). The tag is appended to the beginning of each file name with an underscore. This can be useful for identifying different outputs. These options are demonstrated in the code block below.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit">
-<span class="co"># basic function call specifying output parameters</span>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># basic function call specifying output parameters</span>
 <span class="fu"><a href="../reference/calculate_bigfoot.html">calculate_bigfoot</a></span><span class="op">(</span>X<span class="op">=</span><span class="va">buildings</span>,
                   template<span class="op">=</span><span class="va">mgrid</span>,
                   what<span class="op">=</span><span class="st">"settled"</span>, how<span class="op">=</span><span class="st">"binary"</span>,
                   outputPath<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span><span class="op">(</span><span class="op">)</span>,
                   outputTag<span class="op">=</span><span class="st">"TAG"</span>,
                   parallel<span class="op">=</span><span class="cn">FALSE</span>, verbose<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>
+<span class="co">#&gt; Reading template grid </span>
 <span class="co">#&gt; trying to read file: C:\Users\Admin\Documents\GitHub\foot\wd\in\kampala_grid.tif</span>
 <span class="co">#&gt; Selecting metrics </span>
 <span class="co">#&gt; Setting control values </span>
@@ -180,8 +186,7 @@ Binary settled raster at 100m resolution
 <span class="co">#&gt; Creating list of processing tiles </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Tile: 1 of 1</span>
-<span class="co">#&gt; Reading footprints</span>
-<span class="co">#&gt; although coordinates are longitude/latitude, st_intersects assumes that they are planar</span>
+<span class="co">#&gt; Reading footprints </span>
 <span class="co">#&gt; Reading template grid </span>
 <span class="co">#&gt; Selecting metrics </span>
 <span class="co">#&gt; Setting control values. </span>
@@ -193,20 +198,21 @@ Binary settled raster at 100m resolution
 <span class="co">#&gt; Writing output tiles </span>
 <span class="co">#&gt; Finished writing grids</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Finished processing all tiles: 2021-02-25 14:44:07</span></pre></div>
+<span class="co">#&gt; Finished processing all tiles: 2021-07-16 11:47:25</span></code></pre></div>
 </div>
 <div id="multiple-metrics" class="section level3">
 <h3 class="hasAnchor">
 <a href="#multiple-metrics" class="anchor"></a>Multiple metrics</h3>
 <p>As with <code>calculate_footstats</code> multiple metrics and summary statistics can be supplied to <code>bigfoot</code> as a list or nested lists grouping characteristics and functions.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit">
-<span class="co"># re-running the basic call with multiple metrics</span>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># re-running the basic call with multiple metrics</span>
 <span class="fu"><a href="../reference/calculate_bigfoot.html">calculate_bigfoot</a></span><span class="op">(</span>X<span class="op">=</span><span class="va">buildings</span>,
                   template<span class="op">=</span><span class="va">mgrid</span>, 
                   what<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="st">"settled"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="st">"area"</span><span class="op">)</span><span class="op">)</span>,
                   how<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="st">"binary"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="st">"cv"</span><span class="op">)</span><span class="op">)</span>,
                   outputPath<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span><span class="op">(</span><span class="op">)</span>,  
                   outputTag<span class="op">=</span><span class="st">"TAG"</span>, parallel<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span>  
+<span class="co">#&gt; Reading template grid </span>
 <span class="co">#&gt; trying to read file: C:\Users\Admin\Documents\GitHub\foot\wd\in\kampala_grid.tif</span>
 <span class="co">#&gt; Selecting metrics </span>
 <span class="co">#&gt; Setting control values </span>
@@ -228,13 +234,13 @@ Binary settled raster at 100m resolution
 <span class="co">#&gt; Writing output tiles </span>
 <span class="co">#&gt; Finished writing grids</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Finished processing all tiles: 2021-02-25 14:44:10</span></pre></div>
-<div class="sourceCode" id="cb6"><pre class="downlit">
-<span class="co"># retrieve the gridded outputs Note: must add the 'tag' to the filename</span>
+<span class="co">#&gt; Finished processing all tiles: 2021-07-16 11:47:28</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># retrieve the gridded outputs Note: must add the 'tag' to the filename</span>
 <span class="va">outGrid</span> <span class="op">&lt;-</span> <span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"TAG_area_cv.tif"</span><span class="op">)</span><span class="op">)</span>
 
 <span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="va">outGrid</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">buildings</span><span class="op">)</span>, fill <span class="op">=</span> <span class="cn">NA</span>, add <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></pre></div>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">buildings</span><span class="op">)</span>, fill <span class="op">=</span> <span class="cn">NA</span>, add <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></code></pre></div>
 <div class="figure">
 <img src="bigfoot_files/figure-html/Fig2-1.png" alt="Coeff. of variation in building area at 100m resolution" width="576"><p class="caption">
 Coeff. of variation in building area at 100m resolution
@@ -253,8 +259,8 @@ Example of 300 m focal radius. Selected footprints are highlighted in red
 </p>
 </div>
 <p>Below is an example of applying a 300 m focal radius in action for a gridded output layer.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit">
-<span class="co"># moving focal window calculations</span>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># moving focal window calculations</span>
 <span class="fu"><a href="../reference/calculate_bigfoot.html">calculate_bigfoot</a></span><span class="op">(</span>X<span class="op">=</span><span class="va">buildings</span>,
                   template<span class="op">=</span><span class="va">mgrid</span>,
                   what<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="st">"area"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="st">"perimeter"</span><span class="op">)</span><span class="op">)</span>,
@@ -262,6 +268,7 @@ Example of 300 m focal radius. Selected footprints are highlighted in red
                   focalRadius<span class="op">=</span><span class="fl">300</span>,  <span class="co"># buffer radius in meters</span>
                   outputPath<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span><span class="op">(</span><span class="op">)</span>, 
                   outputTag<span class="op">=</span><span class="st">"TAG"</span>, parallel<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span>
+<span class="co">#&gt; Reading template grid </span>
 <span class="co">#&gt; trying to read file: C:\Users\Admin\Documents\GitHub\foot\wd\in\kampala_grid.tif</span>
 <span class="co">#&gt; Selecting metrics </span>
 <span class="co">#&gt; Setting control values </span>
@@ -285,14 +292,14 @@ Example of 300 m focal radius. Selected footprints are highlighted in red
 <span class="co">#&gt; Writing output tiles </span>
 <span class="co">#&gt; Finished writing grids</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Finished processing all tiles: 2021-02-25 14:44:16</span></pre></div>
+<span class="co">#&gt; Finished processing all tiles: 2021-07-16 11:47:35</span></code></pre></div>
 <p>Creating the focal window is handled by <code>calculate_bigfoot</code>. The focal window is also taken into consideration by the function when creating processing tiles - the footprints are extract from outside the tile, in neighbouring areas, to prevent edge effects</p>
 <p>Note that when a focal radius is specified, this value is always appended to the end of the file names so that the outputs can be identified.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit">
-<span class="co"># Note that the filename includes both a tag and a focal radius value</span>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># Note that the filename includes both a tag and a focal radius value</span>
 <span class="va">outGrid</span> <span class="op">&lt;-</span> <span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"TAG_perimeter_sum_300.tif"</span><span class="op">)</span><span class="op">)</span>
 
-<span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="va">outGrid</span><span class="op">)</span></pre></div>
+<span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="va">outGrid</span><span class="op">)</span></code></pre></div>
 <div class="figure">
 <img src="bigfoot_files/figure-html/Fig4-1.png" alt="Total building perimeter in a 300m radius window. Output at a 100m resolution" width="576"><p class="caption">
 Total building perimeter in a 300m radius window. Output at a 100m resolution
@@ -307,9 +314,9 @@ Total building perimeter in a 300m radius window. Output at a 100m resolution
 <div id="specifying-geometry-units" class="section level3">
 <h3 class="hasAnchor">
 <a href="#specifying-geometry-units" class="anchor"></a>Specifying geometry units</h3>
-<p>To override the default units used in the geometry calculations, a named list of unit strings can be supplied to the <code>controlUnits</code> argument. This list can contain named items for <code>areaUnit</code>, <code>perimUnit</code>, and <code>distUnit</code>. The default values are meters (“m”) and square meters (“m^2”) The value of each item should be coercible with <code><a href="https://rdrr.io/pkg/units/man/as_units.html">units::as_units</a></code>.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit">
-<span class="co"># change the default units used to calculate area and distance</span>
+<p>To override the default units used in the geometry calculations, a named list of unit strings can be supplied to the <code>controlUnits</code> argument. This list can contain named items for <code>areaUnit</code>, <code>perimUnit</code>, and <code>distUnit</code>. The default values are meters (“m”) and square meters (“m^2”) The value of each item should be coercible with <code><a href="https://rdrr.io/pkg/units/man/units.html">units::as_units</a></code>.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># change the default units used to calculate area and distance</span>
 <span class="fu"><a href="../reference/calculate_bigfoot.html">calculate_bigfoot</a></span><span class="op">(</span>X<span class="op">=</span><span class="va">buildings</span>,
                   template<span class="op">=</span><span class="va">mgrid</span>, 
                   what<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="st">"area"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="st">"perimeter"</span><span class="op">)</span><span class="op">)</span>,
@@ -321,6 +328,7 @@ Total building perimeter in a 300m radius window. Output at a 100m resolution
                   outputTag<span class="op">=</span><span class="st">"TAG"</span>,
                   parallel<span class="op">=</span><span class="cn">FALSE</span>,
                   verbose<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>  
+<span class="co">#&gt; Reading template grid </span>
 <span class="co">#&gt; trying to read file: C:\Users\Admin\Documents\GitHub\foot\wd\in\kampala_grid.tif</span>
 <span class="co">#&gt; Selecting metrics </span>
 <span class="co">#&gt; Setting control values </span>
@@ -343,11 +351,11 @@ Total building perimeter in a 300m radius window. Output at a 100m resolution
 <span class="co">#&gt; Writing output tiles </span>
 <span class="co">#&gt; Finished writing grids</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Finished processing all tiles: 2021-02-25 14:44:20</span>
+<span class="co">#&gt; Finished processing all tiles: 2021-07-16 11:47:38</span>
 
 <span class="co"># plot the total perimeter, measured in kilometres</span>
 <span class="va">outGrid</span> <span class="op">&lt;-</span> <span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"TAG_perimeter_sum.tif"</span><span class="op">)</span><span class="op">)</span>
-<span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="va">outGrid</span><span class="op">)</span></pre></div>
+<span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="va">outGrid</span><span class="op">)</span></code></pre></div>
 <div class="figure">
 <img src="bigfoot_files/figure-html/Fig5-1.png" alt="Total building perimeter in KM" width="576"><p class="caption">
 Total building perimeter in KM
@@ -358,8 +366,8 @@ Total building perimeter in KM
 <h3 class="hasAnchor">
 <a href="#filtering-buildings" class="anchor"></a>Filtering buildings</h3>
 <p>In some settings it may be preferable to exclude very small and/or very large building footprint polygons. The lower and upper bounds for filtering can be specified with <code>minArea</code> and <code>maxArea</code> in the <code>filter</code> argument. The values for these filters are in the same units specified by <code>controlUnits</code> or the default value for area calculations. Note that an “area” footprint statistic does not need to be requested as this characteristic is automatically calculated to enable filtering.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit">
-<span class="co"># Filtering: # footprints must be larger than 50 m^2 and smaller than 1000 m^2</span>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># Filtering: # footprints must be larger than 50 m^2 and smaller than 1000 m^2</span>
 <span class="fu"><a href="../reference/calculate_bigfoot.html">calculate_bigfoot</a></span><span class="op">(</span>X<span class="op">=</span><span class="va">buildings</span>,
                   template<span class="op">=</span><span class="va">mgrid</span>, 
                   what<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="st">"shape"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="st">"settled"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="st">"perimeter"</span><span class="op">)</span><span class="op">)</span>,
@@ -369,6 +377,7 @@ Total building perimeter in KM
                   outputPath<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span><span class="op">(</span><span class="op">)</span>,  
                   parallel<span class="op">=</span><span class="cn">FALSE</span>,
                   verbose<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>  
+<span class="co">#&gt; Reading template grid </span>
 <span class="co">#&gt; trying to read file: C:\Users\Admin\Documents\GitHub\foot\wd\in\kampala_grid.tif</span>
 <span class="co">#&gt; Selecting metrics </span>
 <span class="co">#&gt; Setting control values </span>
@@ -395,12 +404,12 @@ Total building perimeter in KM
 <span class="co">#&gt; Writing output tiles </span>
 <span class="co">#&gt; Finished writing grids</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Finished processing all tiles: 2021-02-25 14:44:27</span></pre></div>
+<span class="co">#&gt; Finished processing all tiles: 2021-07-16 11:47:46</span></code></pre></div>
 <p>In the map of the results below, each pixel is the count of footprints present. Note the smaller number of structures and sparseness of structures in pixels around the centre portions of the image. This corresponds with the a business district and industrial areas with fewer, but larger structures.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit">
-<span class="va">outGrid</span> <span class="op">&lt;-</span> <span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"settled_count.tif"</span><span class="op">)</span><span class="op">)</span>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">outGrid</span> <span class="op">&lt;-</span> <span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"settled_count.tif"</span><span class="op">)</span><span class="op">)</span>
 
-<span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="va">outGrid</span><span class="op">)</span></pre></div>
+<span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="va">outGrid</span><span class="op">)</span></code></pre></div>
 <div class="figure">
 <img src="bigfoot_files/figure-html/Fig6-1.png" alt="Count of buildings with area &gt;50 m^2 and &lt;1000 m^2" width="576"><p class="caption">
 Count of buildings with area &gt;50 m^2 and &lt;1000 m^2
@@ -411,14 +420,15 @@ Count of buildings with area &gt;50 m^2 and &lt;1000 m^2
 <h3 class="hasAnchor">
 <a href="#tile-size" class="anchor"></a>Tile size</h3>
 <p>The size of the processing tiles, specified in pixel dimensions (rows, columns) can be an important factor in the efficiency of the calculations. Smaller tile regions result in fewer building footprints being read/processed at one time, but there is an overhead computational cost of reading/writing files. The default value is 500 pixels. For the small demonstration shown here that results in one tile for the whole region. To show multiple tile processing, a small size is supplied and the processing is done in parallel with verbose output.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit">
-<span class="fu"><a href="../reference/calculate_bigfoot.html">calculate_bigfoot</a></span><span class="op">(</span>X<span class="op">=</span><span class="va">buildings</span>,
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/calculate_bigfoot.html">calculate_bigfoot</a></span><span class="op">(</span>X<span class="op">=</span><span class="va">buildings</span>,
                   template<span class="op">=</span><span class="va">mgrid</span>,
                   what<span class="op">=</span><span class="st">"compact"</span>,
                   how<span class="op">=</span><span class="st">"mean"</span>,
                   tileSize<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">20</span>, <span class="fl">20</span><span class="op">)</span>,  <span class="co"># rows x columns in pixels</span>
                   parallel<span class="op">=</span><span class="cn">FALSE</span>,
                   verbose<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>
+<span class="co">#&gt; Reading template grid </span>
 <span class="co">#&gt; trying to read file: C:\Users\Admin\Documents\GitHub\foot\wd\in\kampala_grid.tif</span>
 <span class="co">#&gt; Selecting metrics </span>
 <span class="co">#&gt; Setting control values </span>
@@ -481,7 +491,7 @@ Count of buildings with area &gt;50 m^2 and &lt;1000 m^2
 <span class="co">#&gt; Writing output tiles </span>
 <span class="co">#&gt; Finished writing grids</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Finished processing all tiles: 2021-02-25 14:44:34</span></pre></div>
+<span class="co">#&gt; Finished processing all tiles: 2021-07-16 11:47:53</span></code></pre></div>
 </div>
 <div id="restarting" class="section level3">
 <h3 class="hasAnchor">
@@ -495,9 +505,9 @@ Count of buildings with area &gt;50 m^2 and &lt;1000 m^2
 <a href="#next-steps" class="anchor"></a>Next steps</h2>
 <p>This vignette has provided an overview of how to create gridded outputs layers summarising building footprint morphology measures. This workflow uses <code>calculate_bigfoot</code> and is designed to work for large sets of data through tiled read/writing and processing these tiles in parallel. The <code>bigfoot</code> functionality extends and makes use of <code>footstats</code>. Both of these functions can take use-supplied and custom summary functions. This advanced usage is demonstrated in <code><a href="../articles/cobbler.html">vignette("cobbler", package="foot")</a></code>.</p>
 <hr>
-<div class="sourceCode" id="cb13"><pre class="downlit">
-<span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span><span class="op">(</span><span class="op">)</span>
-<span class="co">#&gt; R version 3.6.3 (2020-02-29)</span>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span><span class="op">(</span><span class="op">)</span>
+<span class="co">#&gt; R version 4.1.0 (2021-05-18)</span>
 <span class="co">#&gt; Platform: x86_64-pc-linux-gnu (64-bit)</span>
 <span class="co">#&gt; Running under: Ubuntu 20.04.2 LTS</span>
 <span class="co">#&gt; </span>
@@ -517,24 +527,26 @@ Count of buildings with area &gt;50 m^2 and &lt;1000 m^2
 <span class="co">#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; other attached packages:</span>
-<span class="co">#&gt; [1] sf_0.9-6     raster_3.1-5 sp_1.4-4     foot_0.6    </span>
+<span class="co">#&gt; [1] sf_1.0-0     raster_3.4-5 sp_1.4-5     foot_0.7    </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; loaded via a namespace (and not attached):</span>
-<span class="co">#&gt;  [1] tidyselect_1.1.0   xfun_0.18          purrr_0.3.4        lattice_0.20-41   </span>
-<span class="co">#&gt;  [5] vctrs_0.3.4        generics_0.0.2     htmltools_0.4.0    stars_0.4-3       </span>
-<span class="co">#&gt;  [9] yaml_2.2.1         rlang_0.4.8        e1071_1.7-4        pkgdown_1.6.1     </span>
-<span class="co">#&gt; [13] pillar_1.4.3       glue_1.4.2         DBI_1.1.0          foreach_1.5.1     </span>
-<span class="co">#&gt; [17] lifecycle_0.2.0    stringr_1.4.0      ragg_0.3.1         codetools_0.2-16  </span>
-<span class="co">#&gt; [21] memoise_1.1.0      evaluate_0.14      knitr_1.30         doParallel_1.0.16 </span>
-<span class="co">#&gt; [25] parallel_3.6.3     class_7.3-16       highr_0.8          Rcpp_1.0.5        </span>
-<span class="co">#&gt; [29] KernSmooth_2.23-16 backports_1.1.5    classInt_0.4-3     filelock_1.0.2    </span>
-<span class="co">#&gt; [33] formatR_1.7        lwgeom_0.2-5       desc_1.2.0         abind_1.4-5       </span>
-<span class="co">#&gt; [37] systemfonts_0.3.2  fs_1.3.1           digest_0.6.27      stringi_1.4.6     </span>
-<span class="co">#&gt; [41] dplyr_1.0.2        grid_3.6.3         rprojroot_1.3-2    rgdal_1.4-8       </span>
-<span class="co">#&gt; [45] tools_3.6.3        magrittr_1.5       tibble_3.0.1       crayon_1.3.4      </span>
-<span class="co">#&gt; [49] pkgconfig_2.0.3    ellipsis_0.3.1     data.table_1.13.2  assertthat_0.2.1  </span>
-<span class="co">#&gt; [53] rmarkdown_2.1      rstudioapi_0.11    iterators_1.0.13   R6_2.5.0          </span>
-<span class="co">#&gt; [57] units_0.6-7        compiler_3.6.3</span></pre></div>
+<span class="co">#&gt;  [1] Rcpp_1.0.6         lattice_0.20-44    class_7.3-19       rprojroot_2.0.2   </span>
+<span class="co">#&gt;  [5] digest_0.6.27      foreach_1.5.1      utf8_1.2.1         R6_2.5.0          </span>
+<span class="co">#&gt;  [9] evaluate_0.14      e1071_1.7-7        highr_0.9          pillar_1.6.1      </span>
+<span class="co">#&gt; [13] rlang_0.4.11       data.table_1.14.0  jquerylib_0.1.3    rmarkdown_2.9     </span>
+<span class="co">#&gt; [17] pkgdown_1.6.1      textshaping_0.3.5  desc_1.3.0         rgdal_1.5-23      </span>
+<span class="co">#&gt; [21] stringr_1.4.0      proxy_0.4-26       compiler_4.1.0     xfun_0.24         </span>
+<span class="co">#&gt; [25] pkgconfig_2.0.3    systemfonts_1.0.2  htmltools_0.5.1.1  tidyselect_1.1.0  </span>
+<span class="co">#&gt; [29] tibble_3.1.2       codetools_0.2-18   fansi_0.5.0        crayon_1.4.1      </span>
+<span class="co">#&gt; [33] dplyr_1.0.5        wk_0.4.1           grid_4.1.0         jsonlite_1.7.2    </span>
+<span class="co">#&gt; [37] lwgeom_0.2-6       lifecycle_1.0.0    DBI_1.1.1          magrittr_2.0.1    </span>
+<span class="co">#&gt; [41] formatR_1.11       units_0.7-2        KernSmooth_2.23-20 stringi_1.6.2     </span>
+<span class="co">#&gt; [45] cachem_1.0.5       fs_1.5.0           doParallel_1.0.16  bslib_0.2.4       </span>
+<span class="co">#&gt; [49] ellipsis_0.3.2     filelock_1.0.2     ragg_1.1.3         generics_0.1.0    </span>
+<span class="co">#&gt; [53] vctrs_0.3.8        s2_1.0.6           iterators_1.0.13   tools_4.1.0       </span>
+<span class="co">#&gt; [57] glue_1.4.2         purrr_0.3.4        abind_1.4-5        parallel_4.1.0    </span>
+<span class="co">#&gt; [61] fastmap_1.1.0      yaml_2.2.1         stars_0.5-3        classInt_0.4-3    </span>
+<span class="co">#&gt; [65] memoise_2.0.0      knitr_1.33         sass_0.3.1</span></code></pre></div>
 </div>
   </div>
 

@@ -32,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">foot</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7</span>
       </span>
     </div>
 
@@ -65,11 +65,14 @@
     </li>
   </ul>
 </li>
+<li>
+  <a href="../news/index.html">News</a>
+</li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
   <a href="https://github.com/wpgp/foot/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -83,12 +86,12 @@
 
       
 
-      </header><div class="row">
+      </header><script src="footsteps_files/header-attrs-2.9/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Basic building footprint calculations</h1>
             
-            <h4 class="date">February 25, 2021</h4>
+            <h4 class="date">July 16, 2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/wpgp/foot/blob/master/vignettes/footsteps.Rmd"><code>vignettes/footsteps.Rmd</code></a></small>
       <div class="hidden name"><code>footsteps.Rmd</code></div>
@@ -98,8 +101,8 @@
     
     
 <p>The <code>foot</code> package was developed by WorldPop at the University of Southampton (<a href="https://www.worldpop.org">www.worldpop.org</a>) to provide a set of consistent and flexible tools for processing 2D vector representations of buildings (e.g. “footprints”) and calculating urban morphology measurements. The functionality includes basic geometry and morphology characteristics, distance and clustering metrics. These calculations are supported with helper functions for spatial intersections and tiled reading/writing of data.</p>
-<div class="sourceCode" id="cb1"><pre class="downlit">
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/wpgp/foot">foot</a></span><span class="op">)</span></pre></div>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/wpgp/foot">foot</a></span><span class="op">)</span></code></pre></div>
 <p>This vignette will demonstrate some of the core functionality in the package, including:</p>
 <ul>
 <li>The available measurements and summary statistics</li>
@@ -111,12 +114,12 @@
 <div id="load-the-sample-dataset" class="section level2">
 <h2 class="hasAnchor">
 <a href="#load-the-sample-dataset" class="anchor"></a>Load the sample dataset</h2>
-<div class="sourceCode" id="cb2"><pre class="downlit">
-<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"kampala"</span>, package <span class="op">=</span> <span class="st">"foot"</span><span class="op">)</span>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"kampala"</span>, package <span class="op">=</span> <span class="st">"foot"</span><span class="op">)</span>
 
 <span class="va">buildings</span> <span class="op">&lt;-</span> <span class="va">kampala</span><span class="op">$</span><span class="va">buildings</span>
 <span class="va">adminzones</span> <span class="op">&lt;-</span> <span class="va">kampala</span><span class="op">$</span><span class="va">adminZones</span>
-<span class="va">clusters</span> <span class="op">&lt;-</span> <span class="va">kampala</span><span class="op">$</span><span class="va">clusters</span></pre></div>
+<span class="va">clusters</span> <span class="op">&lt;-</span> <span class="va">kampala</span><span class="op">$</span><span class="va">clusters</span></code></pre></div>
 <p>The sample dataset is a list of four named objects:</p>
 <ul>
 <li>“buildings” - polygons of building footprints in <code>sf</code> format. Contains 8480 records.</li>
@@ -137,8 +140,8 @@ Sample buildings and zones in Kampala
 <a href="#calculations-with-foot" class="anchor"></a>Calculations with <code>foot</code>
 </h2>
 <p>The core functions of <code>foot</code> are provided by <code><a href="../reference/calculate_footstats.html">calculate_footstats()</a></code>. The operations include: 1) calculating geometry measures for each footprint, 2) summarising one or more geometry measures of footprints within zones. The simplest usage involves supplying a set of building footprint polygons and the desired characteristics to calculate. All operations return the same format - a <code>data.table</code>, optionally with a column for the index and the named column for the summarised footprint metric(s).</p>
-<div class="sourceCode" id="cb3"><pre class="downlit">
-<span class="co"># the area and perimeter of each building footprint</span>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># the area and perimeter of each building footprint</span>
 <span class="va">built_area</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calculate_footstats.html">calculate_footstats</a></span><span class="op">(</span><span class="va">buildings</span>, what <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="st">"area"</span>, <span class="st">"perimeter"</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#&gt; Selecting metrics </span>
 <span class="co">#&gt; Setting control values. </span>
@@ -148,15 +151,15 @@ Sample buildings and zones in Kampala
 
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">built_area</span><span class="op">)</span>
 <span class="co">#&gt;               area    perimeter</span>
-<span class="co">#&gt; 1:  22.00824 [m^2] 19.26045 [m]</span>
-<span class="co">#&gt; 2: 220.39011 [m^2] 67.95023 [m]</span>
-<span class="co">#&gt; 3:  38.95750 [m^2] 25.37269 [m]</span>
-<span class="co">#&gt; 4: 386.74429 [m^2] 98.55654 [m]</span>
-<span class="co">#&gt; 5: 349.57765 [m^2] 82.22555 [m]</span>
-<span class="co">#&gt; 6: 164.00931 [m^2] 55.87172 [m]</span></pre></div>
+<span class="co">#&gt; 1:  22.10707 [m^2] 19.26045 [m]</span>
+<span class="co">#&gt; 2: 221.37976 [m^2] 67.95023 [m]</span>
+<span class="co">#&gt; 3:  39.13247 [m^2] 25.37269 [m]</span>
+<span class="co">#&gt; 4: 388.48091 [m^2] 98.55654 [m]</span>
+<span class="co">#&gt; 5: 351.14738 [m^2] 82.22555 [m]</span>
+<span class="co">#&gt; 6: 164.74579 [m^2] 55.87172 [m]</span></code></pre></div>
 <p>To summarise the footprint characteristics over all building polygons, the name of a summary function, or a list of multiple functions can be supplied.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit">
-<span class="co"># the average and standard deviation of all building areas</span>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># the average and standard deviation of all building areas</span>
 <span class="fu"><a href="../reference/calculate_footstats.html">calculate_footstats</a></span><span class="op">(</span><span class="va">buildings</span>, what <span class="op">=</span> <span class="st">"area"</span>, how <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="st">"mean"</span>, <span class="st">"sd"</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#&gt; Selecting metrics </span>
 <span class="co">#&gt; Setting control values. </span>
@@ -166,8 +169,8 @@ Sample buildings and zones in Kampala
 <span class="co">#&gt;    area mean  </span>
 <span class="co">#&gt;    area sd  </span>
 <span class="co">#&gt; Finished calculating metrics.</span>
-<span class="co">#&gt;    zoneID      area_mean area_sd</span>
-<span class="co">#&gt; 1:      1 263.1865 [m^2]  715.28</span></pre></div>
+<span class="co">#&gt;    zoneID      area_mean  area_sd</span>
+<span class="co">#&gt; 1:      1 264.3684 [m^2] 718.4919</span></code></pre></div>
 <div id="available-metrics-and-summary-measures" class="section level3">
 <h3 class="hasAnchor">
 <a href="#available-metrics-and-summary-measures" class="anchor"></a>Available metrics and summary measures</h3>
@@ -179,10 +182,11 @@ Sample buildings and zones in Kampala
 <li>nearest neighbour distance</li>
 <li>angle of rotation</li>
 <li>compactness and shape</li>
+<li>length-width ratio</li>
 </ul>
 <p>A table of metrics and other packaged summary function names available for each is available using <code><a href="../reference/list_fs.html">list_fs()</a></code>. The results of this function provide “cols” and “funs” which can be passed as <code>what</code> and <code>how</code> arguments, respectively, to <code>calculate_footstats</code>.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit">
-<span class="co"># get all available built-in functions for perimeter calculations</span>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># get all available built-in functions for perimeter calculations</span>
 <span class="va">argsList</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/list_fs.html">list_fs</a></span><span class="op">(</span>what <span class="op">=</span> <span class="st">"perimeter"</span><span class="op">)</span>
 
 <span class="fu"><a href="../reference/calculate_footstats.html">calculate_footstats</a></span><span class="op">(</span><span class="va">buildings</span>, what <span class="op">=</span> <span class="va">argsList</span><span class="op">$</span><span class="va">cols</span>, how <span class="op">=</span> <span class="va">argsList</span><span class="op">$</span><span class="va">funs</span><span class="op">)</span>
@@ -190,8 +194,9 @@ Sample buildings and zones in Kampala
 <span class="co">#&gt; Setting control values. </span>
 <span class="co">#&gt; Pre-calculating perimeters </span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Calculating  7  metrics ... </span>
+<span class="co">#&gt; Calculating  8  metrics ... </span>
 <span class="co">#&gt;    perimeter cv  </span>
+<span class="co">#&gt;    perimeter iqr  </span>
 <span class="co">#&gt;    perimeter max  </span>
 <span class="co">#&gt;    perimeter mean  </span>
 <span class="co">#&gt;    perimeter median  </span>
@@ -199,55 +204,54 @@ Sample buildings and zones in Kampala
 <span class="co">#&gt;    perimeter sd  </span>
 <span class="co">#&gt;    perimeter sum  </span>
 <span class="co">#&gt; Finished calculating metrics.</span>
-<span class="co">#&gt;    zoneID perimeter_cv perimeter_max perimeter_mean perimeter_median</span>
-<span class="co">#&gt; 1:      1    0.9396027  1089.097 [m]   62.22027 [m]     46.68314 [m]</span>
-<span class="co">#&gt;    perimeter_min perimeter_sd perimeter_sum</span>
-<span class="co">#&gt; 1:  14.88332 [m]     58.46233  301146.1 [m]</span></pre></div>
+<span class="co">#&gt;    zoneID perimeter_cv perimeter_iqr perimeter_max perimeter_mean</span>
+<span class="co">#&gt; 1:      1    0.9396027      40.81674  1089.097 [m]   62.22027 [m]</span>
+<span class="co">#&gt;    perimeter_median perimeter_min perimeter_sd perimeter_sum</span>
+<span class="co">#&gt; 1:     46.68314 [m]  14.88332 [m]     58.46233  301146.1 [m]</span></code></pre></div>
 <p>With no other argument supplied, all the footprints are treated as coming from the same spatial zone for any summary function. A later section describes the process for identifying zones.</p>
 </div>
 </div>
 <div id="additional-characteristics-and-geometry-measures" class="section level2">
 <h2 class="hasAnchor">
 <a href="#additional-characteristics-and-geometry-measures" class="anchor"></a>Additional characteristics and geometry measures</h2>
-<p>Whenever possible, <code>foot</code> makes use of generic functions within <code>R</code>. Most low-level geometry calculations rely on <code>sf</code> and <code>lwgeom</code> and users need to have recent versions of these packages installed. There are other stand-alone functions within <code>foot</code> to support more complex or less-common measurements.</p>
+<p>Whenever possible, <code>foot</code> makes use of generic functions within <code>R</code>. Most low-level geometry calculations rely on <code>sf</code>, <code>geos</code>, <code>lwgeom</code> and users need to have recent versions of these packages installed. There are other stand-alone functions within <code>foot</code> to support more complex or less-common measurements.</p>
 <div id="nearest-neighbour-distances" class="section level3">
 <h3 class="hasAnchor">
 <a href="#nearest-neighbour-distances" class="anchor"></a>Nearest neighbour distances</h3>
-<p>Distances can be calculated between footprints, or between footprints and other spatial objects. The distances can be measured edge-to-edge (<code>method="poly"</code>) or the centroids of the building footprints can be used (<code>method="centroid"</code>).</p>
-<div class="sourceCode" id="cb6"><pre class="downlit">
-<span class="co"># nearest distance for the first 10 buildings to any other building measured</span>
+<p>Distances can be calculated between footprints, or between footprints and other spatial objects. The distances can be measured edge-to-edge (<code>method = "poly"</code>) or the centroids of the building footprints can be used (<code>method = "centroid"</code>).</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># nearest distance for the first 10 buildings to any other building measured</span>
 <span class="co"># between polygon edges</span>
 <span class="fu"><a href="../reference/fs_nndist.html">fs_nndist</a></span><span class="op">(</span><span class="va">buildings</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="op">]</span>, <span class="va">buildings</span>, maxSearch <span class="op">=</span> <span class="fl">200</span>, unit <span class="op">=</span> <span class="st">"m"</span><span class="op">)</span>
 <span class="co">#&gt; Units: [m]</span>
-<span class="co">#&gt;  [1]  3.961359  7.894813  1.019971 22.306277  2.484471 16.257603  0.951225</span>
-<span class="co">#&gt;  [8]  1.864305  2.607113  2.291474</span>
+<span class="co">#&gt;  [1]  3.9782228  7.9372980  1.0249509 22.3497210  2.4816995 16.2608819</span>
+<span class="co">#&gt;  [7]  0.9555975  1.8666478  2.6156498  2.3014386</span>
 
 <span class="co"># omitting argument 'Y' measures distance among the footprints supplied setting</span>
 <span class="co"># maxSearch=NULL removes the search restriction</span>
 <span class="fu"><a href="../reference/fs_nndist.html">fs_nndist</a></span><span class="op">(</span><span class="va">buildings</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="op">]</span>, method <span class="op">=</span> <span class="st">"centroid"</span>, maxSearch <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span>
 <span class="co">#&gt; Units: [m]</span>
-<span class="co">#&gt;  [1]  99.95859  99.95859  90.11091  90.11091 116.64498 116.64498 217.86037</span>
-<span class="co">#&gt;  [8] 228.63068 217.86037 438.91352</span></pre></div>
-<p>Note that distance calculations are slower for polygons and for unprojected coordinate systems. The centroid-based calculations are fast. It is recommended that a maximum search radius is always used. Internally the calculations are done with a <code>data.table</code> to benefit from multi-threading capabilities.</p>
+<span class="co">#&gt;  [1] 100.15489 100.15489  90.59004  90.59004 117.26008 117.26008 218.52524</span>
+<span class="co">#&gt;  [8] 228.62489 218.52524 440.20521</span></code></pre></div>
+<p>Note that distance calculations are slower for polygons and for unprojected coordinate systems. The centroid-based calculations are faster. It is recommended that a maximum search radius is always used. Internally the calculations are done with a <code>data.table</code> to benefit from multi-threading capabilities.</p>
 </div>
 <div id="rotation-angles" class="section level3">
 <h3 class="hasAnchor">
 <a href="#rotation-angles" class="anchor"></a>Rotation angles</h3>
 <p>A less conventional geometric measure is derived from the rotated bounding rectangle. This is the rectangle enclosing a footprint polygon which has been rotated to minimise the area. In contrast, a “bounding box” for a polygon is always oriented along the x and y axes.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit">
-<span class="co"># To obtain the rotated rectangle as a spatial object</span>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># To obtain the rotated rectangle as a spatial object</span>
 <span class="va">mbr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fs_mbr.html">fs_mbr</a></span><span class="op">(</span><span class="va">buildings</span><span class="op">[</span><span class="fl">4502</span>, <span class="op">]</span>, returnShape <span class="op">=</span> <span class="cn">T</span><span class="op">)</span>
 
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">buildings</span><span class="op">[</span><span class="fl">4502</span>, <span class="op">]</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"grey"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span><span class="op">(</span><span class="va">mbr</span>, border <span class="op">=</span> <span class="st">"red"</span>, lwd <span class="op">=</span> <span class="fl">2</span>, add <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></pre></div>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">buildings</span><span class="op">[</span><span class="fl">4502</span>, <span class="op">]</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"grey"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">mbr</span>, border <span class="op">=</span> <span class="st">"red"</span>, lwd <span class="op">=</span> <span class="fl">2</span>, add <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></code></pre></div>
 <p><img src="footsteps_files/figure-html/fsFig2-1.png" width="700"></p>
-<div class="sourceCode" id="cb8"><pre class="downlit">
-
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R">
 <span class="co"># Or obtain just the angle measure</span>
 <span class="fu"><a href="../reference/fs_mbr.html">fs_mbr</a></span><span class="op">(</span><span class="va">buildings</span><span class="op">[</span><span class="fl">4502</span>, <span class="op">]</span>, returnShape <span class="op">=</span> <span class="cn">F</span><span class="op">)</span>
-<span class="co">#&gt;        X </span>
-<span class="co">#&gt; 63.25363</span></pre></div>
-<p>The angles can be summarised as an entropy measure and normalised to describe how much the angles of a set of structures depart from a regular grid pattern (available in <code>calculate_footstats</code> where <code>how="entropy"</code>).</p>
+<span class="co">#&gt; [1] 153.0991</span></code></pre></div>
+<p>The angles can be summarised as an entropy measure and normalised to describe how much the angles of a set of structures depart from a regular grid pattern (available in <code>calculate_footstats</code> where <code>how = "entropy"</code>).</p>
 </div>
 </div>
 <div id="creating-and-supplying-zone-indices" class="section level2">
@@ -258,96 +262,96 @@ Sample buildings and zones in Kampala
 <h3 class="hasAnchor">
 <a href="#index-by-vector" class="anchor"></a>Index by vector</h3>
 <p>A vector of indices for the zones can be supplied to <code>foot</code> functions as a 1) column name within the footprints, 2) a standalone numeric vector of indices, or 3) a spatial polygons object to join to the building footprints. The length of a vector of indices must match the number of building polygons.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit">
-<span class="co"># create a vector of ten random zones</span>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># create a vector of ten random zones</span>
 <span class="va">idx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">buildings</span><span class="op">)</span>, replace <span class="op">=</span> <span class="cn">T</span><span class="op">)</span>
 <span class="va">buildings</span><span class="op">$</span><span class="va">id</span> <span class="op">&lt;-</span> <span class="va">idx</span>  <span class="co"># add it to the buildings object</span>
 <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">buildings</span><span class="op">$</span><span class="va">id</span><span class="op">)</span>  <span class="co"># splitting observations into 10 groups</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;   1   2   3   4   5   6   7   8   9  10 </span>
-<span class="co">#&gt; 529 470 504 472 496 470 479 447 512 461</span>
+<span class="co">#&gt; 487 507 464 484 504 498 451 468 513 464</span>
 
 <span class="co"># 1. pass the index by name</span>
 <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">buildings</span><span class="op">)</span>
 <span class="co">#&gt; [1] "FID_1"    "geometry" "id"</span>
 <span class="fu"><a href="../reference/calculate_footstats.html">calculate_footstats</a></span><span class="op">(</span><span class="va">buildings</span>, <span class="st">"id"</span>, what <span class="op">=</span> <span class="st">"area"</span>, how <span class="op">=</span> <span class="st">"mean"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 <span class="co">#&gt;     id      area_mean</span>
-<span class="co">#&gt;  1:  1 261.9491 [m^2]</span>
-<span class="co">#&gt;  2:  2 227.1724 [m^2]</span>
-<span class="co">#&gt;  3:  3 264.3924 [m^2]</span>
-<span class="co">#&gt;  4:  4 247.1852 [m^2]</span>
-<span class="co">#&gt;  5:  5 277.7044 [m^2]</span>
-<span class="co">#&gt;  6:  6 228.0344 [m^2]</span>
-<span class="co">#&gt;  7:  7 257.6704 [m^2]</span>
-<span class="co">#&gt;  8:  8 272.9944 [m^2]</span>
-<span class="co">#&gt;  9:  9 261.2773 [m^2]</span>
-<span class="co">#&gt; 10: 10 334.9492 [m^2]</span>
+<span class="co">#&gt;  1:  1 265.3498 [m^2]</span>
+<span class="co">#&gt;  2:  2 252.5836 [m^2]</span>
+<span class="co">#&gt;  3:  3 255.7146 [m^2]</span>
+<span class="co">#&gt;  4:  4 252.0800 [m^2]</span>
+<span class="co">#&gt;  5:  5 249.2776 [m^2]</span>
+<span class="co">#&gt;  6:  6 256.1320 [m^2]</span>
+<span class="co">#&gt;  7:  7 275.9955 [m^2]</span>
+<span class="co">#&gt;  8:  8 254.0552 [m^2]</span>
+<span class="co">#&gt;  9:  9 320.8021 [m^2]</span>
+<span class="co">#&gt; 10: 10 259.6259 [m^2]</span>
 
 <span class="co"># 2. pass the index as a standalone vector</span>
 <span class="fu"><a href="../reference/calculate_footstats.html">calculate_footstats</a></span><span class="op">(</span><span class="va">buildings</span>, <span class="va">idx</span>, what <span class="op">=</span> <span class="st">"settled"</span>, how <span class="op">=</span> <span class="st">"count"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 <span class="co">#&gt;     zoneID settled_count</span>
-<span class="co">#&gt;  1:      1           529</span>
-<span class="co">#&gt;  2:      2           470</span>
-<span class="co">#&gt;  3:      3           504</span>
-<span class="co">#&gt;  4:      4           472</span>
-<span class="co">#&gt;  5:      5           496</span>
-<span class="co">#&gt;  6:      6           470</span>
-<span class="co">#&gt;  7:      7           479</span>
-<span class="co">#&gt;  8:      8           447</span>
-<span class="co">#&gt;  9:      9           512</span>
-<span class="co">#&gt; 10:     10           461</span>
+<span class="co">#&gt;  1:      1           487</span>
+<span class="co">#&gt;  2:      2           507</span>
+<span class="co">#&gt;  3:      3           464</span>
+<span class="co">#&gt;  4:      4           484</span>
+<span class="co">#&gt;  5:      5           504</span>
+<span class="co">#&gt;  6:      6           498</span>
+<span class="co">#&gt;  7:      7           451</span>
+<span class="co">#&gt;  8:      8           468</span>
+<span class="co">#&gt;  9:      9           513</span>
+<span class="co">#&gt; 10:     10           464</span>
 
 <span class="co"># 3. pass a separate spatial object of zones</span>
-<span class="fu"><a href="../reference/calculate_footstats.html">calculate_footstats</a></span><span class="op">(</span><span class="va">buildings</span>, zone <span class="op">=</span> <span class="va">adminzones</span>, what <span class="op">=</span> <span class="st">"angle"</span>, how <span class="op">=</span> <span class="st">"entropy"</span>, 
+<span class="fu"><a href="../reference/calculate_footstats.html">calculate_footstats</a></span><span class="op">(</span><span class="va">buildings</span>, zone <span class="op">=</span> <span class="va">adminzones</span>, what <span class="op">=</span> <span class="st">"angle"</span>, how <span class="op">=</span> <span class="st">"entropy"</span>,
     verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 <span class="co">#&gt;     zoneID angle_entropy</span>
-<span class="co">#&gt;  1:      1     0.9351095</span>
-<span class="co">#&gt;  2:      2     0.3108829</span>
-<span class="co">#&gt;  3:      3     0.5849276</span>
-<span class="co">#&gt;  4:      4     0.2003194</span>
-<span class="co">#&gt;  5:      5     0.6678707</span>
-<span class="co">#&gt;  6:      6     0.7139565</span>
-<span class="co">#&gt;  7:      7     0.9691374</span>
-<span class="co">#&gt;  8:      8     0.6102641</span>
-<span class="co">#&gt;  9:      9     0.5110688</span>
-<span class="co">#&gt; 10:     10     0.7309444</span>
-<span class="co">#&gt; 11:     11     0.3933987</span>
-<span class="co">#&gt; 12:     12     0.4602628</span>
-<span class="co">#&gt; 13:     13     1.0000000</span>
-<span class="co">#&gt; 14:     14     0.4656334</span>
-<span class="co">#&gt; 15:     15     0.3129308</span>
-<span class="co">#&gt; 16:     16     0.4551733</span>
-<span class="co">#&gt; 17:     17     0.3864071</span>
-<span class="co">#&gt; 18:     18     0.6949125</span>
-<span class="co">#&gt; 19:     19     0.2928137</span>
-<span class="co">#&gt; 20:     20     0.4598566</span>
-<span class="co">#&gt; 21:     21     0.6047045</span>
-<span class="co">#&gt; 22:     22     0.6520860</span>
-<span class="co">#&gt; 23:     23     0.2425743</span>
-<span class="co">#&gt; 24:     24     0.4518750</span>
-<span class="co">#&gt; 25:     25     0.8426361</span>
-<span class="co">#&gt; 26:     26     0.7302834</span>
-<span class="co">#&gt; 27:     27     0.4325040</span>
-<span class="co">#&gt; 28:     29     0.6144511</span>
-<span class="co">#&gt; 29:     30     0.4754793</span>
-<span class="co">#&gt; 30:     31     0.6023774</span>
-<span class="co">#&gt; 31:     32     0.4508777</span>
-<span class="co">#&gt; 32:     33     0.8639418</span>
-<span class="co">#&gt; 33:     34     0.1613791</span>
-<span class="co">#&gt;     zoneID angle_entropy</span></pre></div>
+<span class="co">#&gt;  1:      1    0.64828529</span>
+<span class="co">#&gt;  2:      2    0.15444480</span>
+<span class="co">#&gt;  3:      3    0.37731095</span>
+<span class="co">#&gt;  4:      4    0.20218466</span>
+<span class="co">#&gt;  5:      5    0.38044656</span>
+<span class="co">#&gt;  6:      6    0.40965757</span>
+<span class="co">#&gt;  7:      7    0.81082873</span>
+<span class="co">#&gt;  8:      8    0.37461986</span>
+<span class="co">#&gt;  9:      9    0.07534597</span>
+<span class="co">#&gt; 10:     10    0.41976425</span>
+<span class="co">#&gt; 11:     11    0.18428838</span>
+<span class="co">#&gt; 12:     12    0.56706649</span>
+<span class="co">#&gt; 13:     13    0.99999998</span>
+<span class="co">#&gt; 14:     14    0.24732848</span>
+<span class="co">#&gt; 15:     15    0.07535724</span>
+<span class="co">#&gt; 16:     16    0.13313992</span>
+<span class="co">#&gt; 17:     17    0.16260096</span>
+<span class="co">#&gt; 18:     18    0.05507162</span>
+<span class="co">#&gt; 19:     19    0.06435911</span>
+<span class="co">#&gt; 20:     20    0.04338009</span>
+<span class="co">#&gt; 21:     21    0.35472280</span>
+<span class="co">#&gt; 22:     22    0.24712170</span>
+<span class="co">#&gt; 23:     23    0.17194076</span>
+<span class="co">#&gt; 24:     24    0.06887326</span>
+<span class="co">#&gt; 25:     25    0.61427746</span>
+<span class="co">#&gt; 26:     26    0.12120792</span>
+<span class="co">#&gt; 27:     27    0.10582340</span>
+<span class="co">#&gt; 28:     29    0.10573715</span>
+<span class="co">#&gt; 29:     30    0.22640569</span>
+<span class="co">#&gt; 30:     31    0.60237738</span>
+<span class="co">#&gt; 31:     32    0.10920185</span>
+<span class="co">#&gt; 32:     33    0.56647940</span>
+<span class="co">#&gt; 33:     34    0.06415090</span>
+<span class="co">#&gt;     zoneID angle_entropy</span></code></pre></div>
 </div>
 <div id="index-by-zone-shapes" class="section level3">
 <h3 class="hasAnchor">
 <a href="#index-by-zone-shapes" class="anchor"></a>Index by zone shapes</h3>
 <p>Rather than supplying a pre-calculated column or vector of zonal indices, buildings can be assigned a zone based on a spatial join. When the index is created in the building footprints, it will be named “zoneID” or a user-specified name.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit">
-<span class="co"># examine the other objects loaded from supplied data</span>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># examine the other objects loaded from supplied data</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">adminzones</span><span class="op">)</span>
 <span class="co">#&gt; Simple feature collection with 6 features and 1 field</span>
-<span class="co">#&gt; geometry type:  POLYGON</span>
-<span class="co">#&gt; dimension:      XY</span>
-<span class="co">#&gt; bbox:           xmin: 32.60589 ymin: 0.3277355 xmax: 32.62531 ymax: 0.3388665</span>
-<span class="co">#&gt; geographic CRS: WGS 84</span>
+<span class="co">#&gt; Geometry type: POLYGON</span>
+<span class="co">#&gt; Dimension:     XY</span>
+<span class="co">#&gt; Bounding box:  xmin: 32.60589 ymin: 0.3277355 xmax: 32.62531 ymax: 0.3388665</span>
+<span class="co">#&gt; Geodetic CRS:  WGS 84</span>
 <span class="co">#&gt;   Id                       geometry</span>
 <span class="co">#&gt; 1  1 POLYGON ((32.61231 0.327771...</span>
 <span class="co">#&gt; 2  2 POLYGON ((32.61034 0.335317...</span>
@@ -357,10 +361,10 @@ Sample buildings and zones in Kampala
 <span class="co">#&gt; 6  6 POLYGON ((32.62498 0.335199...</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">clusters</span><span class="op">)</span>
 <span class="co">#&gt; Simple feature collection with 6 features and 1 field</span>
-<span class="co">#&gt; geometry type:  POLYGON</span>
-<span class="co">#&gt; dimension:      XY</span>
-<span class="co">#&gt; bbox:           xmin: 32.60624 ymin: 0.3303863 xmax: 32.63375 ymax: 0.3472696</span>
-<span class="co">#&gt; geographic CRS: WGS 84</span>
+<span class="co">#&gt; Geometry type: POLYGON</span>
+<span class="co">#&gt; Dimension:     XY</span>
+<span class="co">#&gt; Bounding box:  xmin: 32.60624 ymin: 0.3303863 xmax: 32.63375 ymax: 0.3472696</span>
+<span class="co">#&gt; Geodetic CRS:  WGS 84</span>
 <span class="co">#&gt;   Id                       geometry</span>
 <span class="co">#&gt; 1  1 POLYGON ((32.6066 0.3398617...</span>
 <span class="co">#&gt; 2  2 POLYGON ((32.61151 0.337602...</span>
@@ -369,85 +373,85 @@ Sample buildings and zones in Kampala
 <span class="co">#&gt; 5  5 POLYGON ((32.62552 0.345516...</span>
 <span class="co">#&gt; 6  6 POLYGON ((32.63225 0.340927...</span>
 
-<span class="co"># Return a table of index values based on administrative zone polygons using the</span>
-<span class="co"># standalone function within `foot`</span>
+<span class="co"># Return a table of index values based on administrative zone polygons using</span>
+<span class="co"># the standalone function within `foot`</span>
 <span class="va">zID</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/zonalIndex.html">zonalIndex</a></span><span class="op">(</span><span class="va">buildings</span>, <span class="va">adminzones</span>, returnObject <span class="op">=</span> <span class="cn">F</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">zID</span>, <span class="fl">10</span><span class="op">)</span>  <span class="co"># the xID column are row numbers to object X</span>
 <span class="co">#&gt;      xID zoneID</span>
-<span class="co">#&gt;  1:   30      1</span>
-<span class="co">#&gt;  2:  356      1</span>
-<span class="co">#&gt;  3:  397      1</span>
-<span class="co">#&gt;  4:  902      1</span>
-<span class="co">#&gt;  5:  965      1</span>
-<span class="co">#&gt;  6: 1013      1</span>
-<span class="co">#&gt;  7: 1409      1</span>
-<span class="co">#&gt;  8: 1832      1</span>
-<span class="co">#&gt;  9: 1902      1</span>
-<span class="co">#&gt; 10: 2394      1</span>
+<span class="co">#&gt;  1:  407      1</span>
+<span class="co">#&gt;  2:  411      1</span>
+<span class="co">#&gt;  3:  419      1</span>
+<span class="co">#&gt;  4:  525      1</span>
+<span class="co">#&gt;  5:  956      1</span>
+<span class="co">#&gt;  6: 1247      1</span>
+<span class="co">#&gt;  7: 1275      1</span>
+<span class="co">#&gt;  8: 1285      1</span>
+<span class="co">#&gt;  9: 1475      1</span>
+<span class="co">#&gt; 10: 2309      1</span>
 
 <span class="co"># Alternatively (and preferably), join zones to create a new footprint object A</span>
 <span class="co"># custom zone name can be used but must be specificed to the summary functions</span>
 <span class="va">zObj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/zonalIndex.html">zonalIndex</a></span><span class="op">(</span><span class="va">buildings</span>, <span class="va">clusters</span>, zoneField <span class="op">=</span> <span class="st">"Id"</span>, returnObject <span class="op">=</span> <span class="cn">T</span><span class="op">)</span>
 <span class="va">zObj</span>
 <span class="co">#&gt; Simple feature collection with 348 features and 3 fields</span>
-<span class="co">#&gt; geometry type:  POLYGON</span>
-<span class="co">#&gt; dimension:      XY</span>
-<span class="co">#&gt; bbox:           xmin: 32.60631 ymin: 0.328119 xmax: 32.63543 ymax: 0.349785</span>
-<span class="co">#&gt; geographic CRS: WGS 84</span>
+<span class="co">#&gt; Geometry type: POLYGON</span>
+<span class="co">#&gt; Dimension:     XY</span>
+<span class="co">#&gt; Bounding box:  xmin: 32.60631 ymin: 0.328119 xmax: 32.63543 ymax: 0.349785</span>
+<span class="co">#&gt; Geodetic CRS:  WGS 84</span>
 <span class="co">#&gt; First 10 features:</span>
 <span class="co">#&gt;     FID_1 id Id                       geometry</span>
-<span class="co">#&gt; 1   29106  1  1 POLYGON ((32.60719 0.339276...</span>
-<span class="co">#&gt; 2  152325  1  1 POLYGON ((32.60837 0.339845...</span>
-<span class="co">#&gt; 3  216992  1  1 POLYGON ((32.60818 0.339228...</span>
-<span class="co">#&gt; 4    6293  2  1 POLYGON ((32.60744 0.338575...</span>
-<span class="co">#&gt; 5   59496  2  1 POLYGON ((32.60692 0.339387...</span>
-<span class="co">#&gt; 6  101340  2  1 POLYGON ((32.6071 0.338821,...</span>
-<span class="co">#&gt; 7  127999  2  1 POLYGON ((32.60704 0.339857...</span>
-<span class="co">#&gt; 8  342558  2  1 POLYGON ((32.60765 0.338418...</span>
-<span class="co">#&gt; 9  376783  2  1 POLYGON ((32.60747 0.338611...</span>
-<span class="co">#&gt; 10 379094  2  1 POLYGON ((32.60678 0.339284...</span></pre></div>
+<span class="co">#&gt; 1   53393  1  1 POLYGON ((32.60778 0.339552...</span>
+<span class="co">#&gt; 2  361577  1  1 POLYGON ((32.60825 0.33937,...</span>
+<span class="co">#&gt; 3   78504  2  1 POLYGON ((32.60703 0.338654...</span>
+<span class="co">#&gt; 4  152325  3  1 POLYGON ((32.60822 0.339845...</span>
+<span class="co">#&gt; 5  238291  3  1 POLYGON ((32.6073 0.33897, ...</span>
+<span class="co">#&gt; 6   59496  4  1 POLYGON ((32.60698 0.339543...</span>
+<span class="co">#&gt; 7  257296  4  1 POLYGON ((32.60692 0.339061...</span>
+<span class="co">#&gt; 8  342558  4  1 POLYGON ((32.6075 0.338525,...</span>
+<span class="co">#&gt; 9  372983  4  1 POLYGON ((32.6076 0.338532,...</span>
+<span class="co">#&gt; 10 376783  4  1 POLYGON ((32.60747 0.338662...</span></code></pre></div>
 <p>When using a new spatial object which has been joined to its zones, remember to supply the name of the zone field to <code>calculate_foostats</code>.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit">
-<span class="co"># use the new object and zone field 'Id' in a summary calculation</span>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># use the new object and zone field 'Id' in a summary calculation</span>
 <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">zObj</span><span class="op">)</span>
 <span class="co">#&gt; [1] "FID_1"    "id"       "Id"       "geometry"</span>
 
 <span class="va">zarea</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calculate_footstats.html">calculate_footstats</a></span><span class="op">(</span><span class="va">zObj</span>, zone <span class="op">=</span> <span class="st">"Id"</span>, what <span class="op">=</span> <span class="st">"area"</span>, how <span class="op">=</span> <span class="st">"mean"</span>, verbose <span class="op">=</span> <span class="cn">F</span><span class="op">)</span>
 <span class="va">clusters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/merge.html">merge</a></span><span class="op">(</span><span class="va">clusters</span>, <span class="va">zarea</span>, by <span class="op">=</span> <span class="st">"Id"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">adminzones</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span><span class="op">(</span><span class="va">clusters</span><span class="op">[</span><span class="st">"area_mean"</span><span class="op">]</span>, add <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></pre></div>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">adminzones</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">clusters</span><span class="op">[</span><span class="st">"area_mean"</span><span class="op">]</span>, add <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></code></pre></div>
 <p><img src="footsteps_files/figure-html/fsFig3-1.png" width="576"></p>
 <p>The <code>zonalIndex</code> function works by spatial intersection. This produces some (potentially useful) side effects that users need to be aware of. Specifically, note that if a building footprint intersects more than 1 zone it will be duplicated and associated to all intersecting zones.</p>
 <p>The default behaviour (see <code>method</code>) is to assign a building to a zone based on its <strong>centroid</strong>.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit">
-<span class="co"># Note the selected structures extend beyond the cluster boundary</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">clusters</span><span class="op">)</span><span class="op">[[</span><span class="fl">6</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">buildings</span><span class="op">)</span>, add <span class="op">=</span> <span class="cn">T</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">zObj</span><span class="op">[</span><span class="va">zObj</span><span class="op">$</span><span class="va">Id</span> <span class="op">==</span> <span class="fl">6</span>, <span class="op">]</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"red"</span>, add <span class="op">=</span> <span class="cn">T</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/geos_unary.html">st_centroid</a></span><span class="op">(</span><span class="va">zObj</span><span class="op">[</span><span class="va">zObj</span><span class="op">$</span><span class="va">Id</span> <span class="op">==</span> <span class="fl">6</span>, <span class="op">]</span><span class="op">)</span><span class="op">)</span>, pch <span class="op">=</span> <span class="fl">16</span>, add <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></pre></div>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># Note the selected structures extend beyond the cluster boundary</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">clusters</span><span class="op">)</span><span class="op">[[</span><span class="fl">6</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">buildings</span><span class="op">)</span>, add <span class="op">=</span> <span class="cn">T</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">zObj</span><span class="op">[</span><span class="va">zObj</span><span class="op">$</span><span class="va">Id</span> <span class="op">==</span> <span class="fl">6</span>, <span class="op">]</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"red"</span>, add <span class="op">=</span> <span class="cn">T</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/geos_unary.html">st_centroid</a></span><span class="op">(</span><span class="va">zObj</span><span class="op">[</span><span class="va">zObj</span><span class="op">$</span><span class="va">Id</span> <span class="op">==</span> <span class="fl">6</span>, <span class="op">]</span><span class="op">)</span><span class="op">)</span>, pch <span class="op">=</span> <span class="fl">16</span>, add <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></code></pre></div>
 <p><img src="footsteps_files/figure-html/fsFig4-1.png" width="700"></p>
 <p>Alternatively, an intersection can be used to assign footprints to any zones which are intersected. The whole footprint is associated, even if the shape is not “contained” by the zone.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit">
-<span class="co"># Note the selected structures extend beyond the cluster boundary</span>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># Note the selected structures extend beyond the cluster boundary</span>
 <span class="va">zInt</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/zonalIndex.html">zonalIndex</a></span><span class="op">(</span><span class="va">buildings</span>, <span class="va">clusters</span>, zoneField <span class="op">=</span> <span class="st">"Id"</span>, method <span class="op">=</span> <span class="st">"intersect"</span><span class="op">)</span>
 
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">clusters</span><span class="op">)</span><span class="op">[[</span><span class="fl">6</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">buildings</span><span class="op">)</span>, add <span class="op">=</span> <span class="cn">T</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">zInt</span><span class="op">[</span><span class="va">zInt</span><span class="op">$</span><span class="va">Id</span> <span class="op">==</span> <span class="fl">6</span>, <span class="op">]</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"red"</span>, add <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></pre></div>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">clusters</span><span class="op">)</span><span class="op">[[</span><span class="fl">6</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">buildings</span><span class="op">)</span>, add <span class="op">=</span> <span class="cn">T</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">zInt</span><span class="op">[</span><span class="va">zInt</span><span class="op">$</span><span class="va">Id</span> <span class="op">==</span> <span class="fl">6</span>, <span class="op">]</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"red"</span>, add <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></code></pre></div>
 <p><img src="footsteps_files/figure-html/fsFig5-1.png" width="700"></p>
 <p>Finally, the intersection can return a clipped set of buildings.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit">
-<span class="va">zClip</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/zonalIndex.html">zonalIndex</a></span><span class="op">(</span><span class="va">buildings</span>, <span class="va">clusters</span>, zoneField <span class="op">=</span> <span class="st">"Id"</span>, method <span class="op">=</span> <span class="st">"clip"</span><span class="op">)</span>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">zClip</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/zonalIndex.html">zonalIndex</a></span><span class="op">(</span><span class="va">buildings</span>, <span class="va">clusters</span>, zoneField <span class="op">=</span> <span class="st">"Id"</span>, method <span class="op">=</span> <span class="st">"clip"</span><span class="op">)</span>
 
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">clusters</span><span class="op">)</span><span class="op">[[</span><span class="fl">6</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">buildings</span><span class="op">)</span>, add <span class="op">=</span> <span class="cn">T</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">zClip</span><span class="op">[</span><span class="va">zClip</span><span class="op">$</span><span class="va">Id</span> <span class="op">==</span> <span class="fl">6</span>, <span class="op">]</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"red"</span>, add <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></pre></div>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">clusters</span><span class="op">)</span><span class="op">[[</span><span class="fl">6</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">buildings</span><span class="op">)</span>, add <span class="op">=</span> <span class="cn">T</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">zClip</span><span class="op">[</span><span class="va">zClip</span><span class="op">$</span><span class="va">Id</span> <span class="op">==</span> <span class="fl">6</span>, <span class="op">]</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"red"</span>, add <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></code></pre></div>
 <p><img src="footsteps_files/figure-html/fsFig6-1.png" width="700"></p>
 <p>This third option clips the footprints via intersection, potentially leaving small slivers of structures in the zone which will affect the feature statistics.</p>
 <p>An additional side effect of the intersection operation is that overlapping zones are allowed, and this can duplicate and associate footprints into both (overlapping) zones.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit">
-<span class="co"># create a temporary shape by shifting one cluster</span>
-<span class="va">newClusters</span> <span class="op">&lt;-</span> <span class="fu">st_sfc</span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">clusters</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_cast.html">st_cast</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">clusters</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">+</span> 
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># create a temporary shape by shifting one cluster</span>
+<span class="va">newClusters</span> <span class="op">&lt;-</span> <span class="fu">st_sfc</span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">clusters</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_cast.html">st_cast</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">clusters</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">+</span>
     <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.001</span>, <span class="fl">1e-04</span><span class="op">)</span>, <span class="st">"POLYGON"</span><span class="op">)</span>, crs <span class="op">=</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_crs.html">st_crs</a></span><span class="op">(</span><span class="va">clusters</span><span class="op">)</span><span class="op">)</span>
 
 <span class="va">newClusters</span> <span class="op">&lt;-</span> <span class="fu">st_sf</span><span class="op">(</span>geometry <span class="op">=</span> <span class="va">newClusters</span>, crs <span class="op">=</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_crs.html">st_crs</a></span><span class="op">(</span><span class="va">clusters</span><span class="op">)</span><span class="op">)</span>
@@ -455,11 +459,11 @@ Sample buildings and zones in Kampala
 <span class="va">newObj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/zonalIndex.html">zonalIndex</a></span><span class="op">(</span><span class="va">buildings</span>, <span class="va">newClusters</span>, method <span class="op">=</span> <span class="st">"clip"</span><span class="op">)</span>
 
 <span class="co"># areas of overlap are in a purple hue</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">newClusters</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">newObj</span><span class="op">[</span><span class="va">newObj</span><span class="op">$</span><span class="va">zoneID</span> <span class="op">==</span> <span class="fl">1</span>, <span class="op">]</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"red"</span>, add <span class="op">=</span> <span class="cn">T</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">newObj</span><span class="op">[</span><span class="va">newObj</span><span class="op">$</span><span class="va">zoneID</span> <span class="op">==</span> <span class="fl">2</span>, <span class="op">]</span><span class="op">)</span>, col <span class="op">=</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/plot.html">sf.colors</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">1</span>, alpha <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span>, 
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">newClusters</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">newObj</span><span class="op">[</span><span class="va">newObj</span><span class="op">$</span><span class="va">zoneID</span> <span class="op">==</span> <span class="fl">1</span>, <span class="op">]</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"red"</span>, add <span class="op">=</span> <span class="cn">T</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">newObj</span><span class="op">[</span><span class="va">newObj</span><span class="op">$</span><span class="va">zoneID</span> <span class="op">==</span> <span class="fl">2</span>, <span class="op">]</span><span class="op">)</span>, col <span class="op">=</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/plot.html">sf.colors</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">1</span>, alpha <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span>,
     add <span class="op">=</span> <span class="cn">T</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">buildings</span><span class="op">)</span>, add <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></pre></div>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html">st_geometry</a></span><span class="op">(</span><span class="va">buildings</span><span class="op">)</span>, add <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></code></pre></div>
 <p><img src="footsteps_files/figure-html/fsFig7-1.png" width="700"></p>
 <p>These side effects are allowed because they allow for flexibility to support types of “focal” summaries of statistics and to produce a true gridded measure of footprint metrics.</p>
 </div>
@@ -468,8 +472,8 @@ Sample buildings and zones in Kampala
 <h2 class="hasAnchor">
 <a href="#calculating-multiple-metrics" class="anchor"></a>Calculating multiple metrics</h2>
 <p>The <code><a href="../reference/calculate_footstats.html">calculate_footstats()</a></code> function provides a convenient wrapper to the individual footprint statistics and as well to <code>zonalIndex</code>. The function accepts a variety of input formats (see <code><a href="../reference/calculate_footstats.html">?calculate_footstats</a></code>). Multiple metrics can be calculated for the same sets of buildings and zones.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit">
-<span class="co"># Creates a zonal index and calculates multiple metrics</span>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># Creates a zonal index and calculates multiple metrics</span>
 <span class="co"># Use the intersection method define zones</span>
 <span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calculate_footstats.html">calculate_footstats</a></span><span class="op">(</span><span class="va">buildings</span>, 
                                zone<span class="op">=</span><span class="va">adminzones</span>, 
@@ -480,43 +484,43 @@ Sample buildings and zones in Kampala
                               <span class="op">)</span>
   <span class="va">results</span>
 <span class="co">#&gt;     zoneID        area_mean   area_cv</span>
-<span class="co">#&gt;  1:      1  402.59838 [m^2] 1.2479809</span>
-<span class="co">#&gt;  2:      2  211.05341 [m^2] 1.1069491</span>
-<span class="co">#&gt;  3:      3  525.07469 [m^2] 1.9194754</span>
-<span class="co">#&gt;  4:      4  555.09314 [m^2] 3.8206699</span>
-<span class="co">#&gt;  5:      5  568.71544 [m^2] 1.7000587</span>
-<span class="co">#&gt;  6:      6 1021.95294 [m^2] 2.0652377</span>
-<span class="co">#&gt;  7:      7 2027.70402 [m^2] 1.4077033</span>
-<span class="co">#&gt;  8:      8  908.24803 [m^2] 1.4225521</span>
-<span class="co">#&gt;  9:      9  181.68220 [m^2] 1.6104922</span>
-<span class="co">#&gt; 10:     10  251.99721 [m^2] 1.5272718</span>
-<span class="co">#&gt; 11:     11  220.11253 [m^2] 1.4300230</span>
-<span class="co">#&gt; 12:     12   87.83690 [m^2] 1.2659928</span>
-<span class="co">#&gt; 13:     13  661.61890 [m^2] 1.7191007</span>
-<span class="co">#&gt; 14:     14   81.85444 [m^2] 0.3447115</span>
-<span class="co">#&gt; 15:     15   80.78532 [m^2] 1.0115881</span>
-<span class="co">#&gt; 16:     16   68.75161 [m^2] 0.5102143</span>
-<span class="co">#&gt; 17:     17  139.17524 [m^2] 0.8678702</span>
-<span class="co">#&gt; 18:     18   87.23691 [m^2] 1.5248900</span>
-<span class="co">#&gt; 19:     19  237.07627 [m^2] 0.6189696</span>
-<span class="co">#&gt; 20:     20  199.39362 [m^2] 0.9103598</span>
-<span class="co">#&gt; 21:     21  244.09906 [m^2] 2.4147823</span>
-<span class="co">#&gt; 22:     22  192.39558 [m^2] 0.3464272</span>
-<span class="co">#&gt; 23:     23  776.00000 [m^2] 2.1447695</span>
-<span class="co">#&gt; 24:     24  219.27229 [m^2] 0.7972001</span>
-<span class="co">#&gt; 25:     25  506.22155 [m^2] 1.3228666</span>
-<span class="co">#&gt; 26:     26 1129.64270 [m^2] 1.7076343</span>
-<span class="co">#&gt; 27:     27  228.00865 [m^2] 2.2623265</span>
-<span class="co">#&gt; 28:     29  238.76025 [m^2] 2.7887959</span>
-<span class="co">#&gt; 29:     30  203.68136 [m^2] 0.8303153</span>
-<span class="co">#&gt; 30:     31  142.13649 [m^2]        NA</span>
-<span class="co">#&gt; 31:     32  272.76984 [m^2] 1.0894764</span>
-<span class="co">#&gt; 32:     33  418.66391 [m^2] 0.9787568</span>
-<span class="co">#&gt; 33:     34  176.81732 [m^2] 1.3707628</span>
-<span class="co">#&gt;     zoneID        area_mean   area_cv</span></pre></div>
+<span class="co">#&gt;  1:      1  404.40622 [m^2] 1.2479809</span>
+<span class="co">#&gt;  2:      2  212.00113 [m^2] 1.1069491</span>
+<span class="co">#&gt;  3:      3  527.43250 [m^2] 1.9194754</span>
+<span class="co">#&gt;  4:      4  557.58574 [m^2] 3.8206699</span>
+<span class="co">#&gt;  5:      5  571.26921 [m^2] 1.7000587</span>
+<span class="co">#&gt;  6:      6 1026.54193 [m^2] 2.0652378</span>
+<span class="co">#&gt;  7:      7 2036.80923 [m^2] 1.4077033</span>
+<span class="co">#&gt;  8:      8  912.32644 [m^2] 1.4225521</span>
+<span class="co">#&gt;  9:      9  182.49803 [m^2] 1.6104922</span>
+<span class="co">#&gt; 10:     10  253.12878 [m^2] 1.5272719</span>
+<span class="co">#&gt; 11:     11  221.10092 [m^2] 1.4300230</span>
+<span class="co">#&gt; 12:     12   88.23133 [m^2] 1.2659927</span>
+<span class="co">#&gt; 13:     13  664.58989 [m^2] 1.7191007</span>
+<span class="co">#&gt; 14:     14   82.22200 [m^2] 0.3447115</span>
+<span class="co">#&gt; 15:     15   81.14808 [m^2] 1.0115881</span>
+<span class="co">#&gt; 16:     16   69.06033 [m^2] 0.5102143</span>
+<span class="co">#&gt; 17:     17  139.80020 [m^2] 0.8678702</span>
+<span class="co">#&gt; 18:     18   87.62864 [m^2] 1.5248900</span>
+<span class="co">#&gt; 19:     19  238.14083 [m^2] 0.6189696</span>
+<span class="co">#&gt; 20:     20  200.28897 [m^2] 0.9103598</span>
+<span class="co">#&gt; 21:     21  245.19516 [m^2] 2.4147823</span>
+<span class="co">#&gt; 22:     22  193.25951 [m^2] 0.3464272</span>
+<span class="co">#&gt; 23:     23  779.48455 [m^2] 2.1447695</span>
+<span class="co">#&gt; 24:     24  220.25691 [m^2] 0.7972001</span>
+<span class="co">#&gt; 25:     25  508.49467 [m^2] 1.3228666</span>
+<span class="co">#&gt; 26:     26 1143.07662 [m^2] 1.6994280</span>
+<span class="co">#&gt; 27:     27  229.03249 [m^2] 2.2623265</span>
+<span class="co">#&gt; 28:     29  239.83238 [m^2] 2.7887959</span>
+<span class="co">#&gt; 29:     30  204.59597 [m^2] 0.8303153</span>
+<span class="co">#&gt; 30:     31  142.77472 [m^2]        NA</span>
+<span class="co">#&gt; 31:     32  273.99468 [m^2] 1.0894764</span>
+<span class="co">#&gt; 32:     33  420.54389 [m^2] 0.9787568</span>
+<span class="co">#&gt; 33:     34  177.61130 [m^2] 1.3707628</span>
+<span class="co">#&gt;     zoneID        area_mean   area_cv</span></code></pre></div>
 <p>Multiple metrics can be applied to specific groups of characteristics by providing nested lists of metrics and summary functions. The argument <code>what</code> will accept a string or a list of strings for specific metric names. Users may also supply <code>"all"</code> or <code>"nodist"</code> to calculate all available metrics or all bar the nearest neighbour distance-related ones, respectively. Excluding the distance-related metrics can speed up the calculations due to the long-running. Other performance improvements can be to set <code>controlDistance=list("method"="centroid")</code>, which uses centroid-to-centroid nearest neighbour distances rather than polygon edge-to-edge. See also, <code><a href="../reference/fs_nndist.html">?fs_nndist</a></code>.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit">
-<span class="co"># Use nested lists to group characteristics and summary functions</span>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># Use nested lists to group characteristics and summary functions</span>
 <span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calculate_footstats.html">calculate_footstats</a></span><span class="op">(</span><span class="va">buildings</span>, 
                                zone<span class="op">=</span><span class="va">adminzones</span>, 
                                what<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="st">"area"</span>,<span class="st">"perimeter"</span><span class="op">)</span>, 
@@ -528,39 +532,39 @@ Sample buildings and zones in Kampala
                               <span class="op">)</span>
   <span class="va">results</span>
 <span class="co">#&gt;     zoneID          area_sum   perimeter_sum   area_cv perimeter_cv</span>
-<span class="co">#&gt;  1:      1   8454.5661 [m^2]  1781.62245 [m] 1.2479809    0.6561304</span>
-<span class="co">#&gt;  2:      2  29758.5314 [m^2]  8596.30974 [m] 1.1069491    0.7313348</span>
-<span class="co">#&gt;  3:      3  25728.6600 [m^2]  4414.86934 [m] 1.9194754    0.9811076</span>
-<span class="co">#&gt;  4:      4  63835.7113 [m^2]  9640.94681 [m] 3.8206699    1.0600954</span>
-<span class="co">#&gt;  5:      5  26729.6259 [m^2]  4329.10334 [m] 1.7000587    0.9581201</span>
-<span class="co">#&gt;  6:      6  35768.3531 [m^2]  3835.74843 [m] 2.0652377    0.9616081</span>
-<span class="co">#&gt;  7:      7  28387.8563 [m^2]  2565.09927 [m] 1.4077033    0.9286094</span>
-<span class="co">#&gt;  8:      8  44504.1537 [m^2]  6348.37632 [m] 1.4225521    0.8489816</span>
-<span class="co">#&gt;  9:      9  48145.7825 [m^2] 15739.78807 [m] 1.6104922    0.9246860</span>
-<span class="co">#&gt; 10:     10   7559.9164 [m^2]  2087.88260 [m] 1.5272718    1.0900293</span>
-<span class="co">#&gt; 11:     11  24212.3780 [m^2]  7672.66021 [m] 1.4300230    0.8815988</span>
-<span class="co">#&gt; 12:     12   3109.8042 [m^2]  1403.25960 [m] 1.3014215    0.7257624</span>
-<span class="co">#&gt; 13:     13   2646.4756 [m^2]   423.87801 [m] 1.7191007    1.3165558</span>
-<span class="co">#&gt; 14:     14   6712.0641 [m^2]  3088.40482 [m] 0.3447115    0.2059276</span>
-<span class="co">#&gt; 15:     15  19226.9062 [m^2]  8676.96497 [m] 1.0115881    0.5073846</span>
-<span class="co">#&gt; 16:     16   9900.2318 [m^2]  4968.39946 [m] 0.5102143    0.3095971</span>
-<span class="co">#&gt; 17:     17  14752.5754 [m^2]  5213.18182 [m] 0.8678702    0.5541695</span>
-<span class="co">#&gt; 18:     18  36895.4355 [m^2] 15742.13708 [m] 1.5308486    0.7093738</span>
-<span class="co">#&gt; 19:     19  96490.0399 [m^2] 26354.10548 [m] 0.6189696    0.4151437</span>
-<span class="co">#&gt; 20:     20  80355.6287 [m^2] 23566.14546 [m] 0.9103598    0.5257108</span>
-<span class="co">#&gt; 21:     21  18063.3304 [m^2]  4403.44976 [m] 2.4147823    0.7810948</span>
-<span class="co">#&gt; 22:     22  10196.9657 [m^2]  3061.47987 [m] 0.3464272    0.2238327</span>
-<span class="co">#&gt; 23:     23 132673.0618 [m^2] 17464.78357 [m] 2.1625263    1.1205392</span>
-<span class="co">#&gt; 24:     24  61834.7854 [m^2] 17707.47705 [m] 0.7972001    0.5317242</span>
-<span class="co">#&gt; 25:     25  11643.0956 [m^2]  2163.70761 [m] 1.3228666    0.8940386</span>
-<span class="co">#&gt; 26:     26 150208.7190 [m^2] 17604.40321 [m] 1.6814458    1.0767096</span>
-<span class="co">#&gt; 27:     27  33816.8355 [m^2] 10017.95165 [m] 0.7963207    0.4462858</span>
-<span class="co">#&gt; 28:     29  37007.8380 [m^2]  9185.83050 [m] 2.7887959    1.0713172</span>
-<span class="co">#&gt; 29:     30  15276.1021 [m^2]  4621.61764 [m] 0.8303153    0.5426390</span>
-<span class="co">#&gt; 30:     31    142.1365 [m^2]    48.13661 [m]        NA           NA</span>
-<span class="co">#&gt; 31:     32  35732.8487 [m^2]  9127.30909 [m] 1.0894764    0.6469339</span>
-<span class="co">#&gt; 32:     33   7117.2864 [m^2]  1557.24261 [m] 0.9787568    0.6104610</span>
-<span class="co">#&gt; 33:     34 146935.1905 [m^2] 47733.83601 [m] 1.3707628    0.7474269</span>
+<span class="co">#&gt;  1:      1   8492.5307 [m^2]  1781.62245 [m] 1.2479809    0.6561304</span>
+<span class="co">#&gt;  2:      2  29892.1595 [m^2]  8596.30974 [m] 1.1069491    0.7313348</span>
+<span class="co">#&gt;  3:      3  25844.1923 [m^2]  4414.86934 [m] 1.9194754    0.9811076</span>
+<span class="co">#&gt;  4:      4  64122.3606 [m^2]  9640.94681 [m] 3.8206699    1.0600954</span>
+<span class="co">#&gt;  5:      5  26849.6529 [m^2]  4329.10334 [m] 1.7000587    0.9581201</span>
+<span class="co">#&gt;  6:      6  35928.9675 [m^2]  3835.74843 [m] 2.0652378    0.9616081</span>
+<span class="co">#&gt;  7:      7  28515.3292 [m^2]  2565.09927 [m] 1.4077033    0.9286094</span>
+<span class="co">#&gt;  8:      8  44703.9953 [m^2]  6348.37632 [m] 1.4225521    0.8489816</span>
+<span class="co">#&gt;  9:      9  48361.9770 [m^2] 15739.78807 [m] 1.6104922    0.9246860</span>
+<span class="co">#&gt; 10:     10   7593.8634 [m^2]  2087.88260 [m] 1.5272719    1.0900293</span>
+<span class="co">#&gt; 11:     11  24321.1016 [m^2]  7672.66021 [m] 1.4300230    0.8815988</span>
+<span class="co">#&gt; 12:     12   3123.7687 [m^2]  1403.25960 [m] 1.3014214    0.7257624</span>
+<span class="co">#&gt; 13:     13   2658.3596 [m^2]   423.87801 [m] 1.7191007    1.3165558</span>
+<span class="co">#&gt; 14:     14   6742.2042 [m^2]  3088.40482 [m] 0.3447115    0.2059276</span>
+<span class="co">#&gt; 15:     15  19313.2428 [m^2]  8676.96497 [m] 1.0115881    0.5073846</span>
+<span class="co">#&gt; 16:     16   9944.6881 [m^2]  4968.39946 [m] 0.5102143    0.3095971</span>
+<span class="co">#&gt; 17:     17  14818.8207 [m^2]  5213.18182 [m] 0.8678702    0.5541695</span>
+<span class="co">#&gt; 18:     18  37061.1108 [m^2] 15742.13708 [m] 1.5308487    0.7093738</span>
+<span class="co">#&gt; 19:     19  96923.3173 [m^2] 26354.10548 [m] 0.6189696    0.4151437</span>
+<span class="co">#&gt; 20:     20  80716.4561 [m^2] 23566.14546 [m] 0.9103598    0.5257108</span>
+<span class="co">#&gt; 21:     21  18144.4417 [m^2]  4403.44976 [m] 2.4147823    0.7810948</span>
+<span class="co">#&gt; 22:     22  10242.7539 [m^2]  3061.47987 [m] 0.3464272    0.2238327</span>
+<span class="co">#&gt; 23:     23 133268.8176 [m^2] 17464.78357 [m] 2.1625263    1.1205392</span>
+<span class="co">#&gt; 24:     24  62112.4473 [m^2] 17707.47705 [m] 0.7972001    0.5317242</span>
+<span class="co">#&gt; 25:     25  11695.3775 [m^2]  2163.70761 [m] 1.3228666    0.8940386</span>
+<span class="co">#&gt; 26:     26 150883.2148 [m^2] 17604.40321 [m] 1.6814458    1.0767096</span>
+<span class="co">#&gt; 27:     27  33968.6861 [m^2] 10017.95165 [m] 0.7963207    0.4462858</span>
+<span class="co">#&gt; 28:     29  37174.0182 [m^2]  9185.83050 [m] 2.7887959    1.0713172</span>
+<span class="co">#&gt; 29:     30  15344.6975 [m^2]  4621.61764 [m] 0.8303153    0.5426390</span>
+<span class="co">#&gt; 30:     31    142.7747 [m^2]    48.13661 [m]        NA           NA</span>
+<span class="co">#&gt; 31:     32  35893.3028 [m^2]  9127.30909 [m] 1.0894764    0.6469339</span>
+<span class="co">#&gt; 32:     33   7149.2461 [m^2]  1557.24261 [m] 0.9787568    0.6104610</span>
+<span class="co">#&gt; 33:     34 147594.9907 [m^2] 47733.83601 [m] 1.3707628    0.7474269</span>
 <span class="co">#&gt;     zoneID          area_sum   perimeter_sum   area_cv perimeter_cv</span>
 <span class="co">#&gt;     settled_count</span>
 <span class="co">#&gt;  1:            21</span>
@@ -596,13 +600,13 @@ Sample buildings and zones in Kampala
 <span class="co">#&gt; 31:           131</span>
 <span class="co">#&gt; 32:            17</span>
 <span class="co">#&gt; 33:           831</span>
-<span class="co">#&gt;     settled_count</span></pre></div>
+<span class="co">#&gt;     settled_count</span></code></pre></div>
 <div id="filtering-buildings" class="section level3">
 <h3 class="hasAnchor">
 <a href="#filtering-buildings" class="anchor"></a>Filtering buildings</h3>
 <p>In some settings it may be preferable to exclude very small and/or very large building footprint polygons. The lower and upper bounds for filtering can be specified with <code>minArea</code> and <code>maxArea</code> in the <code>filter</code> argument. The values for these filters are in the same units specified by <code>controlUnits</code> or the default value for area calculations. Note that an “area” footprint statistic does not need to be requested as this characteristic is automatically calculated to enable filtering.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit">
-<span class="co"># Filtering: # footprints must be larger than 50 m^2 and smaller than 1000 m^2</span>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># Filtering: # footprints must be larger than 50 m^2 and smaller than 1000 m^2</span>
 <span class="fu"><a href="../reference/calculate_footstats.html">calculate_footstats</a></span><span class="op">(</span><span class="va">buildings</span>,
                     what<span class="op">=</span><span class="st">"perimeter"</span>,
                     how<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="st">"mean"</span>, <span class="st">"sum"</span><span class="op">)</span>,
@@ -610,7 +614,7 @@ Sample buildings and zones in Kampala
                     filter<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>minArea<span class="op">=</span><span class="fl">50</span>, maxArea<span class="op">=</span><span class="fl">1000</span><span class="op">)</span>,
                     verbose<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span>  
 <span class="co">#&gt;    zoneID perimeter_mean perimeter_sum</span>
-<span class="co">#&gt; 1:      1   63.16899 [m]  228482.2 [m]</span></pre></div>
+<span class="co">#&gt; 1:      1   63.06881 [m]  228561.4 [m]</span></code></pre></div>
 </div>
 </div>
 <div id="next-steps" class="section level2">
@@ -618,9 +622,9 @@ Sample buildings and zones in Kampala
 <a href="#next-steps" class="anchor"></a>Next steps</h2>
 <p>The <code>calculate_footstats</code> function provides the core functionality for calculating and summarising the characteristics of building footprints. It also wraps the functionality of assigning footprints to zones based on different spatial joining techniques. To go further with <code>foot</code> the concept of footprint morphology calculations can be extended to created gridded data. See <code><a href="../articles/bigfoot.html">vignette("bigfoot", package="foot")</a></code>. Additionally, users can specify their own custom summary functions to be used with <code>calculate_footstats</code>. This and other advanced options are covered in <code><a href="../articles/cobbler.html">vignette("cobbler", package="foot")</a></code>.</p>
 <hr>
-<div class="sourceCode" id="cb19"><pre class="downlit">
-<span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span><span class="op">(</span><span class="op">)</span>
-<span class="co">#&gt; R version 3.6.3 (2020-02-29)</span>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span><span class="op">(</span><span class="op">)</span>
+<span class="co">#&gt; R version 4.1.0 (2021-05-18)</span>
 <span class="co">#&gt; Platform: x86_64-pc-linux-gnu (64-bit)</span>
 <span class="co">#&gt; Running under: Ubuntu 20.04.2 LTS</span>
 <span class="co">#&gt; </span>
@@ -640,23 +644,27 @@ Sample buildings and zones in Kampala
 <span class="co">#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; other attached packages:</span>
-<span class="co">#&gt; [1] sf_0.9-6 foot_0.6</span>
+<span class="co">#&gt; [1] sf_1.0-0 foot_0.7</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; loaded via a namespace (and not attached):</span>
-<span class="co">#&gt;  [1] tidyselect_1.1.0   xfun_0.18          purrr_0.3.4        vctrs_0.3.4       </span>
-<span class="co">#&gt;  [5] generics_0.0.2     htmltools_0.4.0    stars_0.4-3        yaml_2.2.1        </span>
-<span class="co">#&gt;  [9] rlang_0.4.8        e1071_1.7-4        pkgdown_1.6.1      pillar_1.4.3      </span>
-<span class="co">#&gt; [13] glue_1.4.2         DBI_1.1.0          foreach_1.5.1      lifecycle_0.2.0   </span>
-<span class="co">#&gt; [17] stringr_1.4.0      ragg_0.3.1         codetools_0.2-16   memoise_1.1.0     </span>
-<span class="co">#&gt; [21] evaluate_0.14      knitr_1.30         doParallel_1.0.16  parallel_3.6.3    </span>
-<span class="co">#&gt; [25] class_7.3-16       highr_0.8          Rcpp_1.0.5         KernSmooth_2.23-16</span>
-<span class="co">#&gt; [29] backports_1.1.5    classInt_0.4-3     filelock_1.0.2     formatR_1.7       </span>
-<span class="co">#&gt; [33] lwgeom_0.2-5       desc_1.2.0         abind_1.4-5        systemfonts_0.3.2 </span>
-<span class="co">#&gt; [37] fs_1.3.1           digest_0.6.27      stringi_1.4.6      dplyr_1.0.2       </span>
-<span class="co">#&gt; [41] grid_3.6.3         rprojroot_1.3-2    tools_3.6.3        magrittr_1.5      </span>
-<span class="co">#&gt; [45] tibble_3.0.1       crayon_1.3.4       pkgconfig_2.0.3    ellipsis_0.3.1    </span>
-<span class="co">#&gt; [49] data.table_1.13.2  assertthat_0.2.1   rmarkdown_2.1      rstudioapi_0.11   </span>
-<span class="co">#&gt; [53] iterators_1.0.13   R6_2.5.0           units_0.6-7        compiler_3.6.3</span></pre></div>
+<span class="co">#&gt;  [1] Rcpp_1.0.6         lattice_0.20-44    class_7.3-19       rprojroot_2.0.2   </span>
+<span class="co">#&gt;  [5] digest_0.6.27      foreach_1.5.1      utf8_1.2.1         R6_2.5.0          </span>
+<span class="co">#&gt;  [9] evaluate_0.14      e1071_1.7-7        highr_0.9          pillar_1.6.1      </span>
+<span class="co">#&gt; [13] rlang_0.4.11       geosphere_1.5-10   data.table_1.14.0  jquerylib_0.1.3   </span>
+<span class="co">#&gt; [17] rmarkdown_2.9      pkgdown_1.6.1      textshaping_0.3.5  desc_1.3.0        </span>
+<span class="co">#&gt; [21] geos_0.1.1         stringr_1.4.0      proxy_0.4-26       compiler_4.1.0    </span>
+<span class="co">#&gt; [25] xfun_0.24          pkgconfig_2.0.3    systemfonts_1.0.2  htmltools_0.5.1.1 </span>
+<span class="co">#&gt; [29] tidyselect_1.1.0   tibble_3.1.2       codetools_0.2-18   fansi_0.5.0       </span>
+<span class="co">#&gt; [33] crayon_1.4.1       dplyr_1.0.5        wk_0.4.1           grid_4.1.0        </span>
+<span class="co">#&gt; [37] jsonlite_1.7.2     lwgeom_0.2-6       lifecycle_1.0.0    DBI_1.1.1         </span>
+<span class="co">#&gt; [41] magrittr_2.0.1     formatR_1.11       units_0.7-2        KernSmooth_2.23-20</span>
+<span class="co">#&gt; [45] stringi_1.6.2      cachem_1.0.5       libgeos_3.9.1-1    fs_1.5.0          </span>
+<span class="co">#&gt; [49] sp_1.4-5           doParallel_1.0.16  bslib_0.2.4        ellipsis_0.3.2    </span>
+<span class="co">#&gt; [53] filelock_1.0.2     ragg_1.1.3         generics_0.1.0     vctrs_0.3.8       </span>
+<span class="co">#&gt; [57] s2_1.0.6           iterators_1.0.13   tools_4.1.0        glue_1.4.2        </span>
+<span class="co">#&gt; [61] purrr_0.3.4        abind_1.4-5        parallel_4.1.0     fastmap_1.1.0     </span>
+<span class="co">#&gt; [65] yaml_2.2.1         stars_0.5-3        classInt_0.4-3     memoise_2.0.0     </span>
+<span class="co">#&gt; [69] knitr_1.33         sass_0.3.1</span></code></pre></div>
 </div>
   </div>
 

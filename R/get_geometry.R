@@ -47,6 +47,101 @@ fs_perimeter <- function(X, unit=NULL){
 }
 
 
+#' @title Length-width ratio
+#' @description Helper geometry function to measure calculate the ratio between
+#'   the length and width.
+#' @param X polygons of building footprints of type \code{sf}.
+#' @return numeric vector of length / width measured for each item in \code{X}.
+#' @details The length is defined as the longest side of the rotated minimum
+#'   bounding rectangle and the width is the shorter side.
+#'
+#' @name fs_lwratio
+#' @export
+fs_lwratio <- function(X){
+  if(!inherits(X, "sf")){
+    X <- sf::st_as_sf(X)
+  }
+  
+  if(any(!sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON"))){
+    stop("Shape index requires polygons")
+  } 
+  
+  mbr <- fs_mbr(X, returnShape = TRUE)
+  calc <- calc_lw(mbr)
+
+  return(calc[,1] / calc[,2])
+}
+
+
+#' @title Length to equivalent-width ratio
+#' @description Helper geometry function to measure calculate the ratio between
+#'   the length and the equivalent width.
+#' @param X polygons of building footprints of type \code{sf}.
+#' @param unit string indicating unit of measure. Passed to
+#'   \code{units::set_units}.
+#' @return numeric vector of length / width measured for each item in \code{X}.
+#' @details The length is defined as the longest side of the rotated minimum
+#'   bounding rectangle. The equivalent width is defined as the area of the
+#'   footprint divided by its length.
+#'
+#' @rdname fs_lwratio
+#' @export
+fs_leqwratio <- function(X, unit=NULL){
+  if(!inherits(X, "sf")){
+    X <- sf::st_as_sf(X)
+  }
+  
+  if(any(!sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON"))){
+    stop("Shape index requires polygons")
+  } 
+  
+  if(is.null(unit)){
+    unit <- "m^2"
+  }
+  
+  if(!"fs_area" %in% names(X)){
+    X[["fs_area"]] <- fs_area(X, unit=unit)
+  } else{
+    units(X$fs_area) <- units::as_units(unit)
+  }
+
+  mbr <- fs_mbr(X, returnShape = TRUE)
+  calc <- calc_lw(mbr)
+  ww <- units::drop_units(X$fs_area / calc[,1])
+  
+  return(calc[,1] / ww)
+}
+
+
+#' @title Length and width calculator
+#' @description Internal helper geometry function.
+#' @param X minimum bounding rectangles of building footprints of type \code{sf}.
+#' @return numeric vectors of length and width measured for each item in \code{X}.
+#'
+#' @keywords internal
+calc_lw <- function(X){
+  # find edges
+  gpts <- sf::st_cast(X, 'POINT')
+  lagpts <- c(gpts[-1], gpts[1])
+  # get edge lengths
+  alld <- sf::st_distance(gpts, lagpts, by_element = T)
+  d <- alld[-seq(5, length(alld), by = 5)]
+  ids <- rep(1:length(X), each = 4)
+  
+  # get length of mbr
+  mx <- aggregate(list('maxID' = d), by = list('id' = ids), which.max)
+  mx$did <- (mx$id - 1) * 4 + mx$maxID
+  ll <- d[mx$did]
+  
+  # get width of mbr
+  mn <- aggregate(list('minID' = d), by = list('id' = ids), which.min)
+  mn$did <- (mn$id - 1) * 4 + mn$minID
+  ww <- d[mn$did]
+  
+  return(cbind(ll, ww))
+}
+
+
 #' @title Compactness index
 #' 
 #' @description Calculates an approximate measure of shape "compactness".
@@ -164,58 +259,41 @@ fs_shape <- function(X, unit=NULL){
 #'   of the rotated bounding rectangle or should it return the angle (in degrees).
 #' @return a numeric angle from 0 to 360 degrees or the rotated rectangle as a
 #'   polygon of type \code{sf}.
-#' @details This function is currently not vectorized and processing is limited
-#'   to one shape.
-#'
-#' @source
-#' \link[https://gis.stackexchange.com/questions/22895/finding-minimum-area-rectangle-for-given-points]{https://gis.stackexchange.com/questions/22895/finding-minimum-area-rectangle-for-given-points}
 #'
 #' @name fs_mbr
-#' @export
-# Based on: https://gis.stackexchange.com/questions/22895/finding-minimum-area-rectangle-for-given-points
+#' @export   
 fs_mbr <- function(X, returnShape=FALSE){
   if(any(!sf::st_geometry_type(X) %in% c("POLYGON", "MULTIPOLYGON"))){
     stop("Bounding rectangle requires polygons.")
   }
   
-  mbr <- function(g, returnShape){
-    p <- sf::st_coordinates(g)[, 1:2]
-    a <- chull(p)                                   # Indexes of extremal points
-    a <- c(a, a[1])                                 # Close the loop
-    e <- p[a[-1],] - p[a[-length(a)], ]             # Edge directions
-    norms <- sqrt(rowSums(e^2))                     # Edge lengths
-    v <- e / norms                                  # Unit edge directions
-    w <- cbind(-v[,2], v[,1])                       # Normal directions to the edges
-    
-    # Find the MBR
-    vertices <- p[a, ]                              # Convex hull vertices
-    x <- apply(vertices %*% t(v), 2, range)         # Extremes along edges
-    y <- apply(vertices %*% t(w), 2, range)         # Extremes normal to edges
-    areas <- (y[1,]-y[2,])*(x[1,]-x[2,])            # Areas
-    k <- which.min(areas)                           # Index of the best edge (smallest area)
-    
-    # Form a rectangle from the extremes of the best edge
-    R <- rbind(v[k,], w[k,])
-    # print((atan2(R[2,1], R[1,1]) * 180/pi) %% 360)
-    mbr <- cbind(x[c(1,2,2,1,1),k], y[c(1,1,2,2,1),k]) %*% R
-    
-    if(returnShape){
-      return(sf::st_polygon(list(mbr)))
-      
-    } else{
-      angle <- (atan2(R[2,1], R[1,1]) * 180/pi) %% 360
-      return(angle)
-    }
-  }
+  mbr <- sf::st_as_sfc(geos::geos_minimum_rotated_rectangle(X))
   
-  resList <- lapply(sf::st_geometry(X), FUN=mbr, returnShape)
   if(returnShape){
-    return(sf::st_as_sfc(resList))
+    return(mbr)
   } else{
-    return(unlist(resList))
+    # find edges
+    gpts <- sf::st_cast(mbr, 'POINT')
+    lagpts <- c(gpts[-1], gpts[1])
+    # get edge lengths
+    alld <- sf::st_distance(gpts, lagpts, by_element = T)
+    d <- alld[-seq(5, length(alld), by = 5)]
+    ids <- rep(1:length(mbr), each = 4)
+    
+    mx <- aggregate(list('maxID' = d), by = list('id' = ids), which.max)
+    mx$did <- (mx$id - 1) * 4 + mx$maxID
+
+    if(sf::st_is_longlat(X)){
+      bears <- geosphere::bearing(sf::st_coordinates(gpts[mx$did]), 
+                                  sf::st_coordinates(lagpts[mx$did]))
+    } else{
+      dif <- sf::st_coordinates(gpts[mx$did]) - sf::st_coordinates(lagpts[mx$did])
+      bears <- atan2(dif[,1], dif[,2]) * 180/pi
+    }
+    return((bears + 360) %% 360)
   }
 }
-
+  
 
 #' @title Minimum bounding circle
 #' 

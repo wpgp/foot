@@ -312,6 +312,24 @@ calc_fs_internal <- function(X, zone, what, how,
       }
     }
     
+    if('lwratio' %in% uchars){
+      if(!'lwratio' %in% colnames(X)){
+        if(verbose){ cat("Pre-calculating length-width ratio \n") }
+        X[['lwratio']] <- fs_lwratio(X)
+      } else{
+        if(verbose){ cat("Length-width ratio column already exists \n") }
+      }
+    }
+    
+    if('leqwratio' %in% uchars){
+      if(!'leqwratio' %in% colnames(X)){
+        if(verbose){ cat("Pre-calculating length-equivalent-width ratio \n") }
+        X[['leqwratio']] <- fs_leqwratio(X, unit = controlUnits$areaUnit)
+      } else{
+        if(verbose){ cat("Length-equivalent-width ratio column already exists \n") }
+      }
+    }
+    
     if('settled' %in% uchars){
       if(!'settled' %in% colnames(X)){
         X[['settled']] <- 1

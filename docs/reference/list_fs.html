@@ -73,7 +73,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">foot</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7</span>
       </span>
     </div>
 
@@ -106,11 +106,14 @@
     </li>
   </ul>
 </li>
+<li>
+  <a href="../news/index.html">News</a>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/wpgp/foot/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -174,56 +177,77 @@ nearest neighbour distances (<code>'nodist'</code>).</p></td>
 </div><div class='output co'>#&gt;         cols    funs
 #&gt; 1      angle      cv
 #&gt; 2      angle entropy
-#&gt; 3      angle     max
-#&gt; 4      angle    mean
-#&gt; 5      angle  median
-#&gt; 6      angle     min
-#&gt; 7      angle      sd
-#&gt; 8       area      cv
-#&gt; 9       area     max
-#&gt; 10      area    mean
-#&gt; 11      area  median
-#&gt; 12      area     min
-#&gt; 13      area      sd
-#&gt; 14      area     sum
-#&gt; 15   compact      cv
-#&gt; 16   compact     max
-#&gt; 17   compact    mean
-#&gt; 18   compact  median
-#&gt; 19   compact     min
-#&gt; 20   compact      sd
-#&gt; 21    nndist      cv
-#&gt; 22    nndist     max
-#&gt; 23    nndist    mean
-#&gt; 24    nndist  median
-#&gt; 25    nndist     min
-#&gt; 26    nndist nnindex
-#&gt; 27    nndist      sd
-#&gt; 28 perimeter      cv
-#&gt; 29 perimeter     max
-#&gt; 30 perimeter    mean
-#&gt; 31 perimeter  median
-#&gt; 32 perimeter     min
-#&gt; 33 perimeter      sd
-#&gt; 34 perimeter     sum
-#&gt; 35   settled  binary
-#&gt; 36   settled   count
-#&gt; 37     shape      cv
-#&gt; 38     shape     max
-#&gt; 39     shape    mean
-#&gt; 40     shape  median
-#&gt; 41     shape     min
-#&gt; 42     shape      sd</div><div class='input'>
+#&gt; 3      angle     iqr
+#&gt; 4      angle     max
+#&gt; 5      angle    mean
+#&gt; 6      angle  median
+#&gt; 7      angle     min
+#&gt; 8      angle      sd
+#&gt; 9       area      cv
+#&gt; 10      area     iqr
+#&gt; 11      area     max
+#&gt; 12      area    mean
+#&gt; 13      area  median
+#&gt; 14      area     min
+#&gt; 15      area      sd
+#&gt; 16      area     sum
+#&gt; 17   compact      cv
+#&gt; 18   compact     iqr
+#&gt; 19   compact     max
+#&gt; 20   compact    mean
+#&gt; 21   compact  median
+#&gt; 22   compact     min
+#&gt; 23   compact      sd
+#&gt; 24 leqwratio      cv
+#&gt; 25 leqwratio     iqr
+#&gt; 26 leqwratio     max
+#&gt; 27 leqwratio    mean
+#&gt; 28 leqwratio  median
+#&gt; 29 leqwratio     min
+#&gt; 30 leqwratio      sd
+#&gt; 31   lwratio      cv
+#&gt; 32   lwratio     iqr
+#&gt; 33   lwratio     max
+#&gt; 34   lwratio    mean
+#&gt; 35   lwratio  median
+#&gt; 36   lwratio     min
+#&gt; 37   lwratio      sd
+#&gt; 38    nndist      cv
+#&gt; 39    nndist     iqr
+#&gt; 40    nndist     max
+#&gt; 41    nndist    mean
+#&gt; 42    nndist  median
+#&gt; 43    nndist     min
+#&gt; 44    nndist nnindex
+#&gt; 45    nndist      sd
+#&gt; 46 perimeter      cv
+#&gt; 47 perimeter     iqr
+#&gt; 48 perimeter     max
+#&gt; 49 perimeter    mean
+#&gt; 50 perimeter  median
+#&gt; 51 perimeter     min
+#&gt; 52 perimeter      sd
+#&gt; 53 perimeter     sum
+#&gt; 54   settled  binary
+#&gt; 55   settled   count
+#&gt; 56     shape      cv
+#&gt; 57     shape     iqr
+#&gt; 58     shape     max
+#&gt; 59     shape    mean
+#&gt; 60     shape  median
+#&gt; 61     shape     min
+#&gt; 62     shape      sd</div><div class='input'>
 <span class='co'># get all summary functions for "area"</span>
 <span class='fu'>list_fs</span><span class='op'>(</span>what<span class='op'>=</span><span class='st'>"area"</span><span class='op'>)</span>
 </div><div class='output co'>#&gt;   cols   funs
 #&gt; 1 area     cv
-#&gt; 2 area    max
-#&gt; 3 area   mean
-#&gt; 4 area median
-#&gt; 5 area    min
-#&gt; 6 area     sd
-#&gt; 7 area    sum</div><div class='input'>
+#&gt; 2 area    iqr
+#&gt; 3 area    max
+#&gt; 4 area   mean
+#&gt; 5 area median
+#&gt; 6 area    min
+#&gt; 7 area     sd
+#&gt; 8 area    sum</div><div class='input'>
 <span class='co'># get all characteristics relevant for entropy</span>
 <span class='fu'>list_fs</span><span class='op'>(</span>how<span class='op'>=</span><span class='st'>"entropy"</span><span class='op'>)</span>
 </div><div class='output co'>#&gt;    cols    funs

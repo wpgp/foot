@@ -74,8 +74,8 @@
 #'                   what=list(list("shape"), list("perimeter")),
 #'                   how=list(list("mean"), list("sum")),
 #'                   controlUnits=list(areaUnit="m^2"),
-#'                   minArea=50,  # footprints must be larger than 50 m^2
-#'                   maxArea=1000,  # footprints must be smaller than 1000 m^2
+#'                   filter = list(minArea=50,  # footprints must be larger than 50 m^2
+#'                                 maxArea=1000),  # footprints must be smaller than 1000 m^2
 #'                   template=templateGrid, 
 #'                   outputPath=tempdir(),  
 #'                   outputTag="kampala",
@@ -117,7 +117,7 @@ calculate_bigfoot <- function(X,
                               tileSize=c(500, 500),
                               parallel=TRUE,
                               nCores=max(1, parallel::detectCores()-1),
-                              outputPath=getwd(),
+                              outputPath=tempdir(),
                               outputTag=NULL,
                               tries=100,
                               restart=NULL,
@@ -143,7 +143,7 @@ calculate_bigfoot.sf <- function(X,
                                  tileSize=c(500, 500),
                                  parallel=TRUE,
                                  nCores=max(1, parallel::detectCores()-1),
-                                 outputPath=getwd(),
+                                 outputPath=tempdir(),
                                  outputTag=NULL,
                                  tries=100,
                                  restart=NULL,
@@ -185,7 +185,7 @@ calculate_bigfoot.sp <- function(X,
                                  tileSize=c(500, 500),
                                  parallel=TRUE,
                                  nCores=max(1, parallel::detectCores()-1),
-                                 outputPath=getwd(),
+                                 outputPath=tempdir(),
                                  outputTag=NULL,
                                  tries=100,
                                  restart=NULL,
@@ -230,7 +230,7 @@ calculate_bigfoot.character <- function(X,
                                         tileSize=c(500, 500),
                                         parallel=TRUE,
                                         nCores=max(1, parallel::detectCores()-1),
-                                        outputPath=getwd(),
+                                        outputPath=tempdir(),
                                         outputTag=NULL,
                                         tries=100,
                                         restart=NULL,
@@ -258,10 +258,13 @@ calc_fs_px_internal <- function(X, what, how,
                                 tries, restart, verbose){
 
   if(is.null(template)){
-    stop("Template raster or grid required.")
+    if(verbose) cat("Creating template grid \n")
+    template <- stars::st_as_stars(sf::st_bbox(X), )
   } else if(is.character(template)){
+    if(verbose) cat("Reading template grid \n")
     template <- stars::read_stars(template, proxy=TRUE)
   } else if(!inherits(template, "stars")){
+    if(verbose) cat("Reading template grid \n")
     template <- stars::st_as_stars(template)
   }
   
@@ -573,7 +576,7 @@ process_tile <- function(mgTile, mgBuffTile,
                       by=controlZone$zoneName)
       # output loop
       if(verbose){ cat("Writing output tiles \n") }
-      for(n in names(tileResults)[!names(tileResults) %in% "index"]){
+      for(n in names(tileResults)[!names(tileResults) %in% controlZone$zoneName]){
         units(mgPoly[[n]]) <- NULL
         
         tmpName <- paste0("tempRas_", Sys.getpid(),".tif")
@@ -593,13 +596,13 @@ process_tile <- function(mgTile, mgBuffTile,
         
         # get file name
         n <- sub("fs_", "", n, fixed=T)
-        nsplit <- strsplit(n, "_", fixed=T)[[1]]
-        n <- ifelse(length(nsplit)==3, 
-                    paste(nsplit[1], nsplit[3], sep="_"), 
-                    paste(nsplit, collapse="_"))
-        if(focalRadius > 0){
-          n <- paste(n, focalRadius, sep="_")
-        }
+        # nsplit <- strsplit(n, "_", fixed=T)[[1]]
+        # n <- ifelse(length(nsplit)==3, 
+        #             paste(nsplit[1], nsplit[3], sep="_"), 
+        #             paste(nsplit, collapse="_"))
+        # if(focalRadius > 0){
+        #   n <- paste(n, focalRadius, sep="_")
+        # }
         
         path <- which(grepl(n, allOutPath, fixed=T))
         # print(allOutPath[[path]])
