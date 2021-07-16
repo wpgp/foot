@@ -258,10 +258,13 @@ calc_fs_px_internal <- function(X, what, how,
                                 tries, restart, verbose){
 
   if(is.null(template)){
-    stop("Template raster or grid required.")
+    if(verbose) cat("Creating template grid \n")
+    template <- stars::st_as_stars(sf::st_bbox(X), )
   } else if(is.character(template)){
+    if(verbose) cat("Reading template grid \n")
     template <- stars::read_stars(template, proxy=TRUE)
   } else if(!inherits(template, "stars")){
+    if(verbose) cat("Reading template grid \n")
     template <- stars::st_as_stars(template)
   }
   
