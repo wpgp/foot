@@ -74,8 +74,8 @@
 #'                   what=list(list("shape"), list("perimeter")),
 #'                   how=list(list("mean"), list("sum")),
 #'                   controlUnits=list(areaUnit="m^2"),
-#'                   minArea=50,  # footprints must be larger than 50 m^2
-#'                   maxArea=1000,  # footprints must be smaller than 1000 m^2
+#'                   filter = list(minArea=50,  # footprints must be larger than 50 m^2
+#'                                 maxArea=1000),  # footprints must be smaller than 1000 m^2
 #'                   template=templateGrid, 
 #'                   outputPath=tempdir(),  
 #'                   outputTag="kampala",
