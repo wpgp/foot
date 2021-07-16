@@ -269,75 +269,75 @@ Sample buildings and zones in Kampala
 <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">buildings</span><span class="op">$</span><span class="va">id</span><span class="op">)</span>  <span class="co"># splitting observations into 10 groups</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;   1   2   3   4   5   6   7   8   9  10 </span>
-<span class="co">#&gt; 460 475 489 502 463 492 469 528 504 458</span>
+<span class="co">#&gt; 487 507 464 484 504 498 451 468 513 464</span>
 
 <span class="co"># 1. pass the index by name</span>
 <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">buildings</span><span class="op">)</span>
 <span class="co">#&gt; [1] "FID_1"    "geometry" "id"</span>
 <span class="fu"><a href="../reference/calculate_footstats.html">calculate_footstats</a></span><span class="op">(</span><span class="va">buildings</span>, <span class="st">"id"</span>, what <span class="op">=</span> <span class="st">"area"</span>, how <span class="op">=</span> <span class="st">"mean"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 <span class="co">#&gt;     id      area_mean</span>
-<span class="co">#&gt;  1:  1 291.6685 [m^2]</span>
-<span class="co">#&gt;  2:  2 220.8157 [m^2]</span>
-<span class="co">#&gt;  3:  3 208.4769 [m^2]</span>
-<span class="co">#&gt;  4:  4 283.1602 [m^2]</span>
-<span class="co">#&gt;  5:  5 284.9055 [m^2]</span>
-<span class="co">#&gt;  6:  6 253.7577 [m^2]</span>
-<span class="co">#&gt;  7:  7 217.9887 [m^2]</span>
-<span class="co">#&gt;  8:  8 268.5470 [m^2]</span>
-<span class="co">#&gt;  9:  9 276.6960 [m^2]</span>
-<span class="co">#&gt; 10: 10 340.9432 [m^2]</span>
+<span class="co">#&gt;  1:  1 265.3498 [m^2]</span>
+<span class="co">#&gt;  2:  2 252.5836 [m^2]</span>
+<span class="co">#&gt;  3:  3 255.7146 [m^2]</span>
+<span class="co">#&gt;  4:  4 252.0800 [m^2]</span>
+<span class="co">#&gt;  5:  5 249.2776 [m^2]</span>
+<span class="co">#&gt;  6:  6 256.1320 [m^2]</span>
+<span class="co">#&gt;  7:  7 275.9955 [m^2]</span>
+<span class="co">#&gt;  8:  8 254.0552 [m^2]</span>
+<span class="co">#&gt;  9:  9 320.8021 [m^2]</span>
+<span class="co">#&gt; 10: 10 259.6259 [m^2]</span>
 
 <span class="co"># 2. pass the index as a standalone vector</span>
 <span class="fu"><a href="../reference/calculate_footstats.html">calculate_footstats</a></span><span class="op">(</span><span class="va">buildings</span>, <span class="va">idx</span>, what <span class="op">=</span> <span class="st">"settled"</span>, how <span class="op">=</span> <span class="st">"count"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 <span class="co">#&gt;     zoneID settled_count</span>
-<span class="co">#&gt;  1:      1           460</span>
-<span class="co">#&gt;  2:      2           475</span>
-<span class="co">#&gt;  3:      3           489</span>
-<span class="co">#&gt;  4:      4           502</span>
-<span class="co">#&gt;  5:      5           463</span>
-<span class="co">#&gt;  6:      6           492</span>
-<span class="co">#&gt;  7:      7           469</span>
-<span class="co">#&gt;  8:      8           528</span>
-<span class="co">#&gt;  9:      9           504</span>
-<span class="co">#&gt; 10:     10           458</span>
+<span class="co">#&gt;  1:      1           487</span>
+<span class="co">#&gt;  2:      2           507</span>
+<span class="co">#&gt;  3:      3           464</span>
+<span class="co">#&gt;  4:      4           484</span>
+<span class="co">#&gt;  5:      5           504</span>
+<span class="co">#&gt;  6:      6           498</span>
+<span class="co">#&gt;  7:      7           451</span>
+<span class="co">#&gt;  8:      8           468</span>
+<span class="co">#&gt;  9:      9           513</span>
+<span class="co">#&gt; 10:     10           464</span>
 
 <span class="co"># 3. pass a separate spatial object of zones</span>
 <span class="fu"><a href="../reference/calculate_footstats.html">calculate_footstats</a></span><span class="op">(</span><span class="va">buildings</span>, zone <span class="op">=</span> <span class="va">adminzones</span>, what <span class="op">=</span> <span class="st">"angle"</span>, how <span class="op">=</span> <span class="st">"entropy"</span>,
     verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 <span class="co">#&gt;     zoneID angle_entropy</span>
 <span class="co">#&gt;  1:      1    0.64828529</span>
-<span class="co">#&gt;  2:      2    0.20321141</span>
-<span class="co">#&gt;  3:      3    0.35409625</span>
-<span class="co">#&gt;  4:      4    0.15110882</span>
-<span class="co">#&gt;  5:      5    0.32088254</span>
-<span class="co">#&gt;  6:      6    0.48004588</span>
-<span class="co">#&gt;  7:      7    0.76961080</span>
-<span class="co">#&gt;  8:      8    0.34115179</span>
-<span class="co">#&gt;  9:      9    0.10319042</span>
-<span class="co">#&gt; 10:     10    0.54080704</span>
-<span class="co">#&gt; 11:     11    0.14206388</span>
-<span class="co">#&gt; 12:     12    0.40755056</span>
+<span class="co">#&gt;  2:      2    0.15444480</span>
+<span class="co">#&gt;  3:      3    0.37731095</span>
+<span class="co">#&gt;  4:      4    0.20218466</span>
+<span class="co">#&gt;  5:      5    0.38044656</span>
+<span class="co">#&gt;  6:      6    0.40965757</span>
+<span class="co">#&gt;  7:      7    0.81082873</span>
+<span class="co">#&gt;  8:      8    0.37461986</span>
+<span class="co">#&gt;  9:      9    0.07534597</span>
+<span class="co">#&gt; 10:     10    0.41976425</span>
+<span class="co">#&gt; 11:     11    0.18428838</span>
+<span class="co">#&gt; 12:     12    0.56706649</span>
 <span class="co">#&gt; 13:     13    0.99999998</span>
-<span class="co">#&gt; 14:     14    0.18726081</span>
-<span class="co">#&gt; 15:     15    0.05477572</span>
-<span class="co">#&gt; 16:     16    0.18567622</span>
-<span class="co">#&gt; 17:     17    0.19508950</span>
-<span class="co">#&gt; 18:     18    0.08817317</span>
-<span class="co">#&gt; 19:     19    0.05036267</span>
-<span class="co">#&gt; 20:     20    0.07413029</span>
-<span class="co">#&gt; 21:     21    0.18469296</span>
-<span class="co">#&gt; 22:     22    0.36687650</span>
-<span class="co">#&gt; 23:     23    0.11631747</span>
-<span class="co">#&gt; 24:     24    0.09797784</span>
-<span class="co">#&gt; 25:     25    0.52904717</span>
-<span class="co">#&gt; 26:     26    0.17484176</span>
-<span class="co">#&gt; 27:     27    0.10276419</span>
-<span class="co">#&gt; 28:     29    0.13925580</span>
-<span class="co">#&gt; 29:     30    0.16986296</span>
+<span class="co">#&gt; 14:     14    0.24732848</span>
+<span class="co">#&gt; 15:     15    0.07535724</span>
+<span class="co">#&gt; 16:     16    0.13313992</span>
+<span class="co">#&gt; 17:     17    0.16260096</span>
+<span class="co">#&gt; 18:     18    0.05507162</span>
+<span class="co">#&gt; 19:     19    0.06435911</span>
+<span class="co">#&gt; 20:     20    0.04338009</span>
+<span class="co">#&gt; 21:     21    0.35472280</span>
+<span class="co">#&gt; 22:     22    0.24712170</span>
+<span class="co">#&gt; 23:     23    0.17194076</span>
+<span class="co">#&gt; 24:     24    0.06887326</span>
+<span class="co">#&gt; 25:     25    0.61427746</span>
+<span class="co">#&gt; 26:     26    0.12120792</span>
+<span class="co">#&gt; 27:     27    0.10582340</span>
+<span class="co">#&gt; 28:     29    0.10573715</span>
+<span class="co">#&gt; 29:     30    0.22640569</span>
 <span class="co">#&gt; 30:     31    0.60237738</span>
-<span class="co">#&gt; 31:     32    0.18816951</span>
-<span class="co">#&gt; 32:     33    0.73987845</span>
-<span class="co">#&gt; 33:     34    0.04776920</span>
+<span class="co">#&gt; 31:     32    0.10920185</span>
+<span class="co">#&gt; 32:     33    0.56647940</span>
+<span class="co">#&gt; 33:     34    0.06415090</span>
 <span class="co">#&gt;     zoneID angle_entropy</span></code></pre></div>
 </div>
 <div id="index-by-zone-shapes" class="section level3">
@@ -378,16 +378,16 @@ Sample buildings and zones in Kampala
 <span class="va">zID</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/zonalIndex.html">zonalIndex</a></span><span class="op">(</span><span class="va">buildings</span>, <span class="va">adminzones</span>, returnObject <span class="op">=</span> <span class="cn">F</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">zID</span>, <span class="fl">10</span><span class="op">)</span>  <span class="co"># the xID column are row numbers to object X</span>
 <span class="co">#&gt;      xID zoneID</span>
-<span class="co">#&gt;  1:   17      1</span>
-<span class="co">#&gt;  2:  298      1</span>
-<span class="co">#&gt;  3:  378      1</span>
-<span class="co">#&gt;  4:  866      1</span>
-<span class="co">#&gt;  5:  877      1</span>
-<span class="co">#&gt;  6: 1357      1</span>
-<span class="co">#&gt;  7: 1490      1</span>
-<span class="co">#&gt;  8: 1517      1</span>
-<span class="co">#&gt;  9: 1750      1</span>
-<span class="co">#&gt; 10: 1921      1</span>
+<span class="co">#&gt;  1:  407      1</span>
+<span class="co">#&gt;  2:  411      1</span>
+<span class="co">#&gt;  3:  419      1</span>
+<span class="co">#&gt;  4:  525      1</span>
+<span class="co">#&gt;  5:  956      1</span>
+<span class="co">#&gt;  6: 1247      1</span>
+<span class="co">#&gt;  7: 1275      1</span>
+<span class="co">#&gt;  8: 1285      1</span>
+<span class="co">#&gt;  9: 1475      1</span>
+<span class="co">#&gt; 10: 2309      1</span>
 
 <span class="co"># Alternatively (and preferably), join zones to create a new footprint object A</span>
 <span class="co"># custom zone name can be used but must be specificed to the summary functions</span>
@@ -400,16 +400,16 @@ Sample buildings and zones in Kampala
 <span class="co">#&gt; Geodetic CRS:  WGS 84</span>
 <span class="co">#&gt; First 10 features:</span>
 <span class="co">#&gt;     FID_1 id Id                       geometry</span>
-<span class="co">#&gt; 1    6293  1  1 POLYGON ((32.60739 0.338599...</span>
-<span class="co">#&gt; 2   72387  1  1 POLYGON ((32.60769 0.338973...</span>
-<span class="co">#&gt; 3  257296  1  1 POLYGON ((32.60692 0.339061...</span>
-<span class="co">#&gt; 4   29106  2  1 POLYGON ((32.60735 0.339238...</span>
-<span class="co">#&gt; 5  152325  2  1 POLYGON ((32.60822 0.339845...</span>
-<span class="co">#&gt; 6  274020  2  1 POLYGON ((32.60778 0.3392, ...</span>
-<span class="co">#&gt; 7  346362  2  1 POLYGON ((32.60803 0.338384...</span>
-<span class="co">#&gt; 8  379094  2  1 POLYGON ((32.60683 0.339266...</span>
-<span class="co">#&gt; 9   78504  3  1 POLYGON ((32.60703 0.338654...</span>
-<span class="co">#&gt; 10 289245  4  1 POLYGON ((32.60788 0.339471...</span></code></pre></div>
+<span class="co">#&gt; 1   53393  1  1 POLYGON ((32.60778 0.339552...</span>
+<span class="co">#&gt; 2  361577  1  1 POLYGON ((32.60825 0.33937,...</span>
+<span class="co">#&gt; 3   78504  2  1 POLYGON ((32.60703 0.338654...</span>
+<span class="co">#&gt; 4  152325  3  1 POLYGON ((32.60822 0.339845...</span>
+<span class="co">#&gt; 5  238291  3  1 POLYGON ((32.6073 0.33897, ...</span>
+<span class="co">#&gt; 6   59496  4  1 POLYGON ((32.60698 0.339543...</span>
+<span class="co">#&gt; 7  257296  4  1 POLYGON ((32.60692 0.339061...</span>
+<span class="co">#&gt; 8  342558  4  1 POLYGON ((32.6075 0.338525,...</span>
+<span class="co">#&gt; 9  372983  4  1 POLYGON ((32.6076 0.338532,...</span>
+<span class="co">#&gt; 10 376783  4  1 POLYGON ((32.60747 0.338662...</span></code></pre></div>
 <p>When using a new spatial object which has been joined to its zones, remember to supply the name of the zone field to <code>calculate_foostats</code>.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># use the new object and zone field 'Id' in a summary calculation</span>

@@ -151,7 +151,7 @@
 <span class="co">#&gt; Writing output tiles </span>
 <span class="co">#&gt; Finished writing grids</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Finished processing all tiles: 2021-07-16 11:09:35</span></code></pre></div>
+<span class="co">#&gt; Finished processing all tiles: 2021-07-16 11:47:22</span></code></pre></div>
 <p>The documentation and default parameters are available from <code><a href="../reference/calculate_bigfoot.html">?foot::calculate_bigfoot</a></code>.</p>
 <p>The arguments <code>what</code> and <code>how</code> are the same as for <code>calculate_footstats</code>. They provide a character or list list of character names or characteristics (i.e. columns within the building footprint attributes) and summary functions, respectively. The available metrics can be retrieved with <code><a href="../reference/list_fs.html">list_fs()</a></code>.</p>
 </div>
@@ -198,7 +198,7 @@ Binary settled raster at 100m resolution
 <span class="co">#&gt; Writing output tiles </span>
 <span class="co">#&gt; Finished writing grids</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Finished processing all tiles: 2021-07-16 11:09:37</span></code></pre></div>
+<span class="co">#&gt; Finished processing all tiles: 2021-07-16 11:47:25</span></code></pre></div>
 </div>
 <div id="multiple-metrics" class="section level3">
 <h3 class="hasAnchor">
@@ -234,7 +234,7 @@ Binary settled raster at 100m resolution
 <span class="co">#&gt; Writing output tiles </span>
 <span class="co">#&gt; Finished writing grids</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Finished processing all tiles: 2021-07-16 11:09:41</span></code></pre></div>
+<span class="co">#&gt; Finished processing all tiles: 2021-07-16 11:47:28</span></code></pre></div>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># retrieve the gridded outputs Note: must add the 'tag' to the filename</span>
 <span class="va">outGrid</span> <span class="op">&lt;-</span> <span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"TAG_area_cv.tif"</span><span class="op">)</span><span class="op">)</span>
@@ -292,7 +292,7 @@ Example of 300 m focal radius. Selected footprints are highlighted in red
 <span class="co">#&gt; Writing output tiles </span>
 <span class="co">#&gt; Finished writing grids</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Finished processing all tiles: 2021-07-16 11:09:48</span></code></pre></div>
+<span class="co">#&gt; Finished processing all tiles: 2021-07-16 11:47:35</span></code></pre></div>
 <p>Creating the focal window is handled by <code>calculate_bigfoot</code>. The focal window is also taken into consideration by the function when creating processing tiles - the footprints are extract from outside the tile, in neighbouring areas, to prevent edge effects</p>
 <p>Note that when a focal radius is specified, this value is always appended to the end of the file names so that the outputs can be identified.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
@@ -351,7 +351,7 @@ Total building perimeter in a 300m radius window. Output at a 100m resolution
 <span class="co">#&gt; Writing output tiles </span>
 <span class="co">#&gt; Finished writing grids</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Finished processing all tiles: 2021-07-16 11:09:51</span>
+<span class="co">#&gt; Finished processing all tiles: 2021-07-16 11:47:38</span>
 
 <span class="co"># plot the total perimeter, measured in kilometres</span>
 <span class="va">outGrid</span> <span class="op">&lt;-</span> <span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"TAG_perimeter_sum.tif"</span><span class="op">)</span><span class="op">)</span>
@@ -404,7 +404,7 @@ Total building perimeter in KM
 <span class="co">#&gt; Writing output tiles </span>
 <span class="co">#&gt; Finished writing grids</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Finished processing all tiles: 2021-07-16 11:09:59</span></code></pre></div>
+<span class="co">#&gt; Finished processing all tiles: 2021-07-16 11:47:46</span></code></pre></div>
 <p>In the map of the results below, each pixel is the count of footprints present. Note the smaller number of structures and sparseness of structures in pixels around the centre portions of the image. This corresponds with the a business district and industrial areas with fewer, but larger structures.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">outGrid</span> <span class="op">&lt;-</span> <span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"settled_count.tif"</span><span class="op">)</span><span class="op">)</span>
@@ -491,7 +491,7 @@ Count of buildings with area &gt;50 m^2 and &lt;1000 m^2
 <span class="co">#&gt; Writing output tiles </span>
 <span class="co">#&gt; Finished writing grids</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Finished processing all tiles: 2021-07-16 11:10:07</span></code></pre></div>
+<span class="co">#&gt; Finished processing all tiles: 2021-07-16 11:47:53</span></code></pre></div>
 </div>
 <div id="restarting" class="section level3">
 <h3 class="hasAnchor">

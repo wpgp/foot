@@ -147,15 +147,16 @@ gridded <- calculate_bigfoot(buildings,
                              focalRadius = 200,
                              template = grid,
                              outputPath = tempdir())
+#> Reading template grid 
 #> trying to read file: C:\Users\Admin\Documents\GitHub\foot\wd\in\kampala_grid.tif
 #> Selecting metrics 
 #> Setting control values 
 #> Creating output grids 
 #> Creating list of processing tiles 
 #> Setting up cluster...
-#> Begin parallel tile processing: 2021-07-15 11:44:02
+#> Begin parallel tile processing: 2021-07-16 11:46:39
 #> 
-#> Finished processing all tiles: 2021-07-15 11:44:06
+#> Finished processing all tiles: 2021-07-16 11:46:42
 
   raster::plot(raster::raster(gridded))
   plot(sf::st_geometry(buildings), add = TRUE)
@@ -193,8 +194,8 @@ citation("foot")
 #> 
 #> To cite package 'foot' in publications use:
 #> 
-#>   WorldPop Research Group, University of Southampton (2021). foot: An R package for processing building footprint morphometrics. https://github.com/wpgp/foot,
-#>   https://wpgp.github.io/foot/.
+#>   WorldPop Research Group, University of Southampton (2021). foot: An R package for processing building footprint morphometrics.
+#>   https://github.com/wpgp/foot, https://wpgp.github.io/foot/.
 #> 
 #> A BibTeX entry for LaTeX users is
 #> 
