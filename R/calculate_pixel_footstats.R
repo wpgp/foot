@@ -268,6 +268,12 @@ calc_fs_px_internal <- function(X, what, how,
     template <- stars::st_as_stars(template)
   }
   
+  # check crs
+  if(sf::st_crs(X) != sf::st_crs(template)){
+    stop("Mismatched projection information between building footprints and template grid.", 
+         call. = F)
+  }
+  
   if(!is.null(outputTag)){
     outputTag <- paste0(outputTag, "_")
   } else{
