@@ -253,7 +253,7 @@ calc_fs_internal <- function(X, zone, what, how,
   }
   
   # defaults for distance measures
-  providedDist <- controlUnits
+  providedDist <- controlDist
   controlDist=list(maxSearch=100, 
                    method="centroid", 
                    unit=controlUnits$distUnit)

@@ -32,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">foot</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.8</span>
       </span>
     </div>
 
@@ -86,12 +86,12 @@
 
       
 
-      </header><script src="bigfoot_files/header-attrs-2.9/header-attrs.js"></script><div class="row">
+      </header><script src="bigfoot_files/header-attrs-2.11/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Gridded footprint calculation layers</h1>
             
-            <h4 class="date">July 16, 2021</h4>
+            <h4 class="date">November 10, 2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/wpgp/foot/blob/master/vignettes/bigfoot.Rmd"><code>vignettes/bigfoot.Rmd</code></a></small>
       <div class="hidden name"><code>bigfoot.Rmd</code></div>
@@ -151,7 +151,7 @@
 <span class="co">#&gt; Writing output tiles </span>
 <span class="co">#&gt; Finished writing grids</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Finished processing all tiles: 2021-07-16 11:47:22</span></code></pre></div>
+<span class="co">#&gt; Finished processing all tiles: 2021-11-10 18:01:55</span></code></pre></div>
 <p>The documentation and default parameters are available from <code><a href="../reference/calculate_bigfoot.html">?foot::calculate_bigfoot</a></code>.</p>
 <p>The arguments <code>what</code> and <code>how</code> are the same as for <code>calculate_footstats</code>. They provide a character or list list of character names or characteristics (i.e. columns within the building footprint attributes) and summary functions, respectively. The available metrics can be retrieved with <code><a href="../reference/list_fs.html">list_fs()</a></code>.</p>
 </div>
@@ -198,7 +198,7 @@ Binary settled raster at 100m resolution
 <span class="co">#&gt; Writing output tiles </span>
 <span class="co">#&gt; Finished writing grids</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Finished processing all tiles: 2021-07-16 11:47:25</span></code></pre></div>
+<span class="co">#&gt; Finished processing all tiles: 2021-11-10 18:01:58</span></code></pre></div>
 </div>
 <div id="multiple-metrics" class="section level3">
 <h3 class="hasAnchor">
@@ -234,7 +234,7 @@ Binary settled raster at 100m resolution
 <span class="co">#&gt; Writing output tiles </span>
 <span class="co">#&gt; Finished writing grids</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Finished processing all tiles: 2021-07-16 11:47:28</span></code></pre></div>
+<span class="co">#&gt; Finished processing all tiles: 2021-11-10 18:02:01</span></code></pre></div>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># retrieve the gridded outputs Note: must add the 'tag' to the filename</span>
 <span class="va">outGrid</span> <span class="op">&lt;-</span> <span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"TAG_area_cv.tif"</span><span class="op">)</span><span class="op">)</span>
@@ -292,7 +292,7 @@ Example of 300 m focal radius. Selected footprints are highlighted in red
 <span class="co">#&gt; Writing output tiles </span>
 <span class="co">#&gt; Finished writing grids</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Finished processing all tiles: 2021-07-16 11:47:35</span></code></pre></div>
+<span class="co">#&gt; Finished processing all tiles: 2021-11-10 18:02:08</span></code></pre></div>
 <p>Creating the focal window is handled by <code>calculate_bigfoot</code>. The focal window is also taken into consideration by the function when creating processing tiles - the footprints are extract from outside the tile, in neighbouring areas, to prevent edge effects</p>
 <p>Note that when a focal radius is specified, this value is always appended to the end of the file names so that the outputs can be identified.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
@@ -351,7 +351,7 @@ Total building perimeter in a 300m radius window. Output at a 100m resolution
 <span class="co">#&gt; Writing output tiles </span>
 <span class="co">#&gt; Finished writing grids</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Finished processing all tiles: 2021-07-16 11:47:38</span>
+<span class="co">#&gt; Finished processing all tiles: 2021-11-10 18:02:12</span>
 
 <span class="co"># plot the total perimeter, measured in kilometres</span>
 <span class="va">outGrid</span> <span class="op">&lt;-</span> <span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"TAG_perimeter_sum.tif"</span><span class="op">)</span><span class="op">)</span>
@@ -404,7 +404,7 @@ Total building perimeter in KM
 <span class="co">#&gt; Writing output tiles </span>
 <span class="co">#&gt; Finished writing grids</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Finished processing all tiles: 2021-07-16 11:47:46</span></code></pre></div>
+<span class="co">#&gt; Finished processing all tiles: 2021-11-10 18:02:20</span></code></pre></div>
 <p>In the map of the results below, each pixel is the count of footprints present. Note the smaller number of structures and sparseness of structures in pixels around the centre portions of the image. This corresponds with the a business district and industrial areas with fewer, but larger structures.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">outGrid</span> <span class="op">&lt;-</span> <span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/raster.html">raster</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"settled_count.tif"</span><span class="op">)</span><span class="op">)</span>
@@ -491,7 +491,7 @@ Count of buildings with area &gt;50 m^2 and &lt;1000 m^2
 <span class="co">#&gt; Writing output tiles </span>
 <span class="co">#&gt; Finished writing grids</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Finished processing all tiles: 2021-07-16 11:47:53</span></code></pre></div>
+<span class="co">#&gt; Finished processing all tiles: 2021-11-10 18:02:27</span></code></pre></div>
 </div>
 <div id="restarting" class="section level3">
 <h3 class="hasAnchor">
@@ -507,9 +507,9 @@ Count of buildings with area &gt;50 m^2 and &lt;1000 m^2
 <hr>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span><span class="op">(</span><span class="op">)</span>
-<span class="co">#&gt; R version 4.1.0 (2021-05-18)</span>
+<span class="co">#&gt; R version 4.1.1 (2021-08-10)</span>
 <span class="co">#&gt; Platform: x86_64-pc-linux-gnu (64-bit)</span>
-<span class="co">#&gt; Running under: Ubuntu 20.04.2 LTS</span>
+<span class="co">#&gt; Running under: Ubuntu 20.04.3 LTS</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Matrix products: default</span>
 <span class="co">#&gt; BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.9.0</span>
@@ -527,26 +527,26 @@ Count of buildings with area &gt;50 m^2 and &lt;1000 m^2
 <span class="co">#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; other attached packages:</span>
-<span class="co">#&gt; [1] sf_1.0-0     raster_3.4-5 sp_1.4-5     foot_0.7    </span>
+<span class="co">#&gt; [1] sf_1.0-0     raster_3.4-5 sp_1.4-5     foot_0.8    </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; loaded via a namespace (and not attached):</span>
-<span class="co">#&gt;  [1] Rcpp_1.0.6         lattice_0.20-44    class_7.3-19       rprojroot_2.0.2   </span>
-<span class="co">#&gt;  [5] digest_0.6.27      foreach_1.5.1      utf8_1.2.1         R6_2.5.0          </span>
-<span class="co">#&gt;  [9] evaluate_0.14      e1071_1.7-7        highr_0.9          pillar_1.6.1      </span>
-<span class="co">#&gt; [13] rlang_0.4.11       data.table_1.14.0  jquerylib_0.1.3    rmarkdown_2.9     </span>
-<span class="co">#&gt; [17] pkgdown_1.6.1      textshaping_0.3.5  desc_1.3.0         rgdal_1.5-23      </span>
-<span class="co">#&gt; [21] stringr_1.4.0      proxy_0.4-26       compiler_4.1.0     xfun_0.24         </span>
-<span class="co">#&gt; [25] pkgconfig_2.0.3    systemfonts_1.0.2  htmltools_0.5.1.1  tidyselect_1.1.0  </span>
-<span class="co">#&gt; [29] tibble_3.1.2       codetools_0.2-18   fansi_0.5.0        crayon_1.4.1      </span>
-<span class="co">#&gt; [33] dplyr_1.0.5        wk_0.4.1           grid_4.1.0         jsonlite_1.7.2    </span>
-<span class="co">#&gt; [37] lwgeom_0.2-6       lifecycle_1.0.0    DBI_1.1.1          magrittr_2.0.1    </span>
-<span class="co">#&gt; [41] formatR_1.11       units_0.7-2        KernSmooth_2.23-20 stringi_1.6.2     </span>
-<span class="co">#&gt; [45] cachem_1.0.5       fs_1.5.0           doParallel_1.0.16  bslib_0.2.4       </span>
+<span class="co">#&gt;  [1] Rcpp_1.0.7         lattice_0.20-45    class_7.3-19       rprojroot_2.0.2   </span>
+<span class="co">#&gt;  [5] digest_0.6.28      foreach_1.5.1      utf8_1.2.2         R6_2.5.1          </span>
+<span class="co">#&gt;  [9] evaluate_0.14      e1071_1.7-7        highr_0.9          pillar_1.6.4      </span>
+<span class="co">#&gt; [13] rlang_0.4.12       data.table_1.14.2  jquerylib_0.1.3    rmarkdown_2.11    </span>
+<span class="co">#&gt; [17] pkgdown_1.6.1      textshaping_0.3.5  desc_1.4.0         rgdal_1.5-23      </span>
+<span class="co">#&gt; [21] stringr_1.4.0      proxy_0.4-26       compiler_4.1.1     xfun_0.27         </span>
+<span class="co">#&gt; [25] pkgconfig_2.0.3    systemfonts_1.0.3  htmltools_0.5.2    tidyselect_1.1.0  </span>
+<span class="co">#&gt; [29] tibble_3.1.5       codetools_0.2-18   fansi_0.5.0        crayon_1.4.2      </span>
+<span class="co">#&gt; [33] dplyr_1.0.5        wk_0.4.1           grid_4.1.1         jsonlite_1.7.2    </span>
+<span class="co">#&gt; [37] lwgeom_0.2-6       lifecycle_1.0.1    DBI_1.1.1          magrittr_2.0.1    </span>
+<span class="co">#&gt; [41] formatR_1.11       units_0.7-2        KernSmooth_2.23-20 stringi_1.7.5     </span>
+<span class="co">#&gt; [45] cachem_1.0.6       fs_1.5.0           doParallel_1.0.16  bslib_0.2.4       </span>
 <span class="co">#&gt; [49] ellipsis_0.3.2     filelock_1.0.2     ragg_1.1.3         generics_0.1.0    </span>
-<span class="co">#&gt; [53] vctrs_0.3.8        s2_1.0.6           iterators_1.0.13   tools_4.1.0       </span>
-<span class="co">#&gt; [57] glue_1.4.2         purrr_0.3.4        abind_1.4-5        parallel_4.1.0    </span>
+<span class="co">#&gt; [53] vctrs_0.3.8        s2_1.0.6           iterators_1.0.13   tools_4.1.1       </span>
+<span class="co">#&gt; [57] glue_1.4.2         purrr_0.3.4        abind_1.4-5        parallel_4.1.1    </span>
 <span class="co">#&gt; [61] fastmap_1.1.0      yaml_2.2.1         stars_0.5-3        classInt_0.4-3    </span>
-<span class="co">#&gt; [65] memoise_2.0.0      knitr_1.33         sass_0.3.1</span></code></pre></div>
+<span class="co">#&gt; [65] memoise_2.0.0      knitr_1.36         sass_0.3.1</span></code></pre></div>
 </div>
   </div>
 

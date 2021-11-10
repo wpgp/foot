@@ -1,3 +1,8 @@
+# foot 0.8
+
+* Fixed bug which prevented setting the `controlDist` parameter within `calculate_bigfoot`.
+* Added a check for matching coordinate reference system information.
+
 # foot 0.7
 
 * Improved minimum bounding rectangle code to now use `geos` package, giving faster angle calculations.
