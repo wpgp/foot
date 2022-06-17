@@ -533,6 +533,7 @@ process_tile <- function(mgTile, mgBuffTile,
   
   #make valid
   if(any(sf::st_is_valid(Xsub) == F)){
+    if(verbose){cat('Invalid geometries found in polygons and corrected')}
     suppressWarnings(Xsub <- sf::st_make_valid(Xsub))
   }
   
