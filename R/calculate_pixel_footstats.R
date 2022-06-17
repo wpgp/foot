@@ -354,6 +354,7 @@ calc_fs_px_internal <- function(X, what, how,
   tiles <- gridTiles(template, px=tileSize)
   
   if(verbose){ 
+    cat("Number of tiles created:", nrow(tiles), "\n")
     file.create(tile_log <- file.path(outputPath, "tile.log"))
   }
   
