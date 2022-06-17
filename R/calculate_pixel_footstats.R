@@ -530,6 +530,11 @@ process_tile <- function(mgTile, mgBuffTile,
     suppressWarnings(Xsub <- sf::st_cast(Xsub, "POLYGON"))
   }
   
+  #make valid
+  if(any(sf::st_is_valid(Xsub) == F)){
+    suppressWarnings(Xsub <- sf::st_make_valid(Xsub))
+  }
+  
   # processing
   if(nrow(Xsub) > 0){
     # read proxy to grid and convert to polygon object
