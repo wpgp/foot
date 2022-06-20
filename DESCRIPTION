@@ -35,7 +35,9 @@ Imports:
     units,
     filelock,
     geosphere,
-    geos
+    geos,
+    iterators,
+    mmap
 LazyData: true
 Description: Support for morphometric calculations of building footprints implemented in R. It provides flexible tools for processing 2D vector polygon representations of structures. The functionality includes basic geometry and morphology measures, distance and clustering metrics. These calculations are supported with helper functions for spatial intersections to define zonal indices and tiled reading/writing of data files.
 Encoding: UTF-8

@@ -354,6 +354,7 @@ calc_fs_px_internal <- function(X, what, how,
   tiles <- gridTiles(template, px=tileSize)
   
   if(verbose){ 
+    cat("Number of tiles created:", nrow(tiles), "\n")
     file.create(tile_log <- file.path(outputPath, "tile.log"))
   }
   
@@ -528,6 +529,12 @@ process_tile <- function(mgTile, mgBuffTile,
   # simplify
   if(any(sf::st_geometry_type(Xsub) %in% c("MULTIPOLYGON"))){
     suppressWarnings(Xsub <- sf::st_cast(Xsub, "POLYGON"))
+  }
+  
+  #make valid
+  if(any(sf::st_is_valid(Xsub) == F)){
+    if(verbose){cat('Invalid geometries found in polygons and corrected')}
+    suppressWarnings(Xsub <- sf::st_make_valid(Xsub))
   }
   
   # processing
